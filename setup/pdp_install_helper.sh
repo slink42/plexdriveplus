@@ -1,1 +1,1 @@
-sudo curl -L  https://tiny.one/plexdriveplus -o plexdriveplus.sh && sudo chmod +x ./plexdriveplus.sh && sudo ./plexdriveplus.sh
+sudo curl -L  https://raw.githubusercontent.com/slink42/plexdriveplus/master/setup/plexdriveplus_install.sh -o plexdriveplus_install.sh && sudo chmod +x ./plexdriveplus.sh && sudo ./plexdriveplus_install.sh
