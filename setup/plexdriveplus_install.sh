@@ -31,7 +31,7 @@ $SUDO usermod -aG docker $USER
 
 # Download docker-compose and other setup file
 wget --no-check-certificate --content-disposition https://github.com/slink42/plexdriveplus/archive/refs/tags/0.0.2.tar.gz
-tar xvzf plexdriveplus-*.tar.gz --strip=1
+tar xvzf plexdriveplus-*.tar.gz --strip=1 -C "$DOCKER_ROOT"
 docker run --rm -it --env-file $INSTALL_ENV_FILE --name rclone-config-download -v $DOCKER_ROOT/config:/config rclone/rclone copy secure_backup:config /config --progress
 
 # authorize rclone gdrive mount
