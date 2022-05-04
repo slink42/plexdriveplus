@@ -1,0 +1,91 @@
+#!/bin/bash
+
+ENV_FILE=.env
+[[ -z "$1" ]] || ENV_FILE=$1
+source $ENV_FILE
+[[ -z "$DOCKER_ROOT" ]] && echo "error: DOCKER_ROOT not set" && exit 1 || echo "Using DOCKER_ROOT path: $DOCKER_ROOT"
+
+## install prerequisites
+
+# install rclone if not present
+[[ $(rclone --version) ]] || (echo "installing rclone" &&  curl -fsSL https://rclone.org/install.sh | sudo bash)
+
+# install docker if not present
+[[ $(docker --version) ]] || (echo "installing docker" &&  curl -fsSL https://get.docker.com | sudo bash &&  sudo systemctl start docker)
+
+# install docker-compose not found
+[[ $(docker-compose --version) ]] || (echo "installing docker-compose" &&  curl -SL https://github.com/docker/compose/releases/download/v2.5.0/docker-compose-linux-x86_64 -o /usr/local/bin/docker-compose && chmod +x /usr/local/bin/docker-compose)
+
+# install docker-compose not found
+sudo groupadd docker
+sudo usermod -aG docker $USER
+
+# Install portainer
+[[ $(docker container ls -f name=portainer) ]] || sudo docker run -d -p 8000:8000 -p 9000:9000 --name=portainer --restart=always -v /var/run/docker.sock:/var/run/docker.sock -v portainer_data:/data portainer/portainer-ce:2.6.3
+
+## prepare envrionment
+
+# Download docker-compose and other setup file
+docker run --rm -it --env-file $ENV_FILE --name rclone-config-download -v $DOCKER_ROOT/setup:/setup rclone/rclone sync secure_backup:setup /setup --progress
+
+# authorize rclone gdrive mount
+mkdir -p "$DOCKER_ROOT/rclone"
+cp "$DOCKER_ROOT/setup/rclone.conf" "$DOCKER_ROOT/rclone/"
+rclone config --config "$DOCKER_ROOT/rclone/rclone.conf" reconnect gdrive:
+
+## copy gdrive mount tokens to plexdrive
+mkdir -p "$DOCKER_ROOT/plexdrive/config/"
+# read token from config
+RCLONE_CONFIG_GDRIVE=$(rclone config  --config "$DOCKER_ROOT/rclone/rclone.conf" show gdrive:)
+
+# update plexdrive token.json
+RCLONE_TOKEN=$(echo "$RCLONE_CONFIG_GDRIVE" | grep token)
+# trim to value only
+RCLONE_TOKEN=${RCLONE_TOKEN/token = /}
+[[ -z "$RCLONE_TOKEN" ]] && echo "error: rclone token for gdrive not found in rclone.conf" && exit 1 \
+    || echo "$RCLONE_TOKEN" > "$DOCKER_ROOT/plexdrive/config/token.json"
+
+# update plexdrive config.json
+RCLONE_CLIENTID=$(echo "$RCLONE_CONFIG_GDRIVE" | grep client_id)
+RCLONE_CLIENTID=${RCLONE_CLIENTID/client_id = /}
+
+RCLONE_SECRET=$(echo "$RCLONE_CONFIG_GDRIVE" | grep client_secret)
+RCLONE_SECRET=${RCLONE_SECRET/client_secret = /}
+
+if [[ -z "$RCLONE_CLIENTID" ]] || [[ -z "$RCLONE_SECRET" ]]; then
+echo "error: rclone token for gdrive not found in rclone.conf"
+exit 1	
+else
+echo "{\"ClientID\":\"$RCLONE_CLIENTID\",\"ClientSecret\":\"$RCLONE_SECRET\"}" > "$DOCKER_ROOT/plexdrive/config/config.json"
+fi
+
+# update plexdrive team_drive.id
+RCLONE_TEAMDRIVE=$(echo "$RCLONE_CONFIG_GDRIVE" | grep team_drive)
+RCLONE_TEAMDRIVE=${RCLONE_TEAMDRIVE/team_drive = /}
+[[ -z "$RCLONE_TEAMDRIVE" ]] && echo "warning: rclone teamdrive id for gdrive not found in rclone.conf" \
+    || echo "$RCLONE_TEAMDRIVE" > "$DOCKER_ROOT/plexdrive/config/team_drive.id"
+
+
+## Start with updated rclone config
+docker-compose --project-directory $DOCKER_ROOT/setup --project-name plexdriveplus up -d
+
+# Stop plex while library downloads
+docker stop pdp-plex
+
+# copy generic Plex Preferences.xml
+cp "$DOCKER_ROOT/setup/Preferences.xml" "$DOCKER_ROOT/plex-streamer/Library/Application Support/Plex Media Server/Preferences.xml"
+
+while [[ $(docker ps | grep pdp-rclone-library-download) ]]
+do
+echo "$(date) - waiting to pdp-rclone-library-download to complete"
+echo "------------------------- progress ------------------------------"
+docker logs --tail 5 pdp-rclone-library-download
+echo "-----------------------------------------------------------------"
+sleep 30
+done
+echo "$(date) - pdp-rclone-library-download complete. Restarting Plex"
+
+docker start pdp-plex
+
+# Open plex in browser
+xdg-open http://127.0.0.1:32400/web

@@ -1,0 +1,36 @@
+#!/usr/bin/with-contenv bash
+
+# Check web service is active 
+PLEX_URL=http://localhost:32400
+if ! [[ $(curl --connect-timeout 15 --silent --show-error --fail $PLEX_URL/identity) ]]; then 
+echo "unhealthy - no response from plex web service: $PLEX_URL"
+exit 1
+fi
+
+# Check expected paths are mounted
+if [ -z "$HEALTHCHECK_MOUNTS" ]; then
+    HEALTHCHECK_MOUNTS="/mnt/rclone/secure-media /mnt/rclone/secure-media-plexdrive"
+fi
+
+for CHECK_MOUNT in $HEALTHCHECK_MOUNTS; 
+do 
+if [ $(findmnt ${CHECK_MOUNT} | grep fuse | wc -l) -ne 1 ]; then
+echo "unhealthy - path not mounted: $CHECK_MOUNT"
+exit 1
+fi
+done
+
+# Check mount paths are linked to plex library paths
+if [ -z "$HEALTHCHECK_PATHS" ]; then
+HEALTHCHECK_PATHS="/plex/media/Media/movies /plex/media/Media/movies-4k"
+fi
+
+for CHECK_PATH in $HEALTHCHECK_PATHS; 
+do
+if ! [ "$(ls -A $CHECK_PATH)" ]; then
+echo "unhealthy - check path empty: $CHECK_PATH"
+exit 1
+fi
+done
+
+exit 0

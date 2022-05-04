@@ -1,0 +1,17 @@
+#!/bin/bash
+
+BACKUP_FILE=$(find /config/Library/Application\ Support/Plex\ Media\ Server/Plug-in\ Support/Databases/ -name com.plexapp.plugins.library.db-20[0-9][0-9]-[0-9][0-9]-[0-9][0-9] | tail -n 1)
+LIBRARY_FILE=/config/Library/Application\ Support/Plex\ Media\ Server/Plug-in\ Support/Databases/com.plexapp.plugins.library.db
+
+BACKUP_BLOB_FILE=$(find /config/Library/Application\ Support/Plex\ Media\ Server/Plug-in\ Support/Databases/ -name com.plexapp.plugins.library.blobs.db-20[0-9][0-9]-[0-9][0-9]-[0-9][0-9] | tail -n 1)
+LIBRARY_BLOB_FILE=/config/Library/Application\ Support/Plex\ Media\ Server/Plug-in\ Support/Databases/com.plexapp.plugins.library.blobs.db
+
+echo "Loaded plex library db from backup: $BACKUP_FILE"
+cp "$BACKUP_FILE" "$LIBRARY_FILE"
+rm "${LIBRARY_FILE}-shm"
+rm "${LIBRARY_FILE}-wal"
+
+echo "Loaded plex library blobs from backup: $BACKUP_BLOB_FILE"
+cp "$BACKUP_BLOB_FILE" "$LIBRARY_BLOB_FILE"
+rm "${LIBRARY_BLOB_FILE}-shm"
+rm "${LIBRARY_BLOB_FILE}-wal"

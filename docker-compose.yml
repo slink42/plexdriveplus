@@ -1,0 +1,281 @@
+version: '3.3'
+services:
+    plex:
+        container_name: pdp-plex
+        # network_mode: bridge
+        networks:
+            - internal
+        restart: always
+        labels:
+            - "autoheal=true"
+        environment:
+            - TZ=Australia/Melbourne
+            - HOST_OS=Unraid
+            - PLEX_CLAIM=claim-JTy-BkDT1z6PWMk83J6Q
+            - PLEX_UID=99
+            - PLEX_GID=100
+            - VERSION=latest
+            - 'NVIDIA_VISIBLE_DEVICES=GPU-8a59623f-fa0a-4eee-ddcf-c1039433a4e8'
+            - 'PLEXDRIVE_MEDIA_FOLDERS=movies-4k tv-4k'
+            - TCP_PORT_32400=32400
+            - TCP_PORT_3005=3005
+            - TCP_PORT_8324=8324
+            - TCP_PORT_32469=32469
+            - UDP_PORT_1900=1900
+            - UDP_PORT_32410=32410
+            - UDP_PORT_32412=32412
+            - UDP_PORT_32413=32413
+            - UDP_PORT_32414=32414
+            - PUID=99
+            - PGID=100
+            - 'HEALTHCHECK_MOUNTS=/mnt/rclone/secure-media /mnt/rclone/secure-media-plexdrive'
+            - 'HEALTHCHECK_PATHS=/plex/media/Media/movies /plex/media/Media/movies-4k'
+        volumes:
+            - '${DOCKER_ROOT}/plex-streamer/transcode:/transcode:rw'
+            - '${DOCKER_ROOT}/mnt/rclone:/mnt/rclone:rshared'
+            - '${DOCKER_ROOT}/plex-scanner/:/mnt/plex-scanner:rw'
+            - '${DOCKER_ROOT}/plex-streamer/:/config:rw'
+            - '${DOCKER_ROOT}/scripts/:/scripts:ro'
+        ports:
+            - "32400:32400"
+        image: linuxserver/plex
+        healthcheck:
+            test: ["CMD-SHELL", "bash /scripts/plexhealthcheck"]
+            interval: 300s
+            timeout: 60s
+            retries: 3
+            start_period: 30s
+        depends_on:
+            rclone_media:
+                condition: service_healthy
+            rclone_plexdrive:
+                condition: service_healthy
+    rclone_plexdrive:
+        container_name: pdp-rclone-plexdrive
+        command: 'mount --allow-other --allow-non-empty plexdrive-crypt: /mnt/plexdrive_decrypted --log-level INFO'
+        restart: always
+        labels:
+            - "autoheal=true"
+        environment:
+            - TZ=Australia/Melbourne
+            - PGID=100
+            - PUID=99
+            - 'HEALTHCHECK_MOUNTS=/mnt/plexdrive /mnt/plexdrive_decrypted'
+            - 'HEALTHCHECK_PATHS=/mnt/plexdrive'
+        volumes:
+            - '${DOCKER_ROOT}/mnt/plexdrive/secure-media/:/mnt/plexdrive:rshared'
+            - '${DOCKER_ROOT}/mnt/rclone/secure-media-plexdrive:/mnt/plexdrive_decrypted:rshared'
+            - '${DOCKER_ROOT}/rclone/:/config/rclone:rshared'
+            - '${DOCKER_ROOT}/scripts/:/scripts:ro'
+        networks:
+            - internal
+        logging:
+            options:
+                max-size: 20m
+        devices:
+            - /dev/fuse
+        cap_add:
+            - SYS_ADMIN
+        security_opt:
+            - apparmor:unconfined
+        image: rclone/rclone
+        healthcheck:
+            test: ["CMD-SHELL", "sh /scripts/healthcheck"]
+            interval: 300s
+            timeout: 60s
+            retries: 3
+            start_period: 30s
+        depends_on:
+            plexdrive:
+                condition: service_healthy
+    rclone_media:
+        container_name: pdp-rclone-secure-media
+        command: 'mount --read-only --acd-templink-threshold 1g --buffer-size 8M --timeout 5s --contimeout 5s --log-level INFO --stats 300s --dir-cache-time 30m --multi-thread-streams=20  secure-media: /mnt/secure-media --allow-non-empty --allow-other'
+        restart: always
+        labels:
+            - "autoheal=true"
+        environment:
+            - TZ=Australia/Melbourne
+            - PGID=100
+            - PUID=99
+            - 'HEALTHCHECK_MOUNTS=/mnt/secure-media'
+            - 'HEALTHCHECK_PATHS=/mnt/secure-media'
+        volumes:
+            - '${DOCKER_ROOT}/mnt/rclone/secure-media:/mnt/secure-media:rshared'
+            - '${DOCKER_ROOT}/rclone/:/config/rclone'
+            - '${DOCKER_ROOT}/scripts/:/scripts:ro'
+        networks:
+            - internal
+        logging:
+            options:
+                max-size: 20m
+        devices:
+            - /dev/fuse
+        cap_add:
+            - SYS_ADMIN
+        security_opt:
+            - apparmor:unconfined
+        image: rclone/rclone
+        healthcheck:
+            test: ["CMD-SHELL", "sh /scripts/healthcheck"]
+            interval: 300s
+            timeout: 60s
+            retries: 3
+            start_period: 30s
+    # rclone_media_scanner:
+        # container_name: pdp-rclone-secure-media-scanner
+        # command: 'mount --read-only --log-level INFO --stats 300s --dir-cache-time 30m --poll-interval 10m --multi-thread-streams=20  secure-media-scanner: /mnt/secure-media --allow-non-empty --allow-other'
+        # restart: always
+        # labels:
+            # - "autoheal=true"
+        # environment:
+            # - TZ=Australia/Melbourne
+            # - PGID=100
+            # - PUID=99
+            # - 'HEALTHCHECK_MOUNTS=/mnt/secure-media'
+            # - 'HEALTHCHECK_PATHS=/mnt/secure-media'
+        # volumes:
+            # - '${DOCKER_ROOT}/mnt/rclone/secure-media-scanner/:/mnt/secure-media:rshared'
+            # - '${DOCKER_ROOT}/rclone/:/config/rclone:rshared'
+            # - '${DOCKER_ROOT}/scripts/:/scripts:ro'
+        # networks:
+            # - internal
+        # logging:
+            # options:
+                # max-size: 20m
+        # devices:
+            # - /dev/fuse
+        # cap_add:
+            # - SYS_ADMIN
+        # security_opt:
+            # - apparmor:unconfined     
+        # image: rclone/rclone
+        # healthcheck:
+            # test: ["CMD-SHELL", "sh /scripts/healthcheck"]
+            # interval: 300s
+            # timeout: 60s
+            # retries: 3
+            # start_period: 30s
+    plexdrive:
+        container_name: pdp-plexdrive-secure-media
+        restart: always
+        labels:
+            - "autoheal=true"
+        environment:
+            - TZ=Australia/Melbourne
+            - PUID=0
+            - PGID=0
+            - POOLING_FS=unionfs
+            - 'PLEXDRIVE_OPTS=-v 2 --max-chunks=10 --chunk-size=20M --chunk-check-threads=20 --chunk-load-threads=4 --chunk-load-ahead=5 --drive-id=0ALNBa0QBHhldUk9PVA -o allow_other,read_only,nonempty'
+        volumes:
+            - '${DOCKER_ROOT}/plexdrive/config:/config:rw'
+            - '${DOCKER_ROOT}/plexdrive/cache:/cache:rw'
+            - '${DOCKER_ROOT}/mnt/plexdrive/secure-media:/data:rshared'
+            - '${DOCKER_ROOT}/test-path/:/local/:ro'
+        networks:
+            - internal
+        logging:
+            options:
+                max-size: 20m
+        devices:
+            - /dev/fuse
+        cap_add:
+            - SYS_ADMIN
+        security_opt:
+            - apparmor:unconfined
+        image: 'wiserain/plexdrive:5.1.0'
+    rclone_library_download:
+        container_name: pdp-rclone-library-download
+        command: 'sync secure-backup: /config --progress'
+        #command: 'lsd secure-backup:'
+        environment:
+            - TZ=Australia/Melbourne
+            - PGID=100
+            - PUID=99
+            - RCLONE_CONFIG_CONFIG-BACKUP_TYPE=${RCLONE_CONFIG_CONFIG__BACKUP_TYPE}
+            - RCLONE_CONFIG_CONFIG-BACKUP_CLIENT_ID=${RCLONE_CONFIG_CONFIG__BACKUP_CLIENT_ID}
+            - RCLONE_CONFIG_CONFIG-BACKUP_CLIENT_SECRET=${RCLONE_CONFIG_CONFIG__BACKUP_CLIENT_SECRET}
+            - RCLONE_CONFIG_CONFIG-BACKUP_SCOPE=${RCLONE_CONFIG_CONFIG__BACKUP_SCOPE}
+            - 'RCLONE_CONFIG_CONFIG-BACKUP_TOKEN=${RCLONE_CONFIG_CONFIG__BACKUP_TOKEN}'
+            - RCLONE_CONFIG_CONFIG-BACKUP_TEAM_DRIVE=${RCLONE_CONFIG_CONFIG__BACKUP_TEAM_DRIVE}
+            - RCLONE_CONFIG_SECURE-BACKUP_TYPE=${RCLONE_CONFIG_SECURE__BACKUP_TYPE}
+            - 'RCLONE_CONFIG_SECURE-BACKUP_REMOTE=${RCLONE_CONFIG_SECURE__BACKUP_REMOTE}'
+            - RCLONE_CONFIG_SECURE-BACKUP_FILENAME_ENCRYPTION=${RCLONE_CONFIG_SECURE__BACKUP_FILENAME_ENCRYPTION}
+            - RCLONE_CONFIG_SECURE-BACKUP_DIRECTORY_NAME_ENCRYPTION=${RCLONE_CONFIG_SECURE__BACKUP_DIRECTORY_NAME_ENCRYPTION}
+            - RCLONE_CONFIG_SECURE-BACKUP_PASSWORD=${RCLONE_CONFIG_SECURE__BACKUP_PASSWORD}
+            - RCLONE_CONFIG_SECURE-BACKUP_PASSWORD2=${RCLONE_CONFIG_SECURE__BACKUP_PASSWORD2}
+        volumes:
+            - '${DOCKER_ROOT}/plex-streamer/Library/Application Support/Plex Media Server/Plug-in Support/:/config/Library/Application Support/Plex Media Server/Plug-in Support/:rw'
+            - '${DOCKER_ROOT}/plex-streamer/custom-cont-init.d/:/config/custom-cont-init.d/:rw'
+            - '${DOCKER_ROOT}/plex-streamer/custom-services.d/:/config/custom-services.d/:rw'
+            - '${DOCKER_ROOT}/scripts/:/config/scripts:rw'
+            - '${DOCKER_ROOT}/setup/:/config/setup:rw'
+        labels:
+            - "autoheal-library=true"
+        networks:
+            - internal
+        logging:
+            options:
+                max-size: 20m
+        devices:
+            - /dev/fuse
+        cap_add:
+            - SYS_ADMIN
+        security_opt:
+            - apparmor:unconfined
+        image: rclone/rclone
+    autoheal:
+        container_name: pdp-autoheal
+        restart: always
+        image: willfarrell/autoheal
+        environment:
+            - AUTOHEAL_CONTAINER_LABEL=autoheal
+            - AUTOHEAL_INTERVAL=5
+            - DOCKER_SOCK=/var/run/docker.sock
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock
+        networks:
+            - internal
+    autoheal-library:
+        container_name: pdp-autoheal-library-download
+        restart: always
+        image: willfarrell/autoheal
+        environment:
+            - AUTOHEAL_CONTAINER_LABEL=autoheal-library
+            - AUTOHEAL_INTERVAL=1440
+            - DOCKER_SOCK=/var/run/docker.sock
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock
+        networks:
+            - internal
+    plex-db-sync:
+        image: nowsci/plex-db-sync
+        container_name: plex-db-sync
+        volumes:
+            - /etc/localtime:/etc/localtime:ro
+            - '${DOCKER_ROOT}/plex-db-sync/sshkey:/sshkey
+            - '${DOCKER_ROOT}/plex-streamer/Library/Application Support/Plex Media Server/Plug-in Support/Databases/:/mnt/DB2'
+        cap_add:
+            - SYS_ADMIN
+        devices:
+            - /dev/fuse
+        security_opt:
+            - apparmor:unconfined
+        environment:
+            - CRON=0 4 * * *
+            - S1_SSH_KEY=/sshkey
+            - S1_SSH_USER=root
+            - S1_SSH_HOST=hostname
+            - S1_SSH_PORT=22
+            - S1_SSH_PATH=/docker/plex/Library/Application Support/Plex Media Server/Plug-in Support/Databases
+            - S1_START=ssh -oStrictHostKeyChecking=no -i /sshkey root@hostname 'cd /docker; docker-compose up -d plex'
+            - S1_STOP=ssh -oStrictHostKeyChecking=no -i /sshkey root@hostname 'cd /docker; docker-compose stop plex'
+            - S2_DB_PATH=/mnt/DB2
+            - S2_START=cd /docker; docker-compose up -d plex
+            - S2_STOP=cd /docker; docker-compose stop plex
+        restart: always
+        networks:
+            - internal
+
+networks:
+    internal:
