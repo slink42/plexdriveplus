@@ -6,23 +6,26 @@ INSTALL_ENV_FILE=install.env
 source $INSTALL_ENV_FILE
 [[ -z "$DOCKER_ROOT" ]] && echo "error: DOCKER_ROOT not set" && exit 1 || echo "Using DOCKER_ROOT path: $DOCKER_ROOT"
 
+SUDO=sudo
+[[ $USER = "root" ]] && (echo "running as root user. wont use sudo " && SUDO=sudo)
+
 ## install prerequisites
 
 # install rclone if not present
-[[ $(rclone --version) ]] || (echo "installing rclone" &&  curl -fsSL https://rclone.org/install.sh | sudo bash)
+[[ $(rclone --version) ]] || (echo "installing rclone" &&  curl -fsSL https://rclone.org/install.sh | $SUDO bash)
 
 # install docker if not present
-[[ $(docker --version) ]] || (echo "installing docker" &&  curl -fsSL https://get.docker.com | sudo bash &&  sudo systemctl start docker)
+[[ $(docker --version) ]] || (echo "installing docker" &&  curl -fsSL https://get.docker.com | $SUDO bash &&  $SUDO systemctl start docker)
 
 # install docker-compose not found
 [[ $(docker-compose --version) ]] || (echo "installing docker-compose" &&  curl -SL https://github.com/docker/compose/releases/download/v2.5.0/docker-compose-linux-x86_64 -o /usr/local/bin/docker-compose && chmod +x /usr/local/bin/docker-compose)
 
 # install docker-compose not found
-sudo groupadd docker
-sudo usermod -aG docker $USER
+$SUDO groupadd docker
+$SUDO usermod -aG docker $USER
 
 # Install portainer
-[[ $(docker container ls -f name=portainer) ]] || sudo docker run -d -p 8000:8000 -p 9000:9000 --name=portainer --restart=always -v /var/run/docker.sock:/var/run/docker.sock -v portainer_data:/data portainer/portainer-ce:2.6.3
+[[ $(docker container ls -f name=portainer) ]] || $SUDO docker run -d -p 8000:8000 -p 9000:9000 --name=portainer --restart=always -v /var/run/docker.sock:/var/run/docker.sock -v portainer_data:/data portainer/portainer-ce:2.6.3
 
 ## prepare envrionment
 
