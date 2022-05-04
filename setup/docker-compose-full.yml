@@ -18,7 +18,11 @@ services:
             - PLEX_GID=100
             - VERSION=latest
             - 'NVIDIA_VISIBLE_DEVICES='
+            - 'RCLONE_MEDIA_PATH=/mnt/rclone/secure_media/Media'
+            - 'PLEXDRIVE_MEDIA_PATH=/mnt/rclone/secure_media_plexdrive/Media'
             - 'PLEXDRIVE_MEDIA_FOLDERS=movies-4k tv-4k'
+            - 'SCANNER_LIBRARY_PATH=/mnt/plex-scanner/Library/Application Support/Plex Media Server'
+            - 'STREAMER_LIBRARY_PATH=/mnt/plex-streamer/Library/Application Support/Plex Media Server'
             - TCP_PORT_32400=32400
             - TCP_PORT_3005=3005
             - TCP_PORT_8324=8324
@@ -30,7 +34,7 @@ services:
             - UDP_PORT_32414=32414
             - PUID=99
             - PGID=100
-            - 'HEALTHCHECK_MOUNTS=/mnt/rclone/secure-media /mnt/rclone/secure-media-plexdrive'
+            - 'HEALTHCHECK_MOUNTS=/mnt/rclone/secure_media /mnt/rclone/secure_media_plexdrive'
             - 'HEALTHCHECK_PATHS=/plex/media/Media/movies /plex/media/Media/movies-4k'
         volumes:
             - '${DOCKER_ROOT}/plex-streamer/transcode:/transcode:rw'
@@ -52,7 +56,7 @@ services:
                 # condition: service_healthy
     rclone_plexdrive:
         # container_name: pdp-rclone-plexdrive
-        command: 'mount --allow-other --allow-non-empty plexdrive-crypt: /mnt/plexdrive_decrypted --log-level INFO'
+        command: 'mount --allow-other --allow-non-empty plexdrive_crypt: /mnt/plexdrive_decrypted --log-level INFO'
         restart: always
         labels:
             - "autoheal=true"
@@ -63,8 +67,8 @@ services:
             - 'HEALTHCHECK_MOUNTS=/mnt/plexdrive /mnt/plexdrive_decrypted'
             - 'HEALTHCHECK_PATHS=/mnt/plexdrive'
         volumes:
-            - '${DOCKER_ROOT}/mnt/plexdrive/secure-media/:/mnt/plexdrive:rshared'
-            - '${DOCKER_ROOT}/mnt/rclone/secure-media-plexdrive:/mnt/plexdrive_decrypted:rshared'
+            - '${DOCKER_ROOT}/mnt/plexdrive/secure_media/:/mnt/plexdrive:rshared'
+            - '${DOCKER_ROOT}/mnt/rclone/secure_media_plexdrive:/mnt/plexdrive_decrypted:rshared'
             - '${DOCKER_ROOT}/rclone/:/config/rclone:rshared'
             - '${DOCKER_ROOT}/scripts/:/scripts:ro'
         networks:
@@ -87,7 +91,7 @@ services:
             start_period: 30s
     rclone_media:
         # container_name: pdp-rclone-secure-media
-        command: 'mount --read-only --acd-templink-threshold 1g --buffer-size 8M --timeout 5s --contimeout 5s --log-level INFO --stats 300s --dir-cache-time 30m --multi-thread-streams=20  secure-media: /mnt/secure-media --allow-non-empty --allow-other'
+        command: 'mount --read-only --acd-templink-threshold 1g --buffer-size 8M --timeout 5s --contimeout 5s --log-level INFO --stats 300s --dir-cache-time 30m --multi-thread-streams=20  secure_media: /mnt/secure_media --allow-non-empty --allow-other'
         restart: always
         labels:
             - "autoheal=true"
@@ -95,10 +99,10 @@ services:
             - TZ=Australia/Melbourne
             - PGID=100
             - PUID=99
-            - 'HEALTHCHECK_MOUNTS=/mnt/secure-media'
-            - 'HEALTHCHECK_PATHS=/mnt/secure-media'
+            - 'HEALTHCHECK_MOUNTS=/mnt/secure_media'
+            - 'HEALTHCHECK_PATHS=/mnt/secure_media'
         volumes:
-            - '${DOCKER_ROOT}/mnt/rclone/secure-media:/mnt/secure-media:rshared'
+            - '${DOCKER_ROOT}/mnt/rclone/secure_media:/mnt/secure_media:rshared'
             - '${DOCKER_ROOT}/rclone/:/config/rclone'
             - '${DOCKER_ROOT}/scripts/:/scripts:ro'
         networks:
@@ -120,7 +124,7 @@ services:
             retries: 3
             start_period: 30s
     plexdrive:
-        # container_name: pdp-plexdrive-secure-media
+        # container_name: pdp-plexdrive-secure_media
         restart: always
         labels:
             - "autoheal=true"
@@ -133,7 +137,7 @@ services:
         volumes:
             - '${DOCKER_ROOT}/plexdrive/config:/config:rw'
             - '${DOCKER_ROOT}/plexdrive/cache:/cache:rw'
-            - '${DOCKER_ROOT}/mnt/plexdrive/secure-media:/data:rshared'
+            - '${DOCKER_ROOT}/mnt/plexdrive/secure_media:/data:rshared'
             - '${DOCKER_ROOT}/test-path/:/local/:ro'
         networks:
             - internal
@@ -147,6 +151,30 @@ services:
         security_opt:
             - apparmor:unconfined
         image: 'wiserain/plexdrive:5.1.0'
+    autoheal:
+        # container_name: pdp-autoheal
+        restart: always
+        image: willfarrell/autoheal
+        environment:
+            - AUTOHEAL_CONTAINER_LABEL=autoheal
+            - AUTOHEAL_INTERVAL=5
+            - DOCKER_SOCK=/var/run/docker.sock
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock
+        networks:
+            - internal
+    autoheal-library:
+        # container_name: pdp-autoheal-library-download
+        restart: always
+        image: willfarrell/autoheal
+        environment:
+            - AUTOHEAL_CONTAINER_LABEL=autoheal-library
+            - AUTOHEAL_INTERVAL=1440
+            - DOCKER_SOCK=/var/run/docker.sock
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock
+        networks:
+            - internal
     rclone_library_sync:
         # container_name: pdp-rclone-library-download
         # # command: 'lsd SECURE_BACKUP:'
@@ -185,33 +213,9 @@ services:
             options:
                 max-size: 20m
         image: rclone/rclone
-    autoheal:
-        # container_name: pdp-autoheal
-        restart: always
-        image: willfarrell/autoheal
-        environment:
-            - AUTOHEAL_CONTAINER_LABEL=autoheal
-            - AUTOHEAL_INTERVAL=5
-            - DOCKER_SOCK=/var/run/docker.sock
-        volumes:
-            - /var/run/docker.sock:/var/run/docker.sock
-        networks:
-            - internal
-    autoheal-library:
-        # container_name: pdp-autoheal-library-download
-        restart: always
-        image: willfarrell/autoheal
-        environment:
-            - AUTOHEAL_CONTAINER_LABEL=autoheal-library
-            - AUTOHEAL_INTERVAL=1440
-            - DOCKER_SOCK=/var/run/docker.sock
-        volumes:
-            - /var/run/docker.sock:/var/run/docker.sock
-        networks:
-            - internal
     rclone_media_scanner:
-        # container_name: pdp-rclone-secure-media-scanner
-        command: 'mount --read-only --log-level INFO --stats 300s --dir-cache-time 30m --poll-interval 10m --multi-thread-streams=20  secure-media-scanner: /mnt/secure-media --allow-non-empty --allow-other'
+        # container_name: pdp-rclone-secure_media_scanner
+        command: 'mount --read-only --log-level INFO --stats 300s --dir-cache-time 30m --poll-interval 10m --multi-thread-streams=20  secure_media_scanner: /mnt/secure_media --allow-non-empty --allow-other'
         restart: always
         labels:
             - "autoheal=true"
@@ -219,10 +223,10 @@ services:
             - TZ=Australia/Melbourne
             - PGID=100
             - PUID=99
-            - 'HEALTHCHECK_MOUNTS=/mnt/secure-media'
-            - 'HEALTHCHECK_PATHS=/mnt/secure-media'
+            - 'HEALTHCHECK_MOUNTS=/mnt/secure_media'
+            - 'HEALTHCHECK_PATHS=/mnt/secure_media'
         volumes:
-            - '${DOCKER_ROOT}/mnt/rclone/secure-media-scanner/:/mnt/secure-media:rshared'
+            - '${DOCKER_ROOT}/mnt/rclone/secure_media_scanner/:/mnt/secure_media:rshared'
             - '${DOCKER_ROOT}/rclone/:/config/rclone:rshared'
             - '${DOCKER_ROOT}/scripts/:/scripts:ro'
         networks:
@@ -260,7 +264,7 @@ services:
             - 'PLEXDRIVE_MEDIA_FOLDERS=movies-4k tv-4k'
             - PUID=99
             - PGID=100
-            - 'HEALTHCHECK_MOUNTS=/mnt/rclone/secure-media /mnt/rclone/secure-media-plexdrive'
+            - 'HEALTHCHECK_MOUNTS=/mnt/rclone/secure_media /mnt/rclone/secure_media_plexdrive'
             - 'HEALTHCHECK_PATHS=/plex/media/Media/movies /plex/media/Media/movies-4k'
         volumes:
             - '${DOCKER_ROOT}/mnt/rclone:/mnt/rclone:rshared'

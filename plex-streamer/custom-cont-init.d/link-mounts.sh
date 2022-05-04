@@ -1,8 +1,8 @@
 #!/bin/bash
 
-if [ -z "$RCLONE_MEDIA_PATH" ]; then RCLONE_MEDIA_PATH=/mnt/rclone/secure-media/Media; else echo "RCLONE MOUNT: $RCLONE_MEDIA_PATH"; fi
-if [ -z "$PLEXDRIVE_MEDIA_PATH" ]; then PLEXDRIVE_MEDIA_PATH=/mnt/rclone/secure-media-plexdrive/Media; else echo "PLEXDRIVE MOUNT: $PLEXDRIVE_MEDIA_PATH"; fi
-PLEXDRIVE_MEDIA_FOLDERS="movies-4k tv-4k"
+if [ -z "$RCLONE_MEDIA_PATH" ]; then RCLONE_MEDIA_PATH=/mnt/rclone/secure_media/Media; else echo "RCLONE MOUNT: $RCLONE_MEDIA_PATH"; fi
+if [ -z "$PLEXDRIVE_MEDIA_PATH" ]; then PLEXDRIVE_MEDIA_PATH=/mnt/rclone/secure_media_plexdrive/Media; else echo "PLEXDRIVE MOUNT: $PLEXDRIVE_MEDIA_PATH"; fi
+# PLEXDRIVE_MEDIA_FOLDERS="movies-4k tv-4k"
 
 mkdir -p  /plex/media/Media
 RCLONE_MEDIA_FOLDERS=$(ls $RCLONE_MEDIA_PATH)
