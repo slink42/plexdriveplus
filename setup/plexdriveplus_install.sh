@@ -36,6 +36,7 @@ tar xvzf "${DOCKER_ROOT}/plexdriveplus.tar.gz" --strip=1 -C "${DOCKER_ROOT}"
 docker run --rm -it --env-file $INSTALL_ENV_FILE --name rclone-config-download -v $DOCKER_ROOT/config:/config rclone/rclone copy secure_backup:config /config --progress
 
 # authorize rclone gdrive mount
+echo "setting up rclone authentication"
 mkdir -p "$DOCKER_ROOT/rclone"
 cp "$DOCKER_ROOT/config/rclone.conf" "$DOCKER_ROOT/rclone/"
 GDRIVE_ENDPOINT=$(cat $DOCKER_ROOT/config/.env | grep RCLONE_CONFIG_SECURE_MEDIA_REMOTE)
@@ -82,12 +83,16 @@ cat
 echo "DOCKER_ROOT=${DOCKER_ROOT}" > $DOCKER_ROOT/config/.env
 
 ## Start with updated rclone config
+echo "starting containers with docker-compose"
 ENV_FILE="$DOCKER_ROOT/config/.env"
 sed -i '/DOCKER_ROOT/'d "$ENV_FILE"
 echo "DOCKER_ROOT=$DOCKER_ROOT" >> "$ENV_FILE"
-docker-compose --env-file $ENV_FILE --project-directory $DOCKER_ROOT/setup --project-name plexdriveplus up -d --remove-orphans
+# DOCKER_COMPOSE_FILE=docker-compose-full.yaml
+DOCKER_COMPOSE_FILE=docker-compose.yaml
+docker-compose --env-file $ENV_FILE --project-directory $DOCKER_ROOT/setup -f "$DOCKER_COMPOSE_FILE" --project-name plexdriveplus up -d --remove-orphans
 
 # Stop plex while library downloads
+echo "downloading plex library"
 docker stop pdp-plex
 
 # copy generic Plex Preferences.xml
@@ -106,4 +111,5 @@ echo "$(date) - pdp-rclone-library-download complete. Restarting Plex"
 docker start pdp-plex
 
 # Open plex in browser
+echo "opening plex in browser"
 xdg-open http://127.0.0.1:32400/web
