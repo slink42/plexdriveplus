@@ -4,7 +4,7 @@
 INSTALL_ENV_FILE=install.env
 [[ -z "$1" ]] || INSTALL_ENV_FILE=$1
 source $INSTALL_ENV_FILE
-([[ -z "$DOCKER_ROOT" ]] && DOCKER_ROOT=$(pwd) && echo "error: DOCKER_ROOT not set. using current path: $DOCKER_ROOT")
+[[ -z "$DOCKER_ROOT" ]] && DOCKER_ROOT=$(pwd) && echo "error: DOCKER_ROOT not set. using current path: $DOCKER_ROOT"
 echo "Using DOCKER_ROOT path: $DOCKER_ROOT"
 
 SUDO=sudo
