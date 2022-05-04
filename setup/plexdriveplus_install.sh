@@ -1,8 +1,9 @@
 #!/bin/bash
 
-ENV_FILE=.env
-[[ -z "$1" ]] || ENV_FILE=$1
-source $ENV_FILE
+# ENV_FILE=install.env
+INSTALL_ENV_FILE=install.env
+[[ -z "$1" ]] || INSTALL_ENV_FILE=$1
+source $INSTALL_ENV_FILE
 [[ -z "$DOCKER_ROOT" ]] && echo "error: DOCKER_ROOT not set" && exit 1 || echo "Using DOCKER_ROOT path: $DOCKER_ROOT"
 
 ## install prerequisites
@@ -26,11 +27,13 @@ sudo usermod -aG docker $USER
 ## prepare envrionment
 
 # Download docker-compose and other setup file
-docker run --rm -it --env-file $ENV_FILE --name rclone-config-download -v $DOCKER_ROOT/setup:/setup rclone/rclone sync secure_backup:setup /setup --progress
+wget --no-check-certificate --content-disposition https://github.com/slink42/plexdriveplus/archive/refs/tags/0.0.2.tar.gz
+tar xvzf plexdriveplus-*.tar.gz  --strip=1
+docker run --rm -it --env-file $INSTALL_ENV_FILE --name rclone-config-download -v $DOCKER_ROOT/config:/config rclone/rclone sync secure_backup:config /config --progress
 
 # authorize rclone gdrive mount
 mkdir -p "$DOCKER_ROOT/rclone"
-cp "$DOCKER_ROOT/setup/rclone.conf" "$DOCKER_ROOT/rclone/"
+cp "$DOCKER_ROOT/config/rclone.conf" "$DOCKER_ROOT/rclone/"
 rclone config --config "$DOCKER_ROOT/rclone/rclone.conf" reconnect gdrive:
 
 ## copy gdrive mount tokens to plexdrive
