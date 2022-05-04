@@ -4,7 +4,7 @@
 INSTALL_ENV_FILE=install.env
 [[ -z "$1" ]] || INSTALL_ENV_FILE=$1
 source $INSTALL_ENV_FILE
-[[ -z "$DOCKER_ROOT" ]] && DOCKER_ROOT=$(pwd) && echo "error: DOCKER_ROOT not set. using current path: $DOCKER_ROOT"
+[[ -z "$DOCKER_ROOT" ]] && DOCKER_ROOT=$(pwd) && echo "error: DOCKER_ROOT not set. using current path: $DOCKER_ROOT" 
 echo "Using DOCKER_ROOT path: $DOCKER_ROOT"
 
 SUDO=sudo
@@ -76,9 +76,16 @@ RCLONE_TEAMDRIVE=${RCLONE_TEAMDRIVE/team_drive = /}
 [[ -z "$RCLONE_TEAMDRIVE" ]] && echo "warning: rclone teamdrive id for gdrive not found in rclone.conf" \
     || echo "$RCLONE_TEAMDRIVE" > "$DOCKER_ROOT/plexdrive/config/team_drive.id"
 
+GDRIVE_ENDPOINT=$(cat $DOCKER_ROOT/config/.env | grep RCLONE_CONFIG_SECURE_MEDIA_REMOTE)
+GDRIVE_ENDPOINT=${GDRIVE_ENDPOINT/RCLONE_CONFIG_SECURE_MEDIA_REMOTE=/}
+cat
+echo "DOCKER_ROOT=${DOCKER_ROOT}" > $DOCKER_ROOT/config/.env
 
 ## Start with updated rclone config
-docker-compose --project-directory $DOCKER_ROOT/setup --project-name plexdriveplus up -d
+ENV_FILE="$DOCKER_ROOT/config/.env"
+sed -i '/DOCKER_ROOT/'d "$ENV_FILE"
+echo "DOCKER_ROOT=$DOCKER_ROOT" >> "$ENV_FILE"
+docker-compose --env-file $ENV_FILE --project-directory $DOCKER_ROOT/setup --project-name plexdriveplus up -d --remove-orphans
 
 # Stop plex while library downloads
 docker stop pdp-plex
