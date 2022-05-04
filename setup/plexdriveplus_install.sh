@@ -47,7 +47,7 @@ rclone config --config "$DOCKER_ROOT/rclone/rclone.conf" reconnect $GDRIVE_ENDPO
 ## copy gdrive mount tokens to plexdrive
 mkdir -p "$DOCKER_ROOT/plexdrive/config/"
 # read token from config
-RCLONE_CONFIG_GDRIVE=$(rclone config  --config "$DOCKER_ROOT/rclone/rclone.conf" show gdrive:)
+RCLONE_CONFIG_GDRIVE=$(rclone config  --config "$DOCKER_ROOT/rclone/rclone.conf" show ${GDRIVE_ENDPOINT})
 
 # update plexdrive token.json
 RCLONE_TOKEN=$(echo "$RCLONE_CONFIG_GDRIVE" | grep token)
