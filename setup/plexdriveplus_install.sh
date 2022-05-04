@@ -31,13 +31,15 @@ $SUDO usermod -aG docker $USER
 
 # Download docker-compose and other setup file
 wget --no-check-certificate --content-disposition https://github.com/slink42/plexdriveplus/archive/refs/tags/0.0.2.tar.gz
-tar xvzf plexdriveplus-*.tar.gz  --strip=1
-docker run --rm -it --env-file $INSTALL_ENV_FILE --name rclone-config-download -v $DOCKER_ROOT/config:/config rclone/rclone sync secure_backup:config /config --progress
+tar xvzf plexdriveplus-*.tar.gz --strip=1
+docker run --rm -it --env-file $INSTALL_ENV_FILE --name rclone-config-download -v $DOCKER_ROOT/config:/config rclone/rclone copy secure_backup:config /config --progress
 
 # authorize rclone gdrive mount
 mkdir -p "$DOCKER_ROOT/rclone"
 cp "$DOCKER_ROOT/config/rclone.conf" "$DOCKER_ROOT/rclone/"
-rclone config --config "$DOCKER_ROOT/rclone/rclone.conf" reconnect gdrive:
+GDRIVE_ENDPOINT=$(cat $DOCKER_ROOT/config/.env | grep RCLONE_CONFIG_SECURE_MEDIA_REMOTE | cut -d "=" -f2)
+echo "Using rclone gdrive endpoint: $GDRIVE_ENDPOINT"
+rclone config --config "$DOCKER_ROOT/rclone/rclone.conf" reconnect $GDRIVE_ENDPOINT
 
 ## copy gdrive mount tokens to plexdrive
 mkdir -p "$DOCKER_ROOT/plexdrive/config/"
