@@ -38,7 +38,9 @@ docker run --rm -it --env-file $INSTALL_ENV_FILE --name rclone-config-download -
 # authorize rclone gdrive mount
 mkdir -p "$DOCKER_ROOT/rclone"
 cp "$DOCKER_ROOT/config/rclone.conf" "$DOCKER_ROOT/rclone/"
-GDRIVE_ENDPOINT=$(cat $DOCKER_ROOT/config/.env | grep RCLONE_CONFIG_SECURE_MEDIA_REMOTE | cut -d "=" -f2)
+GDRIVE_ENDPOINT=$(cat $DOCKER_ROOT/config/.env | grep RCLONE_CONFIG_SECURE_MEDIA_REMOTE)
+GDRIVE_ENDPOINT=${GDRIVE_ENDPOINT/RCLONE_CONFIG_SECURE_MEDIA_REMOTE=/}
+# GDRIVE_ENDPOINT=$(cat $DOCKER_ROOT/config/.env | grep RCLONE_CONFIG_SECURE_MEDIA_REMOTE | cut -d "=" -f2)
 echo "Using rclone gdrive endpoint: $GDRIVE_ENDPOINT"
 rclone config --config "$DOCKER_ROOT/rclone/rclone.conf" reconnect $GDRIVE_ENDPOINT
 
