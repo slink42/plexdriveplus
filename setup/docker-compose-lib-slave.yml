@@ -1,0 +1,51 @@
+version: '3.3'
+networks:
+    internal:
+services:
+    rclone_library_sync:
+        # container_name: pdp-rclone-library-download
+        # # command: 'lsd SECURE_BACKUP:'
+        # library download from master
+        command: 'copy SECURE_BACKUP: /config --progress'
+        # # library upload from master
+        # command: 'sync /config SECURE_BACKUP: --progress'
+        labels:
+            - "autoheal-library=true"
+        #command: 'lsd SECURE_BACKUP:'
+        environment:
+            - TZ=Australia/Melbourne
+            - PGID=100
+            - PUID=99
+            - RCLONE_CONFIG_CONFIG_BACKUP_TYPE=${RCLONE_CONFIG_CONFIG_BACKUP_TYPE}
+            - RCLONE_CONFIG_CONFIG_BACKUP_CLIENT_ID=${RCLONE_CONFIG_CONFIG_BACKUP_CLIENT_ID}
+            - RCLONE_CONFIG_CONFIG_BACKUP_CLIENT_SECRET=${RCLONE_CONFIG_CONFIG_BACKUP_CLIENT_SECRET}
+            - RCLONE_CONFIG_CONFIG_BACKUP_SCOPE=${RCLONE_CONFIG_CONFIG_BACKUP_SCOPE}
+            - 'RCLONE_CONFIG_CONFIG_BACKUP_TOKEN=${RCLONE_CONFIG_CONFIG_BACKUP_TOKEN}'
+            - RCLONE_CONFIG_CONFIG_BACKUP_TEAM_DRIVE=${RCLONE_CONFIG_CONFIG_BACKUP_TEAM_DRIVE}
+            - RCLONE_CONFIG_SECURE_BACKUP_TYPE=${RCLONE_CONFIG_SECURE_BACKUP_TYPE}
+            - 'RCLONE_CONFIG_SECURE_BACKUP_REMOTE=${RCLONE_CONFIG_SECURE_BACKUP_REMOTE}'
+            - RCLONE_CONFIG_SECURE_BACKUP_FILENAME_ENCRYPTION=${RCLONE_CONFIG_SECURE_BACKUP_FILENAME_ENCRYPTION}
+            - RCLONE_CONFIG_SECURE_BACKUP_DIRECTORY_NAME_ENCRYPTION=${RCLONE_CONFIG_SECURE_BACKUP_DIRECTORY_NAME_ENCRYPTION}
+            - RCLONE_CONFIG_SECURE_BACKUP_PASSWORD=${RCLONE_CONFIG_SECURE_BACKUP_PASSWORD}
+            - RCLONE_CONFIG_SECURE_BACKUP_PASSWORD2=${RCLONE_CONFIG_SECURE_BACKUP_PASSWORD2}
+        volumes:
+            - '${DOCKER_ROOT}/plex-streamer/Library/Application Support/Plex Media Server/Plug-in Support/:/config/Library/Application Support/Plex Media Server/Plug-in Support/:rw'
+            - '${DOCKER_ROOT}/config/:/config/config:rw'
+        networks:
+            - internal
+        logging:
+            options:
+                max-size: 20m
+        image: rclone/rclone
+    autoheal-library:
+        # container_name: pdp-autoheal-library-download
+        restart: always
+        image: willfarrell/autoheal
+        environment:
+            - AUTOHEAL_CONTAINER_LABEL=autoheal-library
+            - AUTOHEAL_INTERVAL=1440
+            - DOCKER_SOCK=/var/run/docker.sock
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock
+        networks:
+            - internal

@@ -91,6 +91,38 @@ echo "starting containers with docker-compose"
 ENV_FILE="$DOCKER_ROOT/config/.env"
 sed -i '/DOCKER_ROOT/'d "$ENV_FILE"
 echo "DOCKER_ROOT=$DOCKER_ROOT" >> "$ENV_FILE"
+
+read -p 'Please select library management mode: 
+1  | Slave mode. Scheduled sync library db from master copy stored on gdrive
+2  | Master mode. Maintain library locally using a 2nd and upload on schedule to gdrive
+3  | Solo mode. Maintain library locally using a 2nd plex instance
+4  | KISS mode. Maintain library locally using a single plex instance
+library management mode> ' -e -i '1' management_mode
+
+DOCKER_COMPOSE_FILE_LIB_MANGER=
+case $management_mode in
+        "1")
+                echo "Slave Library Mode Selected"
+                DOCKER_COMPOSE_FILE_LIB_MANGER="-f /"$DOCKER_ROOT/setup/docker-compose-lib-slave.yml/""
+                ;;
+        "2")
+                echo "Master Library Mode Selected"
+                DOCKER_COMPOSE_FILE_LIB_MANGER="-f /"$DOCKER_ROOT/setup/docker-compose-lib-master.yml/""
+                ;;
+        "3")
+                echo "Solo Library Mode Selected"
+                DOCKER_COMPOSE_FILE_LIB_MANGER="-f /"$DOCKER_ROOT/setup/docker-compose-lib-solo.yml/""
+                ;;
+        "4")
+                echo "KISS Library Mode Selected"
+                DOCKER_COMPOSE_FILE_LIB_MANGER=
+                ;;
+        *)
+                echo "Invalid selection, defaulting to KISS Library Mode"
+                DOCKER_COMPOSE_FILE_LIB_MANGER=
+                ;;
+esac
+
 # DOCKER_COMPOSE_FILE=$DOCKER_ROOT/setup/docker-compose-full.yml
 DOCKER_COMPOSE_FILE=$DOCKER_ROOT/setup/docker-compose.yml
 docker-compose --env-file $ENV_FILE --project-directory $DOCKER_ROOT/setup -f "$DOCKER_COMPOSE_FILE" --project-name plexdriveplus up -d --remove-orphans

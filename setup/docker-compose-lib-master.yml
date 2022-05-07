@@ -1,0 +1,120 @@
+version: '3.3'
+networks:
+    internal:
+services:
+    rclone_library_sync:
+        # container_name: pdp-rclone-library-download
+        # # command: 'lsd SECURE_BACKUP:'
+        # # library download from master
+        # command: 'copy SECURE_BACKUP: /config --progress'
+        # library upload from master
+        command: 'sync /config SECURE_BACKUP: --progress'
+        labels:
+            - "autoheal-library=true"
+        #command: 'lsd SECURE_BACKUP:'
+        environment:
+            - TZ=Australia/Melbourne
+            - PGID=100
+            - PUID=99
+            - RCLONE_CONFIG_CONFIG_BACKUP_TYPE=${RCLONE_CONFIG_CONFIG_BACKUP_TYPE}
+            - RCLONE_CONFIG_CONFIG_BACKUP_CLIENT_ID=${RCLONE_CONFIG_CONFIG_BACKUP_CLIENT_ID}
+            - RCLONE_CONFIG_CONFIG_BACKUP_CLIENT_SECRET=${RCLONE_CONFIG_CONFIG_BACKUP_CLIENT_SECRET}
+            - RCLONE_CONFIG_CONFIG_BACKUP_SCOPE=${RCLONE_CONFIG_CONFIG_BACKUP_SCOPE}
+            - 'RCLONE_CONFIG_CONFIG_BACKUP_TOKEN=${RCLONE_CONFIG_CONFIG_BACKUP_TOKEN}'
+            - RCLONE_CONFIG_CONFIG_BACKUP_TEAM_DRIVE=${RCLONE_CONFIG_CONFIG_BACKUP_TEAM_DRIVE}
+            - RCLONE_CONFIG_SECURE_BACKUP_TYPE=${RCLONE_CONFIG_SECURE_BACKUP_TYPE}
+            - 'RCLONE_CONFIG_SECURE_BACKUP_REMOTE=${RCLONE_CONFIG_SECURE_BACKUP_REMOTE}'
+            - RCLONE_CONFIG_SECURE_BACKUP_FILENAME_ENCRYPTION=${RCLONE_CONFIG_SECURE_BACKUP_FILENAME_ENCRYPTION}
+            - RCLONE_CONFIG_SECURE_BACKUP_DIRECTORY_NAME_ENCRYPTION=${RCLONE_CONFIG_SECURE_BACKUP_DIRECTORY_NAME_ENCRYPTION}
+            - RCLONE_CONFIG_SECURE_BACKUP_PASSWORD=${RCLONE_CONFIG_SECURE_BACKUP_PASSWORD}
+            - RCLONE_CONFIG_SECURE_BACKUP_PASSWORD2=${RCLONE_CONFIG_SECURE_BACKUP_PASSWORD2}
+        volumes:
+            - '${DOCKER_ROOT}/plex-streamer/Library/Application Support/Plex Media Server/Plug-in Support/:/config/Library/Application Support/Plex Media Server/Plug-in Support/:rw'
+            - '${DOCKER_ROOT}/config/:/config/config:rw'
+        networks:
+            - internal
+        logging:
+            options:
+                max-size: 20m
+        image: rclone/rclone
+    autoheal-library:
+        # container_name: pdp-autoheal-library-download
+        restart: always
+        image: willfarrell/autoheal
+        environment:
+            - AUTOHEAL_CONTAINER_LABEL=autoheal-library
+            - AUTOHEAL_INTERVAL=1440
+            - DOCKER_SOCK=/var/run/docker.sock
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock
+        networks:
+            - internal
+    rclone_media_scanner:
+        # container_name: pdp-rclone-secure_media_scanner
+        command: 'mount --read-only --log-level INFO --stats 300s --dir-cache-time 30m --poll-interval 10m --multi-thread-streams=20  secure_media_scanner: /mnt/secure_media --allow-non-empty --allow-other'
+        restart: always
+        labels:
+            - "autoheal=true"
+        environment:
+            - TZ=Australia/Melbourne
+            - PGID=100
+            - PUID=99
+            - 'HEALTHCHECK_MOUNTS=/mnt/secure_media'
+            - 'HEALTHCHECK_PATHS=/mnt/secure_media'
+        volumes:
+            - '${DOCKER_ROOT}/mnt/rclone/secure_media_scanner/:/mnt/secure_media:rshared'
+            - '${DOCKER_ROOT}/rclone/:/config/rclone:rshared'
+            - '${DOCKER_ROOT}/scripts/:/scripts:ro'
+        networks:
+            - internal
+        logging:
+            options:
+                max-size: 20m
+        devices:
+            - /dev/fuse
+        cap_add:
+            - SYS_ADMIN
+        security_opt:
+            - apparmor:unconfined     
+        image: rclone/rclone
+        healthcheck:
+            test: ["CMD-SHELL", "sh /scripts/healthcheck"]
+            interval: 300s
+            timeout: 60s
+            retries: 3
+            start_period: 30s
+    plex-scanner:
+        # container_name: pdp-plex-scanner
+        networks:
+            - internal
+        restart: always
+        labels:
+            - "autoheal=true"
+        environment:
+            - TZ=Australia/Melbourne
+            - PLEX_CLAIM=claim-xxxxxxxxxxxxxxx
+            - PLEX_UID=99
+            - PLEX_GID=100
+            - VERSION=latest
+            - 'NVIDIA_VISIBLE_DEVICES='
+            - 'PLEXDRIVE_MEDIA_FOLDERS=movies-4k tv-4k'
+            - PUID=99
+            - PGID=100
+            - 'HEALTHCHECK_MOUNTS=/mnt/rclone/secure_media /mnt/rclone/secure_media_plexdrive'
+            - 'HEALTHCHECK_PATHS=/plex/media/Media/movies /plex/media/Media/movies-4k'
+        volumes:
+            - '${DOCKER_ROOT}/mnt/rclone:/mnt/rclone:rshared'
+            - '${DOCKER_ROOT}/plex-scanner/:/config:rw'
+            - '${DOCKER_ROOT}/scripts/:/scripts:ro'
+        ports:
+            - "34400:32400"
+        image: linuxserver/plex
+        healthcheck:
+            test: ["CMD-SHELL", "bash /scripts/plexhealthcheck"]
+            interval: 300s
+            timeout: 60s
+            retries: 3
+            start_period: 30s
+        # depends_on:
+            # rclone_media_scanner:
+                # condition: service_healthy
