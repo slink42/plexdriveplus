@@ -7,8 +7,9 @@ source $INSTALL_ENV_FILE
 [[ -z "$DOCKER_ROOT" ]] && DOCKER_ROOT=$(pwd) && echo "error: DOCKER_ROOT not set. using current path: $DOCKER_ROOT" 
 echo "Using DOCKER_ROOT path: $DOCKER_ROOT"
 
-SUDO=sudo
-[[ $USER = "root" ]] && (echo "running as root user. wont use sudo " && SUDO=sudo)
+SUDO=
+# SUDO=sudo
+# [[ $USER = "root" ]] && (echo "running as root user. wont use sudo " && SUDO=sudo)
 
 ## install prerequisites
 
