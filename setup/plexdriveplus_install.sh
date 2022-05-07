@@ -38,14 +38,20 @@ docker run --rm -it --env-file $INSTALL_ENV_FILE --name rclone-config-download -
 # authorize rclone gdrive mount
 echo "setting up rclone authentication"
 mkdir -p "$DOCKER_ROOT/rclone"
-cp "$DOCKER_ROOT/config/rclone.conf" "$DOCKER_ROOT/rclone/"
 GDRIVE_ENDPOINT=$(cat $DOCKER_ROOT/config/.env | grep RCLONE_CONFIG_SECURE_MEDIA_REMOTE)
 GDRIVE_ENDPOINT=${GDRIVE_ENDPOINT/RCLONE_CONFIG_SECURE_MEDIA_REMOTE=/}
 # GDRIVE_ENDPOINT=$(cat $DOCKER_ROOT/config/.env | grep RCLONE_CONFIG_SECURE_MEDIA_REMOTE | cut -d "=" -f2)
 echo "Using rclone gdrive endpoint: $GDRIVE_ENDPOINT"
-rclone config --config "$DOCKER_ROOT/rclone/rclone.conf" reconnect $GDRIVE_ENDPOINT
+if [[ $(rclone --config  "$DOCKER_ROOT/rclone/rclone.conf" lsd $GDRIVE_ENDPOINT) ]]; then 
+	echo "rclone auth already present. Skipping config copy from master copy mount reconnection"
+else
+	echo "rclone onfig copy from master $GDRIVE_ENDPOINT mount reconnection"
+	cp "$DOCKER_ROOT/config/rclone.conf" "$DOCKER_ROOT/rclone/"
+	rclone config --config "$DOCKER_ROOT/rclone/rclone.conf" reconnect $GDRIVE_ENDPOINT
+fi
 
 ## copy gdrive mount tokens to plexdrive
+echo "copying rclone token to plexdrive"
 mkdir -p "$DOCKER_ROOT/plexdrive/config/"
 # read token from config
 RCLONE_CONFIG_GDRIVE=$(rclone config  --config "$DOCKER_ROOT/rclone/rclone.conf" show ${GDRIVE_ENDPOINT})
@@ -66,7 +72,7 @@ RCLONE_SECRET=${RCLONE_SECRET/client_secret = /}
 
 if [[ -z "$RCLONE_CLIENTID" ]] || [[ -z "$RCLONE_SECRET" ]]; then
 echo "error: rclone token for gdrive not found in rclone.conf"
-exit 1	
+exit 1
 else
 echo "{\"ClientID\":\"$RCLONE_CLIENTID\",\"ClientSecret\":\"$RCLONE_SECRET\"}" > "$DOCKER_ROOT/plexdrive/config/config.json"
 fi
@@ -79,16 +85,14 @@ RCLONE_TEAMDRIVE=${RCLONE_TEAMDRIVE/team_drive = /}
 
 GDRIVE_ENDPOINT=$(cat $DOCKER_ROOT/config/.env | grep RCLONE_CONFIG_SECURE_MEDIA_REMOTE)
 GDRIVE_ENDPOINT=${GDRIVE_ENDPOINT/RCLONE_CONFIG_SECURE_MEDIA_REMOTE=/}
-cat
-echo "DOCKER_ROOT=${DOCKER_ROOT}" > $DOCKER_ROOT/config/.env
 
 ## Start with updated rclone config
 echo "starting containers with docker-compose"
 ENV_FILE="$DOCKER_ROOT/config/.env"
 sed -i '/DOCKER_ROOT/'d "$ENV_FILE"
 echo "DOCKER_ROOT=$DOCKER_ROOT" >> "$ENV_FILE"
-# DOCKER_COMPOSE_FILE=docker-compose-full.yaml
-DOCKER_COMPOSE_FILE=docker-compose.yaml
+# DOCKER_COMPOSE_FILE=$DOCKER_ROOT/setup/docker-compose-full.yml
+DOCKER_COMPOSE_FILE=$DOCKER_ROOT/setup/docker-compose.yml
 docker-compose --env-file $ENV_FILE --project-directory $DOCKER_ROOT/setup -f "$DOCKER_COMPOSE_FILE" --project-name plexdriveplus up -d --remove-orphans
 
 # Stop plex while library downloads
@@ -96,8 +100,10 @@ echo "downloading plex library"
 docker stop pdp-plex
 
 # copy generic Plex Preferences.xml
+mkdir -p "$DOCKER_ROOT/plex-streamer/Library/Application Support/Plex Media Server/"
 cp "$DOCKER_ROOT/setup/Preferences.xml" "$DOCKER_ROOT/plex-streamer/Library/Application Support/Plex Media Server/Preferences.xml"
 
+sleep 7
 while [[ $(docker ps | grep pdp-rclone-library-download) ]]
 do
 echo "$(date) - waiting to pdp-rclone-library-download to complete"
