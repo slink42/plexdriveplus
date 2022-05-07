@@ -123,6 +123,21 @@ case $management_mode in
                 ;;
 esac
 
+# authorize scanner rclone gdrive mount if required by selected library managemeent mode
+if [[$management_mode = "2"]] || [[$management_mode = "3"]]; then
+    echo "setting up rclone authentication form library scanner mount"
+    SCANNER_GDRIVE_ENDPOINT=$(cat $DOCKER_ROOT/config/.env | grep RCLONE_CONFIG_SECURE_MEDIA_SCANNER_REMOTE)
+    SCANNER_GDRIVE_ENDPOINT=${GDRIVE_ENDPOINT/RCLONE_CONFIG_SECURE_MEDIA_SCANNER_REMOTE=/}
+    # GDRIVE_ENDPOINT=$(cat $DOCKER_ROOT/config/.env | grep RCLONE_CONFIG_SECURE_MEDIA_REMOTE | cut -d "=" -f2)
+    echo "Using rclone gdrive endpoint for scanner: $SCANNER_GDRIVE_ENDPOINT"
+    if [[ $(rclone --config  "$DOCKER_ROOT/rclone/rclone.conf" lsd $SCANNER_GDRIVE_ENDPOINT) ]]; then 
+        echo "rclone auth already present. Skipping config copy from master copy mount reconnection"
+    else
+        echo "rclone onfig copy from master $SCANNER_GDRIVE_ENDPOINT mount reconnection"
+        rclone config --config "$DOCKER_ROOT/rclone/rclone.conf" reconnect $SCANNER_GDRIVE_ENDPOINT
+    fi
+fi
+
 # DOCKER_COMPOSE_FILE=$DOCKER_ROOT/setup/docker-compose-full.yml
 DOCKER_COMPOSE_FILE=$DOCKER_ROOT/setup/docker-compose.yml
 docker-compose --env-file $ENV_FILE --project-directory $DOCKER_ROOT/setup -f "$DOCKER_COMPOSE_FILE" --project-name plexdriveplus up -d --remove-orphans
