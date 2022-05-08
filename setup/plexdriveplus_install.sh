@@ -6,7 +6,7 @@ PDP_VERSION=
 # ENV_FILE=install.env
 INSTALL_ENV_FILE=install.env
 [[ -z "$1" ]] || INSTALL_ENV_FILE=$1
-source $INSTALL_ENV_FILE
+[[ -f $INSTALL_ENV_FILE ]] && source $INSTALL_ENV_FILE || echo "warning $INSTALL_ENV_FILE file not found"
 [[ -z "$DOCKER_ROOT" ]] && DOCKER_ROOT=$(pwd) && echo "error: DOCKER_ROOT not set. using current path: $DOCKER_ROOT" 
 echo "Using DOCKER_ROOT path: $DOCKER_ROOT"
 
@@ -65,20 +65,20 @@ case $management_mode in
                 ;;
 esac
 
-https://github.com/slink42/plexdriveplus/zipball/master
-# Download docker-compose and other setup file
-
-[[ -z "$PDP_VERSION" ]] && PDP_URL="https://github.com/slink42/plexdriveplus/archive/master.tar.gz" || PDP_URL="https://github.com/slink42/plexdriveplus/archive/refs/tags/${PDP_VERSION}.tar.gz"
-wget --no-check-certificate --content-disposition ${PDP_URL} -O "${DOCKER_ROOT}/plexdriveplus.tar.gz"
-tar xvzf "${DOCKER_ROOT}/plexdriveplus.tar.gz" --strip=1 -C "${DOCKER_ROOT}"
-
-mkdir -p "$DOCKER_ROOT/rclone"
+# Download rclone settings
 if [[ -f "$DOCKER_ROOT/config/.env" ]] && ([[ -f "$DOCKER_ROOT/config/rclone.conf" ]] || [[ -f "$DOCKER_ROOT/rclone/rclone.conf" ]]); then
     echo "setting up rclone using local copies of rclone.conf & .env"
 else
     echo "setting up rclone using rclone.conf & .env from cloud"
+    [[ -f $INSTALL_ENV_FILE ]] || echo "error $INSTALL_ENV_FILE file not found, missing credentials required to load rclong config from cloud storage" &&  exit 1
     docker run --rm -it --env-file $INSTALL_ENV_FILE --name rclone-config-download -v $DOCKER_ROOT/config:/config rclone/rclone copy secure_backup:config /config --progress
 fi
+mkdir -p "$DOCKER_ROOT/rclone"
+
+# Download docker-compose and other setup file
+[[ -z "$PDP_VERSION" ]] && PDP_URL="https://github.com/slink42/plexdriveplus/archive/master.tar.gz" || PDP_URL="https://github.com/slink42/plexdriveplus/archive/refs/tags/${PDP_VERSION}.tar.gz"
+wget --no-check-certificate --content-disposition ${PDP_URL} -O "${DOCKER_ROOT}/plexdriveplus.tar.gz"
+tar xvzf "${DOCKER_ROOT}/plexdriveplus.tar.gz" --strip=1 -C "${DOCKER_ROOT}"
 
 # authorize rclone gdrive mount
 echo "setting up rclone authentication"
