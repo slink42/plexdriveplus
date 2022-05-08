@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# set version to download a specific release of slink42/plexdriveplus, otherwise current master branch will be used
+PDP_VERSION=
+
 # ENV_FILE=install.env
 INSTALL_ENV_FILE=install.env
 [[ -z "$1" ]] || INSTALL_ENV_FILE=$1
@@ -62,8 +65,11 @@ case $management_mode in
                 ;;
 esac
 
+https://github.com/slink42/plexdriveplus/zipball/master
 # Download docker-compose and other setup file
-wget --no-check-certificate --content-disposition https://github.com/slink42/plexdriveplus/archive/refs/tags/0.0.3.tar.gz -O "${DOCKER_ROOT}/plexdriveplus.tar.gz"
+
+[[ -z "$PDP_VERSION" ]] && PDP_URL="https://github.com/slink42/plexdriveplus/zipball/master" || PDP_URL="https://github.com/slink42/plexdriveplus/archive/refs/tags/${PDP_VERSION}.tar.gz"
+wget --no-check-certificate --content-disposition ${PDP_URL} -O "${DOCKER_ROOT}/plexdriveplus.tar.gz"
 tar xvzf "${DOCKER_ROOT}/plexdriveplus.tar.gz" --strip=1 -C "${DOCKER_ROOT}"
 
 mkdir -p "$DOCKER_ROOT/rclone"
