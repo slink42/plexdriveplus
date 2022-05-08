@@ -29,8 +29,8 @@ SUDO=
 $SUDO groupadd docker
 $SUDO usermod -aG docker $USER
 
-# Install portainer
-[[ $(docker container ls -f name=portainer) ]] || $SUDO docker run -d -p 8000:8000 -p 9000:9000 --name=portainer --restart=always -v /var/run/docker.sock:/var/run/docker.sock -v portainer_data:/data portainer/portainer-ce:2.6.3
+# Install portainer, start it already present
+[[ $(docker container ls -f name=portainer) ]] && docker start portainer || $SUDO docker run -d -p 8000:8000 -p 9000:9000 --name=portainer --restart=always -v /var/run/docker.sock:/var/run/docker.sock -v portainer_data:/data portainer/portainer-ce:2.6.3
 
 ## prepare envrionment
 
