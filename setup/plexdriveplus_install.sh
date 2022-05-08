@@ -138,7 +138,7 @@ sed -i '/DOCKER_ROOT/'d "$ENV_FILE"
 echo "DOCKER_ROOT=$DOCKER_ROOT" >> "$ENV_FILE"
 
 # authorize scanner rclone gdrive mount if required by selected library managemeent mode
-if [[$management_mode = "2"]] || [[$management_mode = "3"]]; then
+if [[ $management_mode = "2" ]] || [[ $management_mode = "3" ]]; then
     echo "setting up rclone authentication form library scanner mount"
     SCANNER_GDRIVE_ENDPOINT=$(cat $DOCKER_ROOT/config/.env | grep RCLONE_CONFIG_SECURE_MEDIA_SCANNER_REMOTE)
     SCANNER_GDRIVE_ENDPOINT=${GDRIVE_ENDPOINT/RCLONE_CONFIG_SECURE_MEDIA_SCANNER_REMOTE=/}
@@ -150,7 +150,7 @@ if [[$management_mode = "2"]] || [[$management_mode = "3"]]; then
         echo "rclone onfig copy from master $SCANNER_GDRIVE_ENDPOINT mount reconnection"
         rclone config --config "$DOCKER_ROOT/rclone/rclone.conf" reconnect $SCANNER_GDRIVE_ENDPOINT
     fi
-    umount $DOCKER_ROOT/mnt/rclone/secure_media_scanner
+    fusermount -uz $DOCKER_ROOT/mnt/rclone/secure_media_scanner
 fi
 
 # make sure paths aren't mounted
@@ -183,5 +183,6 @@ echo "$(date) - pdp-rclone-library-download complete. Restarting Plex"
 docker start pdp-plex
 
 # Open plex in browser
-echo "opening plex in browser"
-xdg-open http://127.0.0.1:32400/web
+echo "please open portainer in web browser to set admin user and password for docker management web gui: https://127.0.0.1:9999"
+( [ $(xdg-open --version) ] && xdg-open https://127.0.0.1:32400/web && echo "opening plex in browser" && exit 0 ) 2>/dev/null
+echo "open plex in browser to continue configuration there: https://127.0.0.1:32400/web"
