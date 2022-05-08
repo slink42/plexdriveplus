@@ -165,25 +165,26 @@ $DOCKER_COMPOSE_COMMAND
 
 # Stop plex while library downloads
 echo "downloading plex library"
-PLEX_STREAMER=$(docker container ls --format {{.Names}} | grep plex_streamer)
-docker stop "$PLEX_STREAMER"
+CONTAINER_PLEX_STREAMER=$(docker container ls --format {{.Names}} | grep plex_streamer)
+docker stop "$CONTAINER_PLEX_STREAMER"
 
 # copy generic Plex Preferences.xml
 mkdir -p "$DOCKER_ROOT/plex-streamer/Library/Application Support/Plex Media Server/"
 cp "$DOCKER_ROOT/setup/Preferences.xml" "$DOCKER_ROOT/plex-streamer/Library/Application Support/Plex Media Server/Preferences.xml"
 
 sleep 7
-while [[ $(docker ps | grep rclone_library_sync) ]]
+CONTAINER_PLEX_LIBRARY_SYNC=$(docker container ls --format {{.Names}} | grep rclone_library_sync)
+while [[ $(docker ps | grep $CONTAINER_PLEX_LIBRARY_SYNC) ]]
 do
-echo "$(date) - waiting to pdp-rclone-library-download to complete"
+echo "$(date) - waiting to $CONTAINER_PLEX_LIBRARY_SYNC to complete"
 echo "------------------------- progress ------------------------------"
-docker logs --tail 5 pdp-rclone-library-download
+docker logs --tail 5 "$CONTAINER_PLEX_LIBRARY_SYNC"
 echo "-----------------------------------------------------------------"
 sleep 30
 done
-echo "$(date) - pdp-rclone-library-download complete. Restarting Plex"
+echo "$(date) - library download using $CONTAINER_PLEX_LIBRARY_SYNC has completed. Restarting Plex"
 
-docker start "$PLEX_STREAMER"
+docker start "$CONTAINER_PLEX_STREAMER"
 
 # Open plex in browser
 echo "please open portainer in web browser to set admin user and password for docker management web gui: https://127.0.0.1:9999"
