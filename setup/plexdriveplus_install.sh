@@ -157,9 +157,11 @@ fi
 fusermount -uz $DOCKER_ROOT/mnt/rclone/secure_media 2>/dev/null
 fusermount -uz $DOCKER_ROOT/mnt/plexdrive/secure_media 2>/dev/null
 
-# DOCKER_COMPOSE_FILE=$DOCKER_ROOT/setup/docker-compose-full.yml
+# start docker containers
 DOCKER_COMPOSE_FILE=$DOCKER_ROOT/setup/docker-compose.yml
-docker-compose --env-file $ENV_FILE --project-directory $DOCKER_ROOT/setup -f "$DOCKER_COMPOSE_FILE" --project-name plexdriveplus up -d --remove-orphans
+DOCKER_COMPOSE_COMMAND="docker-compose --env-file $ENV_FILE --project-directory $DOCKER_ROOT/setup -f "$DOCKER_COMPOSE_FILE" $DOCKER_COMPOSE_FILE_LIB_MANGER --project-name plexdriveplus up -d --remove-orphans"
+echo "starting docker containers with command: $DOCKER_COMPOSE_COMMAND"
+$DOCKER_COMPOSE_COMMAND
 
 # Stop plex while library downloads
 echo "downloading plex library"
