@@ -137,6 +137,7 @@ services:
             - 'PLEXDRIVE_OPTS=-v 2 --max-chunks=10 --chunk-size=20M --chunk-check-threads=20 --chunk-load-threads=4 --chunk-load-ahead=5 --drive-id=0ALNBa0QBHhldUk9PVA -o allow_other,read_only,nonempty'
         volumes:
             - '${DOCKER_ROOT}/plexdrive/config:/config:rw'
+            - '${DOCKER_ROOT}/scripts/:/scripts:ro'
             - '${DOCKER_ROOT}/plexdrive/cache:/cache:rw'
             - '${DOCKER_ROOT}/mnt/plexdrive/secure_media:/data:rshared'
             - '${DOCKER_ROOT}/test-path/:/local/:ro'
