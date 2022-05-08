@@ -176,7 +176,7 @@ sleep 7
 CONTAINER_PLEX_LIBRARY_SYNC=$(docker container ls --format {{.Names}} | grep rclone_library_sync)
 while [[ $(docker ps | grep $CONTAINER_PLEX_LIBRARY_SYNC) ]]
 do
-echo "$(date) - waiting to $CONTAINER_PLEX_LIBRARY_SYNC to complete"
+echo "$(date) - waiting for library download using $CONTAINER_PLEX_LIBRARY_SYNC to complete"
 echo "------------------------- progress ------------------------------"
 docker logs --tail 5 "$CONTAINER_PLEX_LIBRARY_SYNC"
 echo "-----------------------------------------------------------------"
