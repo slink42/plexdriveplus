@@ -97,13 +97,14 @@ services:
             - PLEX_GID=100
             - VERSION=latest
             - 'NVIDIA_VISIBLE_DEVICES='
-            - 'PLEXDRIVE_MEDIA_FOLDERS=movies-4k tv-4k'
             - PUID=99
             - PGID=100
-            - 'HEALTHCHECK_MOUNTS=/mnt/rclone/secure_media /mnt/rclone/secure_media_plexdrive'
-            - 'HEALTHCHECK_PATHS=/plex/media/Media/movies /plex/media/Media/movies-4k'
+            - 'PLEXDRIVE_MEDIA_FOLDERS='
+            - 'RCLONE_MEDIA_PATH=/mnt/rclone/secure_media_scanner/Media'
+            - 'HEALTHCHECK_MOUNTS=/mnt/rclone/secure_media_scanner'
+            - 'HEALTHCHECK_PATHS=/plex/media/Media/tv-4k'
         volumes:
-            - '${DOCKER_ROOT}/mnt/rclone:/mnt/rclone:rshared'
+            - '${DOCKER_ROOT}/mnt/rclone/secure_media_scanner/:/mnt/rclone/secure_media_scanner:rshared'
             - '${DOCKER_ROOT}/plex-scanner/:/config:rw'
             - '${DOCKER_ROOT}/scripts/:/scripts:ro'
         ports:

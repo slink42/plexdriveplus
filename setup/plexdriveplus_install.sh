@@ -144,7 +144,11 @@ if [[$management_mode = "2"]] || [[$management_mode = "3"]]; then
         echo "rclone onfig copy from master $SCANNER_GDRIVE_ENDPOINT mount reconnection"
         rclone config --config "$DOCKER_ROOT/rclone/rclone.conf" reconnect $SCANNER_GDRIVE_ENDPOINT
     fi
+    umount $DOCKER_ROOT/mnt/rclone/secure_media_scanner
 fi
+
+umount $DOCKER_ROOT/mnt/rclone/secure_media
+umount $DOCKER_ROOT/mnt/plexdrive/secure_media
 
 # DOCKER_COMPOSE_FILE=$DOCKER_ROOT/setup/docker-compose-full.yml
 DOCKER_COMPOSE_FILE=$DOCKER_ROOT/setup/docker-compose.yml
