@@ -9,7 +9,7 @@ fi
 if [[ $(findmnt 2> /dev/null) ]]; then
 for CHECK_MOUNT in $HEALTHCHECK_MOUNTS; 
 do 
-if [ $(findmnt ${CHECK_MOUNT} | grep fuse | wc -l) -ne 1 ]; then
+if ! [[ $(findmnt ${CHECK_MOUNT} | grep fuse) ]]; then
 echo "unhealthy - path not mounted: $CHECK_MOUNT"
 fusermount -uz "$CHECK_MOUNT"
 exit 1
