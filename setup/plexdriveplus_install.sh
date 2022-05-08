@@ -31,23 +31,61 @@ $SUDO usermod -aG docker $USER
 
 ## prepare envrionment
 
+read -p 'Please select library management mode: 
+1  | [Default] Slave mode. Scheduled sync library db from master copy stored on gdrive 
+2  | Master mode. Maintain library locally using a 2nd and upload on schedule to gdrive
+3  | Solo mode. Maintain library locally using a 2nd plex instance
+4  | KISS mode. Maintain library locally using a single plex instance
+library management mode> ' -e management_mode
+
+case $management_mode in
+        "1"|"")
+                echo "Slave Library Mode Selected"
+                DOCKER_COMPOSE_FILE_LIB_MANGER="-f /"$DOCKER_ROOT/setup/docker-compose-lib-slave.yml/""
+                ;;
+        "2")
+                echo "Master Library Mode Selected"
+                DOCKER_COMPOSE_FILE_LIB_MANGER="-f /"$DOCKER_ROOT/setup/docker-compose-lib-master.yml/""
+                ;;
+        "3")
+                echo "Solo Library Mode Selected"
+                DOCKER_COMPOSE_FILE_LIB_MANGER="-f /"$DOCKER_ROOT/setup/docker-compose-lib-solo.yml/""
+                ;;
+        "4")
+                echo "KISS Library Mode Selected"
+                DOCKER_COMPOSE_FILE_LIB_MANGER=
+                ;;
+        *)
+                echo "Invalid selection, exiting"
+                DOCKER_COMPOSE_FILE_LIB_MANGER=
+                exit 1
+                ;;
+esac
+
 # Download docker-compose and other setup file
 wget --no-check-certificate --content-disposition https://github.com/slink42/plexdriveplus/archive/refs/tags/0.0.3.tar.gz -O "${DOCKER_ROOT}/plexdriveplus.tar.gz"
 tar xvzf "${DOCKER_ROOT}/plexdriveplus.tar.gz" --strip=1 -C "${DOCKER_ROOT}"
-docker run --rm -it --env-file $INSTALL_ENV_FILE --name rclone-config-download -v $DOCKER_ROOT/config:/config rclone/rclone copy secure_backup:config /config --progress
+
+mkdir -p "$DOCKER_ROOT/rclone"
+if [[ -f "$DOCKER_ROOT/config/.env" ]] && ([[ -f "$DOCKER_ROOT/config/rclone.conf" ]] || [[ -f "$DOCKER_ROOT/rclone/rclone.conf" ]]); then
+    echo "setting up rclone using local copies of rclone.conf & .env"
+else
+    echo "setting up rclone using rclone.conf & .env from cloud"
+    docker run --rm -it --env-file $INSTALL_ENV_FILE --name rclone-config-download -v $DOCKER_ROOT/config:/config rclone/rclone copy secure_backup:config /config --progress
+fi
 
 # authorize rclone gdrive mount
 echo "setting up rclone authentication"
-mkdir -p "$DOCKER_ROOT/rclone"
 GDRIVE_ENDPOINT=$(cat $DOCKER_ROOT/config/.env | grep RCLONE_CONFIG_SECURE_MEDIA_REMOTE)
 GDRIVE_ENDPOINT=${GDRIVE_ENDPOINT/RCLONE_CONFIG_SECURE_MEDIA_REMOTE=/}
 # GDRIVE_ENDPOINT=$(cat $DOCKER_ROOT/config/.env | grep RCLONE_CONFIG_SECURE_MEDIA_REMOTE | cut -d "=" -f2)
 echo "Using rclone gdrive endpoint: $GDRIVE_ENDPOINT"
-if [[ $(rclone --config  "$DOCKER_ROOT/rclone/rclone.conf" lsd $GDRIVE_ENDPOINT) ]]; then 
+if [[ -f "$DOCKER_ROOT/rclone/rclone.conf" ]] && [[ $(rclone --config  "$DOCKER_ROOT/rclone/rclone.conf" lsd $GDRIVE_ENDPOINT) ]]; then 
 	echo "rclone auth already present. Skipping config copy from master copy mount reconnection"
 else
-	echo "rclone onfig copy from master $GDRIVE_ENDPOINT mount reconnection"
-	cp "$DOCKER_ROOT/config/rclone.conf" "$DOCKER_ROOT/rclone/"
+	echo "rclone config copy from master $GDRIVE_ENDPOINT mount reconnection"
+	[[ -f "$DOCKER_ROOT/config/rclone.conf" ]] && echo "rclone config copy from master" && cp "$DOCKER_ROOT/config/rclone.conf" "$DOCKER_ROOT/rclone/"
+    echo "reconnecting rclone mount: $GDRIVE_ENDPOINT"
 	rclone config --config "$DOCKER_ROOT/rclone/rclone.conf" reconnect $GDRIVE_ENDPOINT
 fi
 
@@ -92,37 +130,6 @@ echo "starting containers with docker-compose"
 ENV_FILE="$DOCKER_ROOT/config/.env"
 sed -i '/DOCKER_ROOT/'d "$ENV_FILE"
 echo "DOCKER_ROOT=$DOCKER_ROOT" >> "$ENV_FILE"
-
-read -p 'Please select library management mode: 
-1  | Slave mode. Scheduled sync library db from master copy stored on gdrive
-2  | Master mode. Maintain library locally using a 2nd and upload on schedule to gdrive
-3  | Solo mode. Maintain library locally using a 2nd plex instance
-4  | KISS mode. Maintain library locally using a single plex instance
-library management mode> ' -e -i '1' management_mode
-
-DOCKER_COMPOSE_FILE_LIB_MANGER=
-case $management_mode in
-        "1")
-                echo "Slave Library Mode Selected"
-                DOCKER_COMPOSE_FILE_LIB_MANGER="-f /"$DOCKER_ROOT/setup/docker-compose-lib-slave.yml/""
-                ;;
-        "2")
-                echo "Master Library Mode Selected"
-                DOCKER_COMPOSE_FILE_LIB_MANGER="-f /"$DOCKER_ROOT/setup/docker-compose-lib-master.yml/""
-                ;;
-        "3")
-                echo "Solo Library Mode Selected"
-                DOCKER_COMPOSE_FILE_LIB_MANGER="-f /"$DOCKER_ROOT/setup/docker-compose-lib-solo.yml/""
-                ;;
-        "4")
-                echo "KISS Library Mode Selected"
-                DOCKER_COMPOSE_FILE_LIB_MANGER=
-                ;;
-        *)
-                echo "Invalid selection, defaulting to KISS Library Mode"
-                DOCKER_COMPOSE_FILE_LIB_MANGER=
-                ;;
-esac
 
 # authorize scanner rclone gdrive mount if required by selected library managemeent mode
 if [[$management_mode = "2"]] || [[$management_mode = "3"]]; then
