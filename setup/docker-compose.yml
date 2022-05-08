@@ -123,40 +123,41 @@ services:
             retries: 3
             start_period: 5s
     plexdrive:
-        # container_name: pdp-rclone-library-download
-        # # command: 'lsd SECURE_BACKUP:'
-        # library download from master
-        command: 'copy SECURE_BACKUP: /config --progress'
-        # # library upload from master
-        # command: 'sync /config SECURE_BACKUP: --progress'
+        # container_name: pdp-plexdrive-secure_media
+        restart: always
         labels:
-            - "autoheal-library=true"
-        #command: 'lsd SECURE_BACKUP:'
+            - "autoheal=true"
         environment:
             - TZ=Australia/Melbourne
-            - PGID=100
-            - PUID=99
-            - RCLONE_CONFIG_CONFIG_BACKUP_TYPE=${RCLONE_CONFIG_CONFIG_BACKUP_TYPE}
-            - RCLONE_CONFIG_CONFIG_BACKUP_CLIENT_ID=${RCLONE_CONFIG_CONFIG_BACKUP_CLIENT_ID}
-            - RCLONE_CONFIG_CONFIG_BACKUP_CLIENT_SECRET=${RCLONE_CONFIG_CONFIG_BACKUP_CLIENT_SECRET}
-            - RCLONE_CONFIG_CONFIG_BACKUP_SCOPE=${RCLONE_CONFIG_CONFIG_BACKUP_SCOPE}
-            - 'RCLONE_CONFIG_CONFIG_BACKUP_TOKEN=${RCLONE_CONFIG_CONFIG_BACKUP_TOKEN}'
-            - RCLONE_CONFIG_CONFIG_BACKUP_TEAM_DRIVE=${RCLONE_CONFIG_CONFIG_BACKUP_TEAM_DRIVE}
-            - RCLONE_CONFIG_SECURE_BACKUP_TYPE=${RCLONE_CONFIG_SECURE_BACKUP_TYPE}
-            - 'RCLONE_CONFIG_SECURE_BACKUP_REMOTE=${RCLONE_CONFIG_SECURE_BACKUP_REMOTE}'
-            - RCLONE_CONFIG_SECURE_BACKUP_FILENAME_ENCRYPTION=${RCLONE_CONFIG_SECURE_BACKUP_FILENAME_ENCRYPTION}
-            - RCLONE_CONFIG_SECURE_BACKUP_DIRECTORY_NAME_ENCRYPTION=${RCLONE_CONFIG_SECURE_BACKUP_DIRECTORY_NAME_ENCRYPTION}
-            - RCLONE_CONFIG_SECURE_BACKUP_PASSWORD=${RCLONE_CONFIG_SECURE_BACKUP_PASSWORD}
-            - RCLONE_CONFIG_SECURE_BACKUP_PASSWORD2=${RCLONE_CONFIG_SECURE_BACKUP_PASSWORD2}
+            - PUID=0
+            - PGID=0
+            - 'HEALTHCHECK_MOUNTS=/data'
+            - 'HEALTHCHECK_PATHS=/data'
+            - POOLING_FS=unionfs
+            - 'PLEXDRIVE_OPTS=-v 2 --max-chunks=10 --chunk-size=20M --chunk-check-threads=20 --chunk-load-threads=4 --chunk-load-ahead=5 --drive-id=0ALNBa0QBHhldUk9PVA -o allow_other,read_only,nonempty'
         volumes:
-            - '${DOCKER_ROOT}/plex-streamer/Library/Application Support/Plex Media Server/Plug-in Support/:/config/Library/Application Support/Plex Media Server/Plug-in Support/:rw'
-            - '${DOCKER_ROOT}/config/:/config/config:rw'
+            - '${DOCKER_ROOT}/plexdrive/config:/config:rw'
+            - '${DOCKER_ROOT}/plexdrive/cache:/cache:rw'
+            - '${DOCKER_ROOT}/mnt/plexdrive/secure_media:/data:rshared'
+            - '${DOCKER_ROOT}/test-path/:/local/:ro'
         networks:
             - internal
         logging:
             options:
                 max-size: 20m
-        image: rclone/rclone
+        devices:
+            - /dev/fuse
+        cap_add:
+            - SYS_ADMIN
+        security_opt:
+            - apparmor:unconfined
+        image: 'wiserain/plexdrive:5.1.0'
+        healthcheck:
+            test: ["CMD-SHELL", "sh /scripts/healthcheck"]
+            interval: 300s
+            timeout: 60s
+            retries: 5
+            start_period: 5s
     autoheal:
         # container_name: pdp-autoheal
         restart: always
