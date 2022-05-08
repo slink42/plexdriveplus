@@ -2,8 +2,7 @@ version: '3.3'
 networks:
     internal:
 services:
-    plex:
-        container_name: pdp-plex
+    plex_streamer:
         # network_mode: bridge
         networks:
             - internal

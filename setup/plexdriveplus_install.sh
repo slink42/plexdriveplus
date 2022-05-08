@@ -165,14 +165,15 @@ $DOCKER_COMPOSE_COMMAND
 
 # Stop plex while library downloads
 echo "downloading plex library"
-docker stop pdp-plex
+PLEX_STREAMER=$(docker container ls --format {{.Names}} | grep plex_streamer)
+docker stop "$PLEX_STREAMER"
 
 # copy generic Plex Preferences.xml
 mkdir -p "$DOCKER_ROOT/plex-streamer/Library/Application Support/Plex Media Server/"
 cp "$DOCKER_ROOT/setup/Preferences.xml" "$DOCKER_ROOT/plex-streamer/Library/Application Support/Plex Media Server/Preferences.xml"
 
 sleep 7
-while [[ $(docker ps | grep pdp-rclone-library-download) ]]
+while [[ $(docker ps | grep rclone_library_sync) ]]
 do
 echo "$(date) - waiting to pdp-rclone-library-download to complete"
 echo "------------------------- progress ------------------------------"
@@ -182,7 +183,7 @@ sleep 30
 done
 echo "$(date) - pdp-rclone-library-download complete. Restarting Plex"
 
-docker start pdp-plex
+docker start "$PLEX_STREAMER"
 
 # Open plex in browser
 echo "please open portainer in web browser to set admin user and password for docker management web gui: https://127.0.0.1:9999"
