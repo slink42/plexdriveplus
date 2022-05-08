@@ -153,8 +153,9 @@ if [[$management_mode = "2"]] || [[$management_mode = "3"]]; then
     umount $DOCKER_ROOT/mnt/rclone/secure_media_scanner
 fi
 
-umount $DOCKER_ROOT/mnt/rclone/secure_media
-umount $DOCKER_ROOT/mnt/plexdrive/secure_media
+# make sure paths aren't mounted
+fusermount -uz $DOCKER_ROOT/mnt/rclone/secure_media 2>/dev/null
+fusermount -uz $DOCKER_ROOT/mnt/plexdrive/secure_media 2>/dev/null
 
 # DOCKER_COMPOSE_FILE=$DOCKER_ROOT/setup/docker-compose-full.yml
 DOCKER_COMPOSE_FILE=$DOCKER_ROOT/setup/docker-compose.yml
