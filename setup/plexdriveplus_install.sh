@@ -71,7 +71,12 @@ if [[ -f "$DOCKER_ROOT/config/.env" ]] && ([[ -f "$DOCKER_ROOT/config/rclone.con
 else
     echo "setting up rclone using rclone.conf & .env from cloud"
     [[ -f $INSTALL_ENV_FILE ]] || echo "error $INSTALL_ENV_FILE file not found, missing credentials required to load rclone config from cloud storage" &&  exit 1
-    docker run --rm -it --env-file $INSTALL_ENV_FILE --name rclone-config-download -v $DOCKER_ROOT/config:/config rclone/rclone copy secure_backup:config /config --progress
+    docker run --rm -it \
+    --env-file $INSTALL_ENV_FILE \
+    --name rclone-config-download \
+    -v $DOCKER_ROOT/config:/config \
+    rclone/rclone \
+    copy secure_backup:config /config --progress
 fi
 mkdir -p "$DOCKER_ROOT/rclone"
 
@@ -130,6 +135,23 @@ RCLONE_TEAMDRIVE=${RCLONE_TEAMDRIVE/team_drive = /}
 
 GDRIVE_ENDPOINT=$(cat $DOCKER_ROOT/config/.env | grep RCLONE_CONFIG_SECURE_MEDIA_REMOTE)
 GDRIVE_ENDPOINT=${GDRIVE_ENDPOINT/RCLONE_CONFIG_SECURE_MEDIA_REMOTE=/}
+
+# Download plexdrive cache
+if [[ -f "$DOCKER_ROOT/plexdrive/cache/cache.bolt" ]]; then
+    echo "using local plexdrive cache file"
+else
+    echo "local plexdrive cache file not found. Initalising with master copy from cloud"
+    if [[ -f $INSTALL_ENV_FILE ]]; then
+        docker run --rm -it \
+        --env-file $INSTALL_ENV_FILE \
+        --name rclone-config-download \
+        -v $DOCKER_ROOT/plexdrive/cache:/plexdrive/cache \
+        rclone/rclone \
+        copy secure_backup:plexdrive/cache /plexdrive/cache --progress
+    else
+        echo "warning $INSTALL_ENV_FILE file not found, missing credentials required to initalise plexdrive cache file from cloud storage. Will leave to plexdrive to initalise on first run"
+    fi
+fi
 
 ## Start with updated rclone config
 echo "starting containers with docker-compose"
