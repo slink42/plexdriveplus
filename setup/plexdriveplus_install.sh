@@ -3,6 +3,9 @@
 # set version to download a specific release of slink42/plexdriveplus, otherwise current master branch will be used
 PDP_VERSION=
 
+# set to any value to force script to use config files from cloud overwriting any local copies that exist
+USE_CLOUD_CONFIG=
+
 # ENV_FILE=install.env
 INSTALL_ENV_FILE=install.env
 [[ -z "$1" ]] || INSTALL_ENV_FILE=$1
@@ -66,7 +69,7 @@ case $management_mode in
 esac
 
 # Download rclone settings
-if [[ -f "$DOCKER_ROOT/config/.env" ]] && ([[ -f "$DOCKER_ROOT/config/rclone.conf" ]] || [[ -f "$DOCKER_ROOT/rclone/rclone.conf" ]]); then
+if [[ -z "$USE_CLOUD_CONFIG" ]] && [[ -f "$DOCKER_ROOT/config/.env" ]] && ([[ -f "$DOCKER_ROOT/config/rclone.conf" ]] || [[ -f "$DOCKER_ROOT/rclone/rclone.conf" ]]); then
     echo "setting up rclone using local copies of rclone.conf & .env"
 else
     echo "setting up rclone using rclone.conf & .env from cloud"
@@ -137,7 +140,7 @@ GDRIVE_ENDPOINT=$(cat $DOCKER_ROOT/config/.env | grep RCLONE_CONFIG_SECURE_MEDIA
 GDRIVE_ENDPOINT=${GDRIVE_ENDPOINT/RCLONE_CONFIG_SECURE_MEDIA_REMOTE=/}
 
 # Download plexdrive cache
-if [[ -f "$DOCKER_ROOT/plexdrive/cache/cache.bolt" ]]; then
+if [[ -z "$USE_CLOUD_CONFIG" ]] && [[ -f "$DOCKER_ROOT/plexdrive/cache/cache.bolt" ]]; then
     echo "using local plexdrive cache file"
 else
     echo "local plexdrive cache file not found. Initalising with master copy from cloud"

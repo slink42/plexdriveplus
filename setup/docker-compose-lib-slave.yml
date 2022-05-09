@@ -6,7 +6,7 @@ services:
         # container_name: pdp-rclone-library-download
         # # command: 'lsd SECURE_BACKUP:'
         # library download from master
-        command: 'copy SECURE_BACKUP: /config --progress'
+        command: 'copy SECURE_BACKUP:Library /config/Library --progress'
         # # library upload from master
         # command: 'sync /config SECURE_BACKUP: --progress'
         labels:
@@ -30,7 +30,6 @@ services:
             - RCLONE_CONFIG_SECURE_BACKUP_PASSWORD2=${RCLONE_CONFIG_SECURE_BACKUP_PASSWORD2}
         volumes:
             - '${DOCKER_ROOT}/plex-streamer/Library/Application Support/Plex Media Server/Plug-in Support/:/config/Library/Application Support/Plex Media Server/Plug-in Support/:rw'
-            - '${DOCKER_ROOT}/config/:/config/config:rw'
         networks:
             - internal
         logging:

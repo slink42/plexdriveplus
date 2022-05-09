@@ -31,6 +31,7 @@ services:
         volumes:
             - '${DOCKER_ROOT}/plex-streamer/Library/Application Support/Plex Media Server/Plug-in Support/:/config/Library/Application Support/Plex Media Server/Plug-in Support/:rw'
             - '${DOCKER_ROOT}/config/:/config/config:rw'
+            - '${DOCKER_ROOT}/plexdrive/cache/:/config/plexdrive/cache:rw'
         networks:
             - internal
         logging:
