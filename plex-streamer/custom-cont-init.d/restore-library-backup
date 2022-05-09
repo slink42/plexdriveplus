@@ -17,7 +17,7 @@ BACKUP_BLOB_FILE=$(find /config/Library/Application\ Support/Plex\ Media\ Server
     LIBRARY_DB_CORRUPT="TRUE" || LIBRARY_DB_CORRUPT=
 
 if [[ -f "$BACKUP_BLOB_FILE" ]] && \
-    ( [ $LIBRARY_DB_CORRUPT = "TRUE" ]] && echo "Library DB corrupt, restoring from latest backup."); then
+    ( [[ $LIBRARY_DB_CORRUPT = "TRUE" ]] && echo "Library DB corrupt, restoring from latest backup."); then
 
     echo "Loaded plex library db from backup: $BACKUP_FILE"
     cp "$BACKUP_FILE" "$LIBRARY_FILE"
