@@ -22,6 +22,13 @@ C_YELLOW1="\033[38;5;226m"
 C_DODGERBLUE1="\033[38;5;33m"
 C_PURPLE="\033[38;5;129m"
 
+if [[ -z $OPTIMISE_LIBRARY ]]; then
+    echo -e "${C_ORANGE1}Maintenance Skipped - Set OPTIMISE_LIBRARY ENV VAR with any value to run${NO_FORMAT}!"
+    exit
+fi
+
+[[ $($SQLITE3 --version)]] || echo -e "${C_DODGERBLUE1}Installing sqlite3 for use in library maintenance${NO_FORMAT}!" && apt install sqlite3
+
 #######################################################################################################################################################
 
 vmtouch /fake/path || (echo "installing vmtouch" && apt-get update -y && apt-get install -y vmtouch)
@@ -30,7 +37,7 @@ vmtouch /fake/path || (echo "installing vmtouch" && apt-get update -y && apt-get
 
 echo -e "${C_PURPLE}Starting Maintenance${NO_FORMAT}"
 
-systemctl stop plexmediaserver &&
+#systemctl stop plexmediaserver &&
 
 rm $BACKUPDIR/*
 rm $SQLDUMP
@@ -106,7 +113,7 @@ rm -rf "/config/Library/Application Support/Plex Media Server/Codecs/"*
 #systemctl restart plexmediaserver &&
 
 ##update to target rclone docker containers ##
-/usr/bin/rclone rc vfs/refresh recursive=true --rc-addr 127.0.0.1:5575
+#/usr/bin/rclone rc vfs/refresh recursive=true --rc-addr 127.0.0.1:5575
 
 echo -e "${C_PURPLE}Maintenance Finished${NO_FORMAT}!"
 

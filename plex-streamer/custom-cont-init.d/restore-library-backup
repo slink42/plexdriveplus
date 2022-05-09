@@ -16,7 +16,7 @@ BACKUP_BLOB_FILE=$(find /config/Library/Application\ Support/Plex\ Media\ Server
     [[ $(cat /config/Library/Application\ Support/Plex\ Media\ Server/Logs/Plex\ Media\ Server.1.log | grep "database disk image is malformed") ]] && \
     LIBRARY_DB_CORRUPT="TRUE" || LIBRARY_DB_CORRUPT=
 
-if ( [[ $LIBRARY_DB_CORRUPT = "TRUE" ]] && echo "Library DB corrupt, restoring from latest backup."); then
+if ( [[ $LIBRARY_DB_CORRUPT = "TRUE" ]] && echo "Library DB corrupt, restoring from latest backup.") || ! [[ -z $FORCE_LIBRARY_RESTORE ]]; then
     if [[ -f "$BACKUP_BLOB_FILE" ]]; then
         echo "Loaded plex library db from backup: $BACKUP_FILE"
         cp "$BACKUP_FILE" "$LIBRARY_FILE"
