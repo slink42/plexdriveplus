@@ -11,9 +11,12 @@ BACKUP_BLOB_FILE=$(find /config/Library/Application\ Support/Plex\ Media\ Server
 
 # check latest 2 server logs for db corruption warnings
 [[ -f /config/Library/Application\ Support/Plex\ Media\ Server/Logs/Plex\ Media\ Server.log ]] && \
-    [[ $(cat /config/Library/Application\ Support/Plex\ Media\ Server/Logs/Plex\ Media\ Server.log | grep "database disk image is malformed") ]] && \
+    ([[ $(cat /config/Library/Application\ Support/Plex\ Media\ Server/Logs/Plex\ Media\ Server.log | grep "database disk image is malformed") ]] || \
+    [[ $(cat /config/Library/Application\ Support/Plex\ Media\ Server/Logs/Plex\ Media\ Server.log | grep "ERROR - Database corruption") ]]) \
+    && \
     [[ -f /config/Library/Application\ Support/Plex\ Media\ Server/Logs/Plex\ Media\ Server.1.log ]] && \
-    [[ $(cat /config/Library/Application\ Support/Plex\ Media\ Server/Logs/Plex\ Media\ Server.1.log | grep "database disk image is malformed") ]] && \
+    ([[ $(cat /config/Library/Application\ Support/Plex\ Media\ Server/Logs/Plex\ Media\ Server.1.log | grep "database disk image is malformed") ]] || \
+    [[ $(cat /config/Library/Application\ Support/Plex\ Media\ Server/Logs/Plex\ Media\ Server.1.log | grep "ERROR - Database corruption") ]]) \
     LIBRARY_DB_CORRUPT="TRUE" || LIBRARY_DB_CORRUPT=
 
 if ( [[ $LIBRARY_DB_CORRUPT = "TRUE" ]] && echo "Library DB corrupt, restoring from latest backup.") || ! [[ -z $FORCE_LIBRARY_RESTORE ]]; then
