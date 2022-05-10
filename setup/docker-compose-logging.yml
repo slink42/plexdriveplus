@@ -22,7 +22,7 @@ services:
             - --push.url
             - http://pushgateway:9091
             - --scrape.url
-            - http://plexdriveplus-rclone_media-1:15572
+            - http://plexdriveplus-rclone_media-1:5572
         # Example of configuring Basic Auth and other options with ENV vars
         environment:
             PUSH_INTERVAL: 15s
