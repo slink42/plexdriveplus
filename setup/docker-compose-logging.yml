@@ -15,7 +15,7 @@ services:
         networks:
             - internal
         volumes:
-            - ./prometheus.yml:/etc/prometheus/prometheus.yml
+            - ${DOCKER_ROOT}/prometheus:/etc/prometheus
     exporter:
         image: docker.io/vshn/rclone-exporter:v1
         command:
