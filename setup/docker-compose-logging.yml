@@ -18,7 +18,6 @@ services:
             - ./prometheus.yml:/etc/prometheus/prometheus.yml
     exporter:
         image: docker.io/vshn/rclone-exporter:v1
-        build: .
         command:
             - --push.url
             - http://pushgateway:9091
