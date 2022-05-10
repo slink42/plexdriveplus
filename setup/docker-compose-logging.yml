@@ -1,0 +1,49 @@
+version: '3.3'
+networks:
+    internal:
+services:
+    pushgateway:
+        image: docker.io/prom/pushgateway
+        ports:
+            - "9091:9091"
+        networks:
+            - internal
+    prometheus:
+        image: docker.io/prom/prometheus
+        ports:
+            - "9090:9090"
+        networks:
+            - internal
+        volumes:
+            - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    exporter:
+        image: docker.io/vshn/rclone-exporter:v1
+        build: .
+        command:
+            - --push.url
+            - http://pushgateway:9091
+            - --scrape.url
+            - http://rclone_media:15572
+        # Example of configuring Basic Auth and other options with ENV vars
+        environment:
+            PUSH_INTERVAL: 15s
+            LOG_LEVEL: debug
+            SCRAPE_BASICAUTH_USERNAME: ${RCLONE_USER}
+            SCRAPE_BASICAUTH_PASSWORD: ${RCLONE_PASSWORD}
+        ports:
+            - "8080:8080"
+        networks:
+            - internal
+#   rclone:
+#     image: docker.io/rclone/rclone:1.50
+#     stdin_open: true
+#     tty: true
+#     entrypoint: sh
+#     volumes:
+#     - ./:/config/rclone/
+#     ports:
+#     - "5572:5572"
+#     networks:
+#         - internal
+#     user: "1000:1000"
+#     #command: rclone --rc --rc-addr "0.0.0.0:5572" --rc-user user --rc-pass password -v serve http source:bucket

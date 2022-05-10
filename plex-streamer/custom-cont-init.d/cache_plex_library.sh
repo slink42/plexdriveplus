@@ -23,7 +23,7 @@ C_DODGERBLUE1="\033[38;5;33m"
 C_PURPLE="\033[38;5;129m"
 
 if [[ -z $OPTIMISE_LIBRARY ]]; then
-    echo -e "${C_ORANGE1}Maintenance Skipped - Set OPTIMISE_LIBRARY ENV VAR with any value to run${NO_FORMAT}!"
+    echo -e "${C_ORANGE1}Maintenance Skipped - Set OPTIMISE_LIBRARY ENV VAR with any value to run libary maintnence on container start${NO_FORMAT}!"
     exit
 fi
 

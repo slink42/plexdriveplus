@@ -162,6 +162,10 @@ ENV_FILE="$DOCKER_ROOT/config/.env"
 sed -i '/DOCKER_ROOT/'d "$ENV_FILE"
 echo "DOCKER_ROOT=$DOCKER_ROOT" >> "$ENV_FILE"
 
+# Set rclone rc username and password if not already provided in env file
+[[ $(cat $ENV_FILE | grep RCLONE_USER) ]] || echo "RCLONE_USER=rclone" >> "$ENV_FILE"
+[[ $(cat $ENV_FILE | grep RCLONE_PASSWORD) ]] || echo "RCLONE_PASSWORD=rclone" >> "$ENV_FILE"
+
 # authorize scanner rclone gdrive mount if required by selected library managemeent mode
 if [[ $management_mode = "2" ]] || [[ $management_mode = "3" ]]; then
     echo "setting up rclone authentication form library scanner mount"
@@ -184,7 +188,8 @@ fusermount -uz $DOCKER_ROOT/mnt/plexdrive/secure_media 2>/dev/null
 
 # start docker containers
 DOCKER_COMPOSE_FILE=$DOCKER_ROOT/setup/docker-compose.yml
-DOCKER_COMPOSE_COMMAND="docker-compose --env-file $ENV_FILE --project-directory $DOCKER_ROOT/setup -f "$DOCKER_COMPOSE_FILE" $DOCKER_COMPOSE_FILE_LIB_MANGER --project-name plexdriveplus up -d --remove-orphans"
+DOCKER_COMPOSE_FILE_LOGGING="-f /"$DOCKER_ROOT/setup/docker-compose-logging.yml/""
+DOCKER_COMPOSE_COMMAND="docker-compose --env-file $ENV_FILE --project-directory $DOCKER_ROOT/setup -f "$DOCKER_COMPOSE_FILE" $DOCKER_COMPOSE_FILE_LIB_MANGER $DOCKER_COMPOSE_FILE_LOGGING --project-name plexdriveplus up -d --remove-orphans"
 echo "starting docker containers with command: $DOCKER_COMPOSE_COMMAND"
 $DOCKER_COMPOSE_COMMAND
 
