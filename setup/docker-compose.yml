@@ -98,6 +98,9 @@ services:
             - ${RCLONE_USER}
             - --rc-pass
             - ${RCLONE_PASSWORD}
+            - --rc-web-gui
+            - --rc-web-gui-update
+            - --rc-web-gui-no-open-browser
             - mount
             - --read-only
             - --acd-templink-threshold
