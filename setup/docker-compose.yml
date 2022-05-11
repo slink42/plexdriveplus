@@ -100,6 +100,8 @@ services:
             - PUID=99
             - 'HEALTHCHECK_MOUNTS=/mnt/secure_media'
             - 'HEALTHCHECK_PATHS=/mnt/secure_media'
+            - RCLONE_CONFIG_GDRIVE_MOLE_TEAM_DRIVE=${RCLONE_CONFIG_GDRIVE_TEAM_DRIVE_1}
+            - RCLONE_CONFIG_GDRIVE_WOLF_TEAM_DRIVE=${RCLONE_CONFIG_GDRIVE_TEAM_DRIVE_1}
         volumes:
             - '${DOCKER_ROOT}/mnt/rclone/secure_media:/mnt/secure_media:rshared'
             - '${DOCKER_ROOT}/rclone/:/config/rclone'
@@ -154,7 +156,7 @@ services:
             - --dir-cache-time
             - 30m
             - --multi-thread-streams=20
-            - 'secure_media2:'
+            - 'secure_media:'
             - /mnt/secure_media
             - --allow-non-empty
             - --allow-other
@@ -167,6 +169,8 @@ services:
             - PUID=99
             - 'HEALTHCHECK_MOUNTS=/mnt/secure_media'
             - 'HEALTHCHECK_PATHS=/mnt/secure_media'
+            - RCLONE_CONFIG_GDRIVE_MOLE_TEAM_DRIVE=${RCLONE_CONFIG_GDRIVE_TEAM_DRIVE_2}
+            - RCLONE_CONFIG_GDRIVE_WOLF_TEAM_DRIVE=${RCLONE_CONFIG_GDRIVE_TEAM_DRIVE_2}
         volumes:
             - '${DOCKER_ROOT}/mnt/rclone/secure_media2:/mnt/secure_media:rshared'
             - '${DOCKER_ROOT}/rclone/:/config/rclone'
@@ -220,7 +224,7 @@ services:
             - --dir-cache-time
             - 30m
             - --multi-thread-streams=20
-            - 'secure_media3:'
+            - 'secure_media:'
             - /mnt/secure_media
             - --allow-non-empty
             - --allow-other
@@ -233,6 +237,8 @@ services:
             - PUID=99
             - 'HEALTHCHECK_MOUNTS=/mnt/secure_media'
             - 'HEALTHCHECK_PATHS=/mnt/secure_media'
+            - RCLONE_CONFIG_GDRIVE_MOLE_TEAM_DRIVE=${RCLONE_CONFIG_GDRIVE_TEAM_DRIVE_3}
+            - RCLONE_CONFIG_GDRIVE_WOLF_TEAM_DRIVE=${RCLONE_CONFIG_GDRIVE_TEAM_DRIVE_3}
         volumes:
             - '${DOCKER_ROOT}/mnt/rclone/secure_media3:/mnt/secure_media:rshared'
             - '${DOCKER_ROOT}/rclone/:/config/rclone'
