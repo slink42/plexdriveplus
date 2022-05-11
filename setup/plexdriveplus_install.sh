@@ -73,7 +73,7 @@ if [[ -z "$USE_CLOUD_CONFIG" ]] && [[ -f "$DOCKER_ROOT/config/.env" ]] && ([[ -f
     echo "setting up rclone using local copies of rclone.conf & .env"
 else
     echo "setting up rclone using rclone.conf & .env from cloud"
-    [[ -f $INSTALL_ENV_FILE ]] || echo "error $INSTALL_ENV_FILE file not found, missing credentials required to load rclone config from cloud storage" &&  exit 1
+    [[ -f $INSTALL_ENV_FILE ]] || (echo "error $INSTALL_ENV_FILE file not found, missing credentials required to load rclone config from cloud storage" &&  exit 1)
     docker run --rm -it \
     --env-file $INSTALL_ENV_FILE \
     --name rclone-config-download \
