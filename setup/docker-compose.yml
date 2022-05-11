@@ -70,8 +70,9 @@ services:
             - '${DOCKER_ROOT}/mnt/rclone/secure_media_plexdrive:/mnt/plexdrive_decrypted:rshared'
             - '${DOCKER_ROOT}/rclone/:/config/rclone:rshared'
             - '${DOCKER_ROOT}/scripts/:/scripts:ro'
-        networks:
-            - internal
+        network_mode: host
+        # networks:
+        #     - internal
         logging:
             options:
                 max-size: 20m
