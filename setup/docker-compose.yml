@@ -18,8 +18,12 @@ services:
             - VERSION=latest
             - 'NVIDIA_VISIBLE_DEVICES='
             - 'RCLONE_MEDIA_PATH=/mnt/rclone/secure_media/Media'
+            - 'RCLONE_MEDIA_2_PATH=/mnt/rclone/secure_media2/Media'
+            - 'RCLONE_MEDIA_3_PATH=/mnt/rclone/secure_media3/Media'
             - 'PLEXDRIVE_MEDIA_PATH=/mnt/rclone/secure_media_plexdrive/Media'
             - 'PLEXDRIVE_MEDIA_FOLDERS=movies-4k tv-4k'
+            - 'RCLONE_MEDIA_2_FOLDERS=tv'
+            - 'RCLONE_MEDIA_3_FOLDERS='
             - 'SCANNER_LIBRARY_PATH=/mnt/plex-scanner/Library/Application Support/Plex Media Server'
             - 'STREAMER_LIBRARY_PATH=/mnt/plex-streamer/Library/Application Support/Plex Media Server'
             - TCP_PORT_32400=32400
@@ -53,42 +57,6 @@ services:
         # depends_on:
             # rclone_media:
                 # condition: service_healthy
-    rclone_plexdrive:
-        # container_name: pdp-rclone-plexdrive
-        command: 'mount --allow-other --allow-non-empty plexdrive_crypt: /mnt/plexdrive_decrypted --log-level INFO'
-        restart: always
-        labels:
-            - "autoheal=true"
-        environment:
-            - TZ=Australia/Melbourne
-            - PGID=100
-            - PUID=99
-            - 'HEALTHCHECK_MOUNTS=/mnt/plexdrive /mnt/plexdrive_decrypted'
-            - 'HEALTHCHECK_PATHS=/mnt/plexdrive'
-        volumes:
-            - '${DOCKER_ROOT}/mnt/plexdrive/secure_media/:/mnt/plexdrive:rshared'
-            - '${DOCKER_ROOT}/mnt/rclone/secure_media_plexdrive:/mnt/plexdrive_decrypted:rshared'
-            - '${DOCKER_ROOT}/rclone/:/config/rclone:rshared'
-            - '${DOCKER_ROOT}/scripts/:/scripts:ro'
-        network_mode: host
-        # networks:
-        #     - internal
-        logging:
-            options:
-                max-size: 20m
-        devices:
-            - /dev/fuse
-        cap_add:
-            - SYS_ADMIN
-        security_opt:
-            - apparmor:unconfined
-        image: rclone/rclone
-        healthcheck:
-            test: ["CMD-SHELL", "sh /scripts/healthcheck"]
-            interval: 300s
-            timeout: 60s
-            retries: 3
-            start_period: 30s
     rclone_media:
         # container_name: pdp-rclone-secure-media
         command: 
@@ -139,7 +107,140 @@ services:
         networks:
             - internal
         ports:
+            - "15571:5572"
+        logging:
+            options:
+                max-size: 20m
+        devices:
+            - /dev/fuse
+        cap_add:
+            - SYS_ADMIN
+        security_opt:
+            - apparmor:unconfined
+        image: rclone/rclone
+        healthcheck:
+            test: ["CMD-SHELL", "sh /scripts/healthcheck"]
+            interval: 300s
+            timeout: 60s
+            retries: 3
+            start_period: 5s
+    rclone_media2:
+        # container_name: pdp-rclone-secure-media
+        command: 
+            - --rc
+            - --rc-addr
+            - "0.0.0.0:5572"
+            - --rc-user
+            - ${RCLONE_USER}
+            - --rc-pass
+            - ${RCLONE_PASSWORD}
+            - --rc-web-gui
+            - --rc-web-gui-update
+            - --rc-web-gui-no-open-browser
+            - mount
+            - --read-only
+            - --acd-templink-threshold
+            - 1g
+            - --buffer-size
+            - 8M
+            - --timeout
+            - 5s
+            - --contimeout
+            - 5s
+            - --log-level
+            - INFO
+            - --stats
+            - 300s
+            - --dir-cache-time
+            - 30m
+            - --multi-thread-streams=20
+            - 'secure_media2:'
+            - /mnt/secure_media
+            - --allow-non-empty
+            - --allow-other
+        restart: always
+        labels:
+            - "autoheal=true"
+        environment:
+            - TZ=Australia/Melbourne
+            - PGID=100
+            - PUID=99
+            - 'HEALTHCHECK_MOUNTS=/mnt/secure_media'
+            - 'HEALTHCHECK_PATHS=/mnt/secure_media'
+        volumes:
+            - '${DOCKER_ROOT}/mnt/rclone/secure_media2:/mnt/secure_media:rshared'
+            - '${DOCKER_ROOT}/rclone/:/config/rclone'
+            - '${DOCKER_ROOT}/scripts/:/scripts:ro'
+        networks:
+            - internal
+        ports:
             - "15572:5572"
+        logging:
+            options:
+                max-size: 20m
+        devices:
+            - /dev/fuse
+        cap_add:
+            - SYS_ADMIN
+        security_opt:
+            - apparmor:unconfined
+        image: rclone/rclone
+        healthcheck:
+            test: ["CMD-SHELL", "sh /scripts/healthcheck"]
+            interval: 300s
+            timeout: 60s
+            retries: 3
+            start_period: 5s
+    rclone_media3:
+        command: 
+            - --rc
+            - --rc-addr
+            - "0.0.0.0:5572"
+            - --rc-user
+            - ${RCLONE_USER}
+            - --rc-pass
+            - ${RCLONE_PASSWORD}
+            - --rc-web-gui
+            - --rc-web-gui-update
+            - --rc-web-gui-no-open-browser
+            - mount
+            - --read-only
+            - --acd-templink-threshold
+            - 1g
+            - --buffer-size
+            - 8M
+            - --timeout
+            - 5s
+            - --contimeout
+            - 5s
+            - --log-level
+            - INFO
+            - --stats
+            - 300s
+            - --dir-cache-time
+            - 30m
+            - --multi-thread-streams=20
+            - 'secure_media3:'
+            - /mnt/secure_media
+            - --allow-non-empty
+            - --allow-other
+        restart: always
+        labels:
+            - "autoheal=true"
+        environment:
+            - TZ=Australia/Melbourne
+            - PGID=100
+            - PUID=99
+            - 'HEALTHCHECK_MOUNTS=/mnt/secure_media'
+            - 'HEALTHCHECK_PATHS=/mnt/secure_media'
+        volumes:
+            - '${DOCKER_ROOT}/mnt/rclone/secure_media3:/mnt/secure_media:rshared'
+            - '${DOCKER_ROOT}/rclone/:/config/rclone'
+            - '${DOCKER_ROOT}/scripts/:/scripts:ro'
+        networks:
+            - internal
+        ports:
+            - "15573:5572"
         logging:
             options:
                 max-size: 20m
@@ -193,6 +294,42 @@ services:
             timeout: 60s
             retries: 5
             start_period: 5s
+    rclone_plexdrive:
+        # container_name: pdp-rclone-plexdrive
+        command: 'mount --allow-other --allow-non-empty plexdrive_crypt: /mnt/plexdrive_decrypted --log-level INFO'
+        restart: always
+        labels:
+            - "autoheal=true"
+        environment:
+            - TZ=Australia/Melbourne
+            - PGID=100
+            - PUID=99
+            - 'HEALTHCHECK_MOUNTS=/mnt/plexdrive /mnt/plexdrive_decrypted'
+            - 'HEALTHCHECK_PATHS=/mnt/plexdrive'
+        volumes:
+            - '${DOCKER_ROOT}/mnt/plexdrive/secure_media/:/mnt/plexdrive:rshared'
+            - '${DOCKER_ROOT}/mnt/rclone/secure_media_plexdrive:/mnt/plexdrive_decrypted:rshared'
+            - '${DOCKER_ROOT}/rclone/:/config/rclone:rshared'
+            - '${DOCKER_ROOT}/scripts/:/scripts:ro'
+        network_mode: host
+        # networks:
+        #     - internal
+        logging:
+            options:
+                max-size: 20m
+        devices:
+            - /dev/fuse
+        cap_add:
+            - SYS_ADMIN
+        security_opt:
+            - apparmor:unconfined
+        image: rclone/rclone
+        healthcheck:
+            test: ["CMD-SHELL", "sh /scripts/healthcheck"]
+            interval: 300s
+            timeout: 60s
+            retries: 3
+            start_period: 30s
     autoheal:
         # container_name: pdp-autoheal
         restart: always
