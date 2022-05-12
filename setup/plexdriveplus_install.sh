@@ -180,13 +180,15 @@ else
     fi
 fi
 
+## configure docker environment
+ENV_FILE="$DOCKER_ROOT/config/.env"
+
 # Set rclone rc username and password if not already provided in env file
 [[ $(cat $ENV_FILE | grep RCLONE_USER) ]] || echo "RCLONE_USER=rclone" >> "$ENV_FILE"
 [[ $(cat $ENV_FILE | grep RCLONE_PASSWORD) ]] || echo "RCLONE_PASSWORD=rclone" >> "$ENV_FILE"
 
 ## Start with updated rclone config
 echo "starting containers with docker-compose"
-ENV_FILE="$DOCKER_ROOT/config/.env"
 sed -i '/DOCKER_ROOT/'d "$ENV_FILE"
 echo "DOCKER_ROOT=$DOCKER_ROOT" >> "$ENV_FILE"
 
