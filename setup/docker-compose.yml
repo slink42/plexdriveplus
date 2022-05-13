@@ -233,20 +233,25 @@ services:
             - "autoheal=true"
         environment:
             - TZ=Australia/Melbourne
-            - PGID=100
-            - PUID=99
-            - 'HEALTHCHECK_MOUNTS=/mnt/secure_media'
-            - 'HEALTHCHECK_PATHS=/mnt/secure_media'
+            - PUID=0
+            - PGID=0
+            - 'HEALTHCHECK_MOUNTS=/data'
+            - 'HEALTHCHECK_PATHS=/data'
+            - POOLING_FS=unionfs
+            - RCLONE_LOG_LEVEL=INFO
+            - 'RCLONE_REMOTE_PATH=secure_media:'
+            - 'RCLONE_MOUNT_USER_OPTS=--read-only --acd-templink-threshold 1g --buffer-size 8M --timeout 5s --contimeout 5s --stats 300s --dir-cache-time 30m --multi-thread-streams=20 --allow-non-empty --allow-other'
             - RCLONE_CONFIG_GDRIVE_MOLE_TEAM_DRIVE=${RCLONE_CONFIG_GDRIVE_TEAM_DRIVE_3}
             - RCLONE_CONFIG_GDRIVE_WOLF_TEAM_DRIVE=${RCLONE_CONFIG_GDRIVE_TEAM_DRIVE_3}
         volumes:
-            - '${DOCKER_ROOT}/mnt/rclone/secure_media3:/mnt/secure_media:rshared'
-            - '${DOCKER_ROOT}/rclone/:/config/rclone'
+            - '${DOCKER_ROOT}/rclone/:/config:rw'
             - '${DOCKER_ROOT}/scripts/:/scripts:ro'
+            - '${DOCKER_ROOT}/mnt/rclone/secure_media3:/data:rshared'
+            - '${DOCKER_ROOT}/test-path/:/local/:ro'
         networks:
             - internal
         ports:
-            - "15573:5572"
+            - "15573:5574"
         logging:
             options:
                 max-size: 20m
@@ -256,7 +261,7 @@ services:
             - SYS_ADMIN
         security_opt:
             - apparmor:unconfined
-        image: rclone/rclone
+        image: wiserain/rclone
         healthcheck:
             test: ["CMD-SHELL", "sh /scripts/healthcheck"]
             interval: 300s
