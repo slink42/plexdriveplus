@@ -196,38 +196,6 @@ services:
             retries: 3
             start_period: 5s
     rclone_media3:
-        command: 
-            - --rc
-            - --rc-addr
-            - "0.0.0.0:5572"
-            - --rc-user
-            - ${RCLONE_USER}
-            - --rc-pass
-            - ${RCLONE_PASSWORD}
-            - --rc-web-gui
-            - --rc-web-gui-update
-            - --rc-web-gui-no-open-browser
-            - mount
-            - --read-only
-            - --acd-templink-threshold
-            - 1g
-            - --buffer-size
-            - 8M
-            - --timeout
-            - 5s
-            - --contimeout
-            - 5s
-            - --log-level
-            - INFO
-            - --stats
-            - 300s
-            - --dir-cache-time
-            - 30m
-            - --multi-thread-streams=20
-            - 'secure_media:'
-            - /mnt/secure_media
-            - --allow-non-empty
-            - --allow-other
         restart: always
         labels:
             - "autoheal=true"
