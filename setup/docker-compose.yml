@@ -201,8 +201,8 @@ services:
             - "autoheal=true"
         environment:
             - TZ=Australia/Melbourne
-            - PUID=0
-            - PGID=0
+            - PGID=100
+            - PUID=99
             - 'HEALTHCHECK_MOUNTS=/data'
             - 'HEALTHCHECK_PATHS=/data'
             - POOLING_FS=unionfs
@@ -214,8 +214,8 @@ services:
         volumes:
             - '${DOCKER_ROOT}/rclone/:/config:rw'
             - '${DOCKER_ROOT}/scripts/:/scripts:ro'
-            - '${DOCKER_ROOT}/mnt/rclone/secure_media3:/data:rshared'
-            - '${DOCKER_ROOT}/test-path/:/local/:ro'
+            - 'rclone_secure_media3:/data:rshared'
+            - 'rclone_empty_volume:/local/'
         networks:
             - internal
         ports:
@@ -321,3 +321,8 @@ services:
             - /var/run/docker.sock:/var/run/docker.sock
         networks:
             - internal
+
+volumes:
+    rclone_empty_volume:
+    rclone_secure_media2:
+    rclone_secure_media3:
