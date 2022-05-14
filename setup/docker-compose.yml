@@ -127,39 +127,6 @@ services:
             retries: 3
             start_period: 5s
     rclone_media2:
-        # container_name: pdp-rclone-secure-media
-        command: 
-            - --rc
-            - --rc-addr
-            - "0.0.0.0:5572"
-            - --rc-user
-            - ${RCLONE_USER}
-            - --rc-pass
-            - ${RCLONE_PASSWORD}
-            - --rc-web-gui
-            - --rc-web-gui-update
-            - --rc-web-gui-no-open-browser
-            - mount
-            - --read-only
-            - --acd-templink-threshold
-            - 1g
-            - --buffer-size
-            - 8M
-            - --timeout
-            - 5s
-            - --contimeout
-            - 5s
-            - --log-level
-            - INFO
-            - --stats
-            - 300s
-            - --dir-cache-time
-            - 30m
-            - --multi-thread-streams=20
-            - 'secure_media:'
-            - /mnt/secure_media
-            - --allow-non-empty
-            - --allow-other
         restart: always
         labels:
             - "autoheal=true"
@@ -167,18 +134,23 @@ services:
             - TZ=Australia/Melbourne
             - PGID=100
             - PUID=99
-            - 'HEALTHCHECK_MOUNTS=/mnt/secure_media'
-            - 'HEALTHCHECK_PATHS=/mnt/secure_media'
+            - 'HEALTHCHECK_MOUNTS=/data'
+            - 'HEALTHCHECK_PATHS=/data'
+            - POOLING_FS=unionfs
+            - RCLONE_LOG_LEVEL=INFO
+            - 'RCLONE_REMOTE_PATH=secure_media:'
+            - 'RCLONE_MOUNT_USER_OPTS=--read-only --acd-templink-threshold 1g --buffer-size 8M --timeout 5s --contimeout 5s --stats 300s --dir-cache-time 30m --multi-thread-streams=20 --allow-non-empty --allow-other'
             - RCLONE_CONFIG_GDRIVE_MOLE_TEAM_DRIVE=${RCLONE_CONFIG_GDRIVE_TEAM_DRIVE_2}
             - RCLONE_CONFIG_GDRIVE_WOLF_TEAM_DRIVE=${RCLONE_CONFIG_GDRIVE_TEAM_DRIVE_2}
         volumes:
-            - '${DOCKER_ROOT}/mnt/rclone/secure_media2:/mnt/secure_media:rshared'
-            - '${DOCKER_ROOT}/rclone/:/config/rclone'
+            - '${DOCKER_ROOT}/rclone/:/config:rw'
             - '${DOCKER_ROOT}/scripts/:/scripts:ro'
+            - 'rclone_secure_media2:/data:rshared'
+            - 'rclone_secure_media3:/local/'
         networks:
             - internal
         ports:
-            - "15572:5572"
+            - "15573:5574"
         logging:
             options:
                 max-size: 20m
@@ -188,7 +160,7 @@ services:
             - SYS_ADMIN
         security_opt:
             - apparmor:unconfined
-        image: rclone/rclone
+        image: wiserain/rclone
         healthcheck:
             test: ["CMD-SHELL", "sh /scripts/healthcheck"]
             interval: 300s
