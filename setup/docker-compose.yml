@@ -93,9 +93,9 @@ services:
         image: wiserain/rclone
         healthcheck:
             test: ["CMD-SHELL", "sh /scripts/healthcheck"]
-            interval: 300s
-            timeout: 60s
-            retries: 3
+            interval: 120s
+            timeout: 10s
+            retries: 1
             start_period: 5s
     rclone_media2:
         restart: always
@@ -135,9 +135,9 @@ services:
         image: wiserain/rclone
         healthcheck:
             test: ["CMD-SHELL", "sh /scripts/healthcheck"]
-            interval: 300s
-            timeout: 60s
-            retries: 3
+            interval: 120s
+            timeout: 10s
+            retries: 1
             start_period: 5s
     rclone_media3:
         restart: always
@@ -177,9 +177,9 @@ services:
         image: wiserain/rclone
         healthcheck:
             test: ["CMD-SHELL", "sh /scripts/healthcheck"]
-            interval: 300s
-            timeout: 60s
-            retries: 3
+            interval: 120s
+            timeout: 10s
+            retries: 1
             start_period: 5s
     plexdrive:
         # container_name: pdp-plexdrive-secure_media
