@@ -37,60 +37,6 @@ do
     fi
 done
 
-for FOLDER in $RCLONE_MEDIA_2_FOLDERS
-do
-    # remove folder from rclone media folder list
-    RCLONE_MEDIA_FOLDERS=$(printf '%s\n' "${RCLONE_MEDIA_FOLDERS//$FOLDER/}")
-
-    MEDIA_MOUNT_CONTAINER_PATH=/plex/media/Media/$FOLDER
-    DRIVE_MOUNT_CONTAINER_PATH=$RCLONE_MEDIA_2_PATH/$FOLDER
-
-    mkdir -p  $DRIVE_MOUNT_CONTAINER_PATH
-
-    path_found=$( ls -la $MEDIA_MOUNT_CONTAINER_PATH 2> /dev/null | grep -ic $DRIVE_MOUNT_CONTAINER_PATH )
-    if [ $path_found -eq 1 ]
-    then
-        echo "Already linked from $DRIVE_MOUNT_CONTAINER_PATH to $MEDIA_MOUNT_CONTAINER_PATH"
-    else
-        if [ -d "${MEDIA_MOUNT_CONTAINER_PATH}" ]; then
-            echo "replacing symbolic link to $MEDIA_MOUNT_CONTAINER_PATH with new source path $DRIVE_MOUNT_CONTAINER_PATH"
-            ln -sfn $DRIVE_MOUNT_CONTAINER_PATH $MEDIA_MOUNT_CONTAINER_PATH
-        else
-            echo "creating symbolic link to $MEDIA_MOUNT_CONTAINER_PATH from $DRIVE_MOUNT_CONTAINER_PATH"
-            ln -s $DRIVE_MOUNT_CONTAINER_PATH $MEDIA_MOUNT_CONTAINER_PATH
-        fi
-        # set plex user symlink as owner
-        chown -h abc:users $MEDIA_MOUNT_CONTAINER_PATH
-    fi
-done
-
-for FOLDER in $RCLONE_MEDIA_3_FOLDERS
-do
-    # remove folder from rclone media folder list
-    RCLONE_MEDIA_FOLDERS=$(printf '%s\n' "${RCLONE_MEDIA_FOLDERS//$FOLDER/}")
-
-    MEDIA_MOUNT_CONTAINER_PATH=/plex/media/Media/$FOLDER
-    DRIVE_MOUNT_CONTAINER_PATH=$RCLONE_MEDIA_3_PATH/$FOLDER
-
-    mkdir -p  $DRIVE_MOUNT_CONTAINER_PATH
-
-    path_found=$( ls -la $MEDIA_MOUNT_CONTAINER_PATH 2> /dev/null | grep -ic $DRIVE_MOUNT_CONTAINER_PATH )
-    if [ $path_found -eq 1 ]
-    then
-        echo "Already linked from $DRIVE_MOUNT_CONTAINER_PATH to $MEDIA_MOUNT_CONTAINER_PATH"
-    else
-        if [ -d "${MEDIA_MOUNT_CONTAINER_PATH}" ]; then
-            echo "replacing symbolic link to $MEDIA_MOUNT_CONTAINER_PATH with new source path $DRIVE_MOUNT_CONTAINER_PATH"
-            ln -sfn $DRIVE_MOUNT_CONTAINER_PATH $MEDIA_MOUNT_CONTAINER_PATH
-        else
-            echo "creating symbolic link to $MEDIA_MOUNT_CONTAINER_PATH from $DRIVE_MOUNT_CONTAINER_PATH"
-            ln -s $DRIVE_MOUNT_CONTAINER_PATH $MEDIA_MOUNT_CONTAINER_PATH
-        fi
-        # set plex user symlink as owner
-        chown -h abc:users $MEDIA_MOUNT_CONTAINER_PATH
-    fi
-done
-
 for FOLDER in $RCLONE_MEDIA_FOLDERS
 do
 

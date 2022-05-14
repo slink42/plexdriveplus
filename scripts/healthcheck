@@ -1,9 +1,9 @@
 #!/usr/bin/with-contenv bash
 
 # Check expected paths are mounted
-if [ -z "$HEALTHCHECK_MOUNTS" ]; then
-    HEALTHCHECK_MOUNTS="/mnt/rclone/secure-media /mnt/rclone/secure-media-plexdrive"
-fi
+# if [ -z "$HEALTHCHECK_MOUNTS" ]; then
+#     HEALTHCHECK_MOUNTS="/mnt/rclone/secure-media /mnt/rclone/secure-media-plexdrive"
+# fi
 
 # Check if findmnt binary exists in path
 if [[ $(findmnt 2> /dev/null) ]]; then
@@ -18,9 +18,9 @@ done
 fi
 
 # Check mount paths are linked to plex library paths
-if [ -z "$HEALTHCHECK_PATHS" ]; then
-HEALTHCHECK_PATHS="/plex/media/Media/movies /plex/media/Media/movies-4k"
-fi
+# if [ -z "$HEALTHCHECK_PATHS" ]; then
+#     HEALTHCHECK_PATHS="/plex/media/Media/movies /plex/media/Media/movies-4k"
+# fi
 
 for CHECK_PATH in $HEALTHCHECK_PATHS; 
 do
