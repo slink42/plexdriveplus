@@ -77,7 +77,7 @@ services:
             - '${DOCKER_ROOT}/rclone/:/config:rw'
             - '${DOCKER_ROOT}/scripts/:/scripts:ro'
             - '${DOCKER_ROOT}/mnt/rclone/secure_media:/data:rshared'
-            - 'rclone_secure_media2:/local/'
+            - '${DOCKER_ROOT}/mnt/rclone/secure_media2:/local/'
         networks:
             - internal
         ports:
@@ -117,8 +117,8 @@ services:
         volumes:
             - '${DOCKER_ROOT}/rclone/:/config:rw'
             - '${DOCKER_ROOT}/scripts/:/scripts:ro'
-            - 'rclone_secure_media2:/data:rshared'
-            - 'rclone_secure_media3:/local/'
+            - '${DOCKER_ROOT}/mnt/rclone/secure_media2:/data:rshared'
+            - '${DOCKER_ROOT}/mnt/rclone/secure_media3:/local/'
         networks:
             - internal
         ports:
@@ -158,7 +158,7 @@ services:
         volumes:
             - '${DOCKER_ROOT}/rclone/:/config:rw'
             - '${DOCKER_ROOT}/scripts/:/scripts:ro'
-            - 'rclone_secure_media3:/data:rshared'
+            - '${DOCKER_ROOT}/mnt/rclone/secure_media3:/data:rshared'
             - 'rclone_empty_volume:/local/'
         networks:
             - internal
