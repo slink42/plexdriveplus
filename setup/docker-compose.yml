@@ -65,8 +65,8 @@ services:
             - TZ=Australia/Melbourne
             - PGID=100
             - PUID=99
-            - 'HEALTHCHECK_MOUNTS=/data'
-            - 'HEALTHCHECK_PATHS=/data'
+            - 'HEALTHCHECK_MOUNTS=/data /cloud'
+            - 'HEALTHCHECK_PATHS=/data /cloud /local'
             - POOLING_FS=unionfs
             - RCLONE_LOG_LEVEL=INFO
             - 'RCLONE_REMOTE_PATH=secure_media:'
@@ -106,8 +106,8 @@ services:
             - TZ=Australia/Melbourne
             - PGID=100
             - PUID=99
-            - 'HEALTHCHECK_MOUNTS=/data'
-            - 'HEALTHCHECK_PATHS=/data'
+            - 'HEALTHCHECK_MOUNTS=/data /cloud'
+            - 'HEALTHCHECK_PATHS=/data /cloud /local'
             - POOLING_FS=unionfs
             - RCLONE_LOG_LEVEL=INFO
             - 'RCLONE_REMOTE_PATH=secure_media:'
@@ -147,8 +147,8 @@ services:
             - TZ=Australia/Melbourne
             - PGID=100
             - PUID=99
-            - 'HEALTHCHECK_MOUNTS=/data'
-            - 'HEALTHCHECK_PATHS=/data'
+            - 'HEALTHCHECK_MOUNTS=/data /cloud'
+            - 'HEALTHCHECK_PATHS=/data /cloud /local'
             - POOLING_FS=unionfs
             - RCLONE_LOG_LEVEL=INFO
             - 'RCLONE_REMOTE_PATH=secure_media:'
