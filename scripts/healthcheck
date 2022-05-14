@@ -1,4 +1,5 @@
-#!/usr/bin/with-contenv bash
+#!/bin/bash
+##!/usr/bin/with-contenv /bin/bash
 
 # Check expected paths are mounted
 # eg.
