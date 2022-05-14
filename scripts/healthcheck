@@ -1,15 +1,14 @@
 #!/usr/bin/with-contenv bash
 
 # Check expected paths are mounted
-# if [ -z "$HEALTHCHECK_MOUNTS" ]; then
-#     HEALTHCHECK_MOUNTS="/mnt/rclone/secure-media /mnt/rclone/secure-media-plexdrive"
-# fi
+# eg.
+# HEALTHCHECK_MOUNTS="/mnt/rclone/secure-media /mnt/rclone/secure-media-plexdrive"
 
 # Check if findmnt binary exists in path
-if [[ $(findmnt 2> /dev/null) ]]; then
+if [[ $(  2> /dev/null) ]]; then
 for CHECK_MOUNT in $HEALTHCHECK_MOUNTS; 
 do 
-if ! [[ $(findmnt ${CHECK_MOUNT} | grep fuse) ]]; then
+if ! [[ "$(findmnt ${CHECK_MOUNT} | grep fuse)" ]]; then
 echo "unhealthy - path not mounted: $CHECK_MOUNT"
 fusermount -uz "$CHECK_MOUNT"
 exit 1
@@ -18,15 +17,14 @@ done
 fi
 
 # Check mount paths are linked to plex library paths
-# if [ -z "$HEALTHCHECK_PATHS" ]; then
-#     HEALTHCHECK_PATHS="/plex/media/Media/movies /plex/media/Media/movies-4k"
-# fi
+# eg.
+# HEALTHCHECK_PATHS="/plex/media/Media/movies /plex/media/Media/movies-4k"
 
 for CHECK_PATH in $HEALTHCHECK_PATHS; 
 do
-if ! [ "$(ls -A $CHECK_PATH)" ]; then
+if ! [[ "$(ls -A $CHECK_PATH)" ]]; then
 echo "unhealthy - check path empty: $CHECK_PATH"
-exit 1
+#exit 1
 fi
 done
 
