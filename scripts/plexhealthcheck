@@ -1,9 +1,8 @@
-#!/bin/bash
-##!/usr/bin/with-contenv /bin/bash
+#!/usr/bin/with-contenv /bin/bash
 
 # Check web service is active 
 PLEX_URL=http://localhost:32400
-if ! [[ $(curl --connect-timeout 15 --silent --show-error --fail $PLEX_URL/identity) ]]; then 
+if ! [ $(curl --connect-timeout 15 --silent --show-error --fail $PLEX_URL/identity) ]; then 
 echo "unhealthy - no response from plex web service: $PLEX_URL"
 exit 1
 fi

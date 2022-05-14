@@ -1,15 +1,14 @@
-#!/bin/bash
-##!/usr/bin/with-contenv /bin/bash
+#!/usr/bin/with-contenv /bin/bash
 
 # Check expected paths are mounted
 # eg.
 # HEALTHCHECK_MOUNTS="/mnt/rclone/secure-media /mnt/rclone/secure-media-plexdrive"
 
 # Check if findmnt binary exists in path
-if [[ $(  2> /dev/null) ]]; then
+if [ $(  2> /dev/null) ]; then
 for CHECK_MOUNT in $HEALTHCHECK_MOUNTS; 
 do 
-if ! [[ "$(findmnt ${CHECK_MOUNT} | grep fuse)" ]]; then
+if ! [ "$(findmnt ${CHECK_MOUNT} | grep fuse)" ]; then
 echo "unhealthy - path not mounted: $CHECK_MOUNT"
 fusermount -uz "$CHECK_MOUNT"
 exit 1
@@ -23,7 +22,7 @@ fi
 
 for CHECK_PATH in $HEALTHCHECK_PATHS; 
 do
-if ! [[ "$(ls -A $CHECK_PATH)" ]]; then
+if ! [ "$(ls -A $CHECK_PATH)" ]; then
 echo "unhealthy - check path empty: $CHECK_PATH"
 exit 1
 fi
