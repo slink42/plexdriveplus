@@ -68,6 +68,28 @@ case $management_mode in
                 ;;
 esac
 
+read -p 'Please select if library should download movie covers images from backup. Warning this will consume 150Gb+: 
+1  | [Default] No. Plex should try and slowly download the pictures over time.... Very slowly
+2  | Yes. Download backup and restore of Plex Library Metadata and Media folders
+download library images> ' -e library_image_mode
+
+case $library_image_mode in
+        "1"|"")
+                echo "Libary image download omitted"
+                LIB_IMAGE_DOWNLOAD=
+                ;;
+        "2")
+                echo "Libary image download selected"
+                LIB_IMAGE_DOWNLOAD="yes"
+                ;;
+        *)
+                echo "Invalid selection, using default - libary image download omitted"
+                LIB_IMAGE_DOWNLOAD=
+                ;;
+esac
+
+
+
 # Download rclone settings
 if [[ -z "$USE_CLOUD_CONFIG" ]] && [[ -f "$DOCKER_ROOT/config/.env" ]] && ([[ -f "$DOCKER_ROOT/config/rclone.conf" ]] || [[ -f "$DOCKER_ROOT/rclone/rclone.conf" ]]); then
     echo "setting up rclone using local copies of rclone.conf & .env"
@@ -208,6 +230,24 @@ docker stop "$CONTAINER_PLEX_STREAMER"
 mkdir -p "$DOCKER_ROOT/plex-streamer/Library/Application Support/Plex Media Server/"
 ([[ -z "$USE_CLOUD_CONFIG" ]] && [[ -f "$DOCKER_ROOT/plex-streamer/Library/Application Support/Plex Media Server/Preferences.xml" ]] && echo "Using existing Preferences.xml for Plex server config") || \
     (cp "$DOCKER_ROOT/setup/Preferences.xml" "$DOCKER_ROOT/plex-streamer/Library/Application Support/Plex Media Server/Preferences.xml"  && echo "Using Preferences.xml downloaded from cloud for Plex server config") 
+
+# copy library images / metadata backup from master
+
+if ! [[ -z "$LIB_IMAGE_DOWNLOAD" ]]; then
+    if [[ -z "$USE_CLOUD_CONFIG" ]] && [[ -f "$DOCKER_ROOT/plex-scanner/backups/meta/library_files.tar.gz" ]]; then
+        echo "using existing copy library media covers backup"
+    else
+        echo "downloading library media covers backup from cloud"
+        [[ -f $INSTALL_ENV_FILE ]] || (echo "error $INSTALL_ENV_FILE file not found, missing credentials required to load rclone config from cloud storage" &&  exit 1)
+        docker run --rm -it \
+        --env-file $INSTALL_ENV_FILE \
+        --name rclone-config-download \
+        -v $DOCKER_ROOT/plex-scanner:/plex-scanner \
+        rclone/rclone \
+        copy secure_backup:plex-scanner/backups /plex-scanner/backups --progress
+    fi
+    tar -xzf $DOCKER_ROOT/plex-scanner/backups/meta/library_files.tar.gz -C $DOCKER_ROOT/plex-scanner/Library --checkpoint=.100
+fi
 
 sleep 7
 CONTAINER_PLEX_LIBRARY_SYNC=$(docker container ls --format {{.Names}} | grep rclone_library_sync)
