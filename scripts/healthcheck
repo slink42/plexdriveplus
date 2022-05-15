@@ -5,7 +5,7 @@
 # HEALTHCHECK_MOUNTS="/mnt/rclone/secure-media /mnt/rclone/secure-media-plexdrive"
 
 # Check if findmnt binary exists in path
-if [ $(findmnt  2> /dev/null) ]; then
+if [ "$(findmnt  2> /dev/null)" ]; then
 for CHECK_MOUNT in $HEALTHCHECK_MOUNTS; 
 do 
 if ! [ "$(findmnt ${CHECK_MOUNT} | grep fuse)" ]; then
