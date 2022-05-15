@@ -63,7 +63,7 @@ services:
             - TZ=Australia/Melbourne
             - PGID=100
             - PUID=99
-            - 'HEALTHCHECK_MOUNTS=/local /cloud'
+            - 'HEALTHCHECK_MOUNTS=/cloud'
             - 'HEALTHCHECK_PATHS=/data /cloud /local'
             - RCLONE_LOG_FILE=/config/rclone_media_mount_1.log
             - POOLING_FS=unionfs
@@ -105,7 +105,7 @@ services:
             - TZ=Australia/Melbourne
             - PGID=100
             - PUID=99
-            - 'HEALTHCHECK_MOUNTS=/local /cloud'
+            - 'HEALTHCHECK_MOUNTS=/cloud'
             - 'HEALTHCHECK_PATHS=/data /cloud /local'
             - RCLONE_LOG_FILE=/config/rclone_media_mount_2.log
             - POOLING_FS=unionfs
@@ -147,7 +147,7 @@ services:
             - TZ=Australia/Melbourne
             - PGID=100
             - PUID=99
-            - 'HEALTHCHECK_MOUNTS=/local /cloud'
+            - 'HEALTHCHECK_MOUNTS=/cloud'
             - 'HEALTHCHECK_PATHS=/data /cloud /local'
             - RCLONE_LOG_FILE=/config/rclone_media_mount_3.log
             - POOLING_FS=unionfs
