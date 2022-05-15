@@ -30,5 +30,5 @@ exit 1
 fi
 done
 
-echo "healthy mount paths - non empty folder found for: $HEALTHCHECK_MOUNTS"
+echo "healthy mount paths - non empty folder found for: $HEALTHCHECK_PATHS"
 exit 0
