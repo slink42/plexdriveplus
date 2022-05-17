@@ -22,7 +22,7 @@ do
     mkdir -p  "$DRIVE_MOUNT_CONTAINER_PATH"
 
     path_found=$( ls -la "$MEDIA_MOUNT_CONTAINER_PATH"  2> /dev/null | grep -ic "$DRIVE_MOUNT_CONTAINER_PATH" ) 2> /dev/null 
-    if [ $path_found -eq 1 ]
+    if  [ -L "${MEDIA_MOUNT_CONTAINER_PATH}" ] && [ $path_found -eq 1 ]
     then
         echo "Already linked from $DRIVE_MOUNT_CONTAINER_PATH to $MEDIA_MOUNT_CONTAINER_PATH"
     else
