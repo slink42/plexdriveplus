@@ -221,7 +221,6 @@ services:
             - 'RCLONE_MEDIA_3_PATH=/mnt/rclone/secure_media3/Media'
             - 'PLEXDRIVE_MEDIA_PATH=/mnt/rclone/secure_media_plexdrive/Media'
             - 'PLEXDRIVE_MEDIA_FOLDERS=movies-4k tv-4k'
-            - 'SCANNER_LIBRARY_FOLDERS=Metadata Media "Plug-in Support"'
             - 'SCANNER_LIBRARY_PATH=/mnt/plex-scanner/Library/Application Support/Plex Media Server'
             - 'STREAMER_LIBRARY_PATH=/mnt/plex-streamer/Library/Application Support/Plex Media Server'
             - TCP_PORT_32400=32400
