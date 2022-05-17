@@ -2,59 +2,6 @@ version: '3.3'
 networks:
     internal:
 services:
-    plex_streamer:
-        # network_mode: bridge
-        networks:
-            - internal
-        restart: always
-        labels:
-            - "autoheal=true"
-        environment:
-            - TZ=Australia/Melbourne
-            - HOST_OS=Unraid
-            - PLEX_CLAIM=claim-xxxxxxxxxxxxxxx
-            - PLEX_UID=99
-            - PLEX_GID=100
-            - VERSION=latest
-            - 'NVIDIA_VISIBLE_DEVICES='
-            - 'RCLONE_MEDIA_PATH=/mnt/rclone/secure_media/Media'
-            - 'RCLONE_MEDIA_2_PATH=/mnt/rclone/secure_media2/Media'
-            - 'RCLONE_MEDIA_3_PATH=/mnt/rclone/secure_media3/Media'
-            - 'PLEXDRIVE_MEDIA_PATH=/mnt/rclone/secure_media_plexdrive/Media'
-            - 'PLEXDRIVE_MEDIA_FOLDERS=movies-4k tv-4k'
-            - 'SCANNER_LIBRARY_PATH=/mnt/plex-scanner/Library/Application Support/Plex Media Server'
-            - 'STREAMER_LIBRARY_PATH=/mnt/plex-streamer/Library/Application Support/Plex Media Server'
-            - TCP_PORT_32400=32400
-            - TCP_PORT_3005=3005
-            - TCP_PORT_8324=8324
-            - TCP_PORT_32469=32469
-            - UDP_PORT_1900=1900
-            - UDP_PORT_32410=32410
-            - UDP_PORT_32412=32412
-            - UDP_PORT_32413=32413
-            - UDP_PORT_32414=32414
-            - PUID=99
-            - PGID=100
-            - 'HEALTHCHECK_MOUNTS=/mnt/rclone/secure_media /mnt/rclone/secure_media_plexdrive'
-            - 'HEALTHCHECK_PATHS=/plex/media/Media/movies /plex/media/Media/movies-4k'
-        volumes:
-            - '${DOCKER_ROOT}/plex-streamer/transcode:/transcode:rw'
-            - '${DOCKER_ROOT}/mnt/rclone:/mnt/rclone:rshared'
-            - '${DOCKER_ROOT}/plex-scanner/:/mnt/plex-scanner:rw'
-            - '${DOCKER_ROOT}/plex-streamer/:/config:rw'
-            - '${DOCKER_ROOT}/scripts/:/scripts:ro'
-        ports:
-            - "32400:32400"
-        image: linuxserver/plex
-        healthcheck:
-            test: ["CMD-SHELL", "bash /scripts/plexhealthcheck"]
-            interval: 300s
-            timeout: 60s
-            retries: 3
-            start_period: 30s
-        # depends_on:
-            # rclone_media:
-                # condition: service_healthy
     rclone_media1:
         restart: always
         labels:
@@ -254,6 +201,60 @@ services:
             timeout: 60s
             retries: 3
             start_period: 30s
+    plex_streamer:
+        # network_mode: bridge
+        networks:
+            - internal
+        restart: always
+        labels:
+            - "autoheal=true"
+        environment:
+            - TZ=Australia/Melbourne
+            - HOST_OS=Unraid
+            - PLEX_CLAIM=claim-xxxxxxxxxxxxxxx
+            - PLEX_UID=99
+            - PLEX_GID=100
+            - VERSION=latest
+            - 'NVIDIA_VISIBLE_DEVICES='
+            - 'RCLONE_MEDIA_PATH=/mnt/rclone/secure_media/Media'
+            - 'RCLONE_MEDIA_2_PATH=/mnt/rclone/secure_media2/Media'
+            - 'RCLONE_MEDIA_3_PATH=/mnt/rclone/secure_media3/Media'
+            - 'PLEXDRIVE_MEDIA_PATH=/mnt/rclone/secure_media_plexdrive/Media'
+            - 'PLEXDRIVE_MEDIA_FOLDERS=movies-4k tv-4k'
+            - 'SCANNER_LIBRARY_FOLDERS=Metadata Media "Plug-in Support"'
+            - 'SCANNER_LIBRARY_PATH=/mnt/plex-scanner/Library/Application Support/Plex Media Server'
+            - 'STREAMER_LIBRARY_PATH=/mnt/plex-streamer/Library/Application Support/Plex Media Server'
+            - TCP_PORT_32400=32400
+            - TCP_PORT_3005=3005
+            - TCP_PORT_8324=8324
+            - TCP_PORT_32469=32469
+            - UDP_PORT_1900=1900
+            - UDP_PORT_32410=32410
+            - UDP_PORT_32412=32412
+            - UDP_PORT_32413=32413
+            - UDP_PORT_32414=32414
+            - PUID=99
+            - PGID=100
+            - 'HEALTHCHECK_MOUNTS=/mnt/rclone/secure_media /mnt/rclone/secure_media_plexdrive'
+            - 'HEALTHCHECK_PATHS=/plex/media/Media/movies /plex/media/Media/movies-4k'
+        volumes:
+            - '${DOCKER_ROOT}/plex-streamer/transcode:/transcode:rw'
+            - '${DOCKER_ROOT}/mnt/rclone:/mnt/rclone:rshared'
+            - '${DOCKER_ROOT}/plex-scanner/:/mnt/plex-scanner:rw'
+            - '${DOCKER_ROOT}/plex-streamer/:/config:rw'
+            - '${DOCKER_ROOT}/scripts/:/scripts:ro'
+        ports:
+            - "32400:32400"
+        image: linuxserver/plex
+        healthcheck:
+            test: ["CMD-SHELL", "bash /scripts/plexhealthcheck"]
+            interval: 300s
+            timeout: 60s
+            retries: 3
+            start_period: 30s
+        # depends_on:
+            # rclone_media:
+                # condition: service_healthy
     autoheal:
         # container_name: pdp-autoheal
         restart: always

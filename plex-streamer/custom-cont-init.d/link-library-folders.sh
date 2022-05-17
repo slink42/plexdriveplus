@@ -4,7 +4,9 @@ echo "starting linkage plex library mount paths to library path"
 
 if [ -z "$SCANNER_LIBRARY_PATH" ]; then SCANNER_LIBRARY_PATH=/mnt/plex-scanner/Library/Application\ Support/Plex\ Media\ Server; else echo "SCANNER_LIBRARY_PATH: $SCANNER_LIBRARY_PATH"; fi
 if [ -z "$STREAMER_LIBRARY_PATH" ]; then STREAMER_LIBRARY_PATH=/mnt/plex-streamer/Library/Application\ Support/Plex\ Media\ Server; else echo "STREAMER_LIBRARY_PATH: $STREAMER_LIBRARY_PATH"; fi
+echo "SCANNER_LIBRARY_FOLDERS=$SCANNER_LIBRARY_FOLDERS"
 SCANNER_LIBRARY_FOLDERS=( Metadata Media "Plug-in Support" )
+echo "SCANNER_LIBRARY_FOLDERS=$SCANNER_LIBRARY_FOLDERS"
 #STREAMER_LIBRARY_FOLDERS=( Metadata Media "Plug-in Support" Cache Codecs "Crash Reports" Logs Media Metadata Plug-ins Preferences.xml )
 
 mkdir -p  /config/Library/Application\ Support/Plex\ Media\ Server/
@@ -15,7 +17,7 @@ do
     # remove folder from rclone media folder list
     #STREAMER_LIBRARY_FOLDERS=( "${STREAMER_LIBRARY_FOLDERS[@]/$FOLDER}" )
     echo "mounting $FOLDER"
-    MEDIA_MOUNT_CONTAINER_PATH=/config/Library/Application\ Support/Plex\ Media\ Server/$FOLDER
+    MEDIA_MOUNT_CONTAINER_PATH=/config/Library/Application\ Support/Plex\ Media\ Server/$FOLDER/
     DRIVE_MOUNT_CONTAINER_PATH="$SCANNER_LIBRARY_PATH/$FOLDER"
 
     mkdir -p  "$DRIVE_MOUNT_CONTAINER_PATH"
