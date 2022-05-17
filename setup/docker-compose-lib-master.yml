@@ -143,7 +143,7 @@ services:
             - PGID=100
             - PUID=99
             - 'HEALTHCHECK_MOUNTS=/cloud'
-            - 'HEALTHCHECK_PATHS=/data /cloud /local'
+            - 'HEALTHCHECK_PATHS=/data /cloud'
             - RCLONE_LOG_FILE=/config/rclone_media_scanner_mount_3.log
             - POOLING_FS=unionfs
             - RCLONE_LOG_LEVEL=INFO

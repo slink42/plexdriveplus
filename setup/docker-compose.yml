@@ -95,7 +95,7 @@ services:
             - PGID=100
             - PUID=99
             - 'HEALTHCHECK_MOUNTS=/cloud'
-            - 'HEALTHCHECK_PATHS=/data /cloud /local'
+            - 'HEALTHCHECK_PATHS=/data /cloud'
             - RCLONE_LOG_FILE=/config/rclone_media_mount_3.log
             - POOLING_FS=unionfs
             - RCLONE_LOG_LEVEL=INFO
@@ -137,8 +137,8 @@ services:
             - TZ=Australia/Melbourne
             - PUID=99
             - PGID=100
-            - 'HEALTHCHECK_MOUNTS=/data'
-            - 'HEALTHCHECK_PATHS=/data'
+            - 'HEALTHCHECK_MOUNTS=/cloud'
+            - 'HEALTHCHECK_PATHS=/data /cloud'
             - POOLING_FS=unionfs
             - 'PLEXDRIVE_OPTS=-v 2 --max-chunks=10 --chunk-size=20M --chunk-check-threads=20 --chunk-load-threads=4 --chunk-load-ahead=5 --drive-id=0ALNBa0QBHhldUk9PVA -o allow_other,read_only,nonempty'
         volumes:
