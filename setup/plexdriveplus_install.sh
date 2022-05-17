@@ -112,6 +112,8 @@ wget --no-check-certificate --content-disposition ${PDP_URL} -O "${DOCKER_ROOT}/
 [ -d "${DOCKER_ROOT}/plex-streamer/custom-cont-init.d/" ] && rm -r "${DOCKER_ROOT}/plex-streamer/custom-cont-init.d/"
 tar xvzf "${DOCKER_ROOT}/plexdriveplus.tar.gz" --strip=1 -C "${DOCKER_ROOT}"
 
+### Rclone & Plexdrive setup
+
 # authorize rclone gdrive mount
 echo "setting up rclone authentication"
 GDRIVE_ENDPOINT=$(cat $DOCKER_ROOT/config/.env | grep RCLONE_CONFIG_SECURE_MEDIA_REMOTE)
@@ -138,12 +140,13 @@ if [[ $management_mode = "2" ]] || [[ $management_mode = "3" ]]; then
         echo "rclone onfig copy from master $SCANNER_GDRIVE_ENDPOINT mount reconnection"
         rclone config --config "$DOCKER_ROOT/rclone/rclone.conf" reconnect $SCANNER_GDRIVE_ENDPOINT
     fi
+    # make sure paths aren't mounted
     fusermount -uz $DOCKER_ROOT/mnt/rclone/secure_media_scanner 2>/dev/null
     fusermount -uz $DOCKER_ROOT/mnt/rclone/secure_media2_scanner 2>/dev/null
     fusermount -uz $DOCKER_ROOT/mnt/rclone/secure_media3_scanner 2>/dev/null
 fi
 
-# make sure paths aren't mounted
+# make sure scanner rclone paths aren't mounted
 fusermount -uz $DOCKER_ROOT/mnt/rclone/secure_media 2>/dev/null
 fusermount -uz $DOCKER_ROOT/mnt/rclone/secure_media2 2>/dev/null
 fusermount -uz $DOCKER_ROOT/mnt/rclone/secure_media3 2>/dev/null
@@ -204,8 +207,7 @@ else
         echo "warning $INSTALL_ENV_FILE file not found, missing credentials required to initalise plexdrive cache file from cloud storage. Will leave to plexdrive to initalise on first run"
     fi
 fi
-
-## configure docker environment
+### Docker environment setup
 ENV_FILE="$DOCKER_ROOT/config/.env"
 
 # Set rclone rc username and password if not already provided in env file
@@ -232,11 +234,12 @@ else
     $DOCKER_COMPOSE_COMMAND
 fi
 
+### Plex container setup
+
 # Stop plex while library downloads
 echo "stopping plex instance(s) for plex library download"
 CONTAINER_PLEX_STREAMER=$(docker container ls --format {{.Names}} | grep plex_streamer)
 docker stop "$CONTAINER_PLEX_STREAMER"
-
 
 # copy generic Plex Preferences.xml
 mkdir -p "$DOCKER_ROOT/plex-streamer/Library/Application Support/Plex Media Server/"
