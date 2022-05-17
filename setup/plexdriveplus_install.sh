@@ -222,17 +222,22 @@ echo "starting docker containers with command: $DOCKER_COMPOSE_COMMAND"
 $DOCKER_COMPOSE_COMMAND
 
 # Stop plex while library downloads
-echo "downloading plex library"
+echo "stopping plex instance(s) for plex library download"
 CONTAINER_PLEX_STREAMER=$(docker container ls --format {{.Names}} | grep plex_streamer)
 docker stop "$CONTAINER_PLEX_STREAMER"
 
 # copy generic Plex Preferences.xml
 mkdir -p "$DOCKER_ROOT/plex-streamer/Library/Application Support/Plex Media Server/"
 ([[ -z "$USE_CLOUD_CONFIG" ]] && [[ -f "$DOCKER_ROOT/plex-streamer/Library/Application Support/Plex Media Server/Preferences.xml" ]] && echo "Using existing Preferences.xml for Plex server config") || \
-    (cp "$DOCKER_ROOT/setup/Preferences.xml" "$DOCKER_ROOT/plex-streamer/Library/Application Support/Plex Media Server/Preferences.xml"  && echo "Using Preferences.xml downloaded from cloud for Plex server config") 
+    (cp "$DOCKER_ROOT/setup/Preferences.xml" "$DOCKER_ROOT/plex-streamer/Library/Application Support/Plex Media Server/Preferences.xml"  && echo "Using Preferences.xml downloaded from cloud for Plex server config")
+
+if [[ $management_mode = "2" ]] || [[ $management_mode = "3" ]]; then
+    CONTAINER_PLEX_SCANNER=$(docker container ls --format {{.Names}} | grep plex_scanner)
+    docker stop "$CONTAINER_PLEX_SCANNER"
+fi
+
 
 # copy library images / metadata backup from master
-
 if ! [[ -z "$LIB_IMAGE_DOWNLOAD" ]]; then
     if [[ -z "$USE_CLOUD_CONFIG" ]] && [[ -f "$DOCKER_ROOT/plex-scanner/backups/meta/library_files.tar.gz" ]]; then
         echo "using existing copy library media covers backup"
@@ -260,6 +265,21 @@ echo "-----------------------------------------------------------------"
 sleep 30
 done
 echo "$(date) - library download using $CONTAINER_PLEX_LIBRARY_SYNC has completed. Restarting Plex"
+
+# copy streamer plex db copied for cloud to scanner if required by selected library managemeent mode
+if [[ $management_mode = "2" ]] || [[ $management_mode = "3" ]]; then
+    echo "copying streamer plex config from streamer to scanner"
+
+    # copy generic Plex Preferences.xml
+    mkdir -p "$DOCKER_ROOT/plex-scanner/Library/Application Support/Plex Media Server/"
+    ([[ -z "$USE_CLOUD_CONFIG" ]] && [[ -f "$DOCKER_ROOT/plex-scanner/Library/Application Support/Plex Media Server/Preferences.xml" ]] && echo "Using existing Preferences.xml for Plex scanner server config") || \
+        (cp "$DOCKER_ROOT/setup/Preferences.xml" "$DOCKER_ROOT/plex-scanner/Library/Application Support/Plex Media Server/Preferences.xml"  && echo "Using Preferences.xml downloaded from cloud for Plex scanner server config")
+    
+    cp -r "$DOCKER_ROOT/plex-scanner/Library/Application Support/Plex Media Server/Plug-in Support" "$DOCKER_ROOT/plex-scanner/Library/Application Support/Plex Media Server/Plug-in Support"
+
+    docker start "$CONTAINER_PLEX_SCANNER"
+    echo "open plex scanner in browser to continue configuration there: https://127.0.0.1:34400/web"
+fi
 
 docker start "$CONTAINER_PLEX_STREAMER"
 
