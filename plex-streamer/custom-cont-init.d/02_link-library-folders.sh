@@ -15,8 +15,8 @@ do
     # remove folder from rclone media folder list
     #STREAMER_LIBRARY_FOLDERS=( "${STREAMER_LIBRARY_FOLDERS[@]/$FOLDER}" )
     echo "mounting $FOLDER"
-    MEDIA_MOUNT_CONTAINER_PATH=/config/Library/Application\ Support/Plex\ Media\ Server/$FOLDER/
-    MEDIA_MOUNT_CONTAINER_PATH_BACKUP=/config/Library/Application\ Support/Plex\ Media\ Server/${FOLDER}_BACKUP/
+    MEDIA_MOUNT_CONTAINER_PATH=/config/Library/Application\ Support/Plex\ Media\ Server/$FOLDER
+    MEDIA_MOUNT_CONTAINER_PATH_BACKUP=/config/Library/Application\ Support/Plex\ Media\ Server/${FOLDER}_BACKUP
     DRIVE_MOUNT_CONTAINER_PATH="$SCANNER_LIBRARY_PATH/$FOLDER"
 
     mkdir -p  "$DRIVE_MOUNT_CONTAINER_PATH"
@@ -31,7 +31,7 @@ do
             ln -sfn "$DRIVE_MOUNT_CONTAINER_PATH" "$MEDIA_MOUNT_CONTAINER_PATH"
         else
             if [ -d "${MEDIA_MOUNT_CONTAINER_PATH}" ]; then
-                echo "moving direcroty found in location for symbolic link target"
+                echo "moving directory found in location for symbolic link target"
                 [ -d "${MEDIA_MOUNT_CONTAINER_PATH_BACKUP}" ] && rm -r "$MEDIA_MOUNT_CONTAINER_PATH_BACKUP"
                 mv "$MEDIA_MOUNT_CONTAINER_PATH" "$MEDIA_MOUNT_CONTAINER_PATH_BACKUP"
             fi
