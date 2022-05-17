@@ -36,7 +36,7 @@ services:
             timeout: 60s
             retries: 3
             start_period: 30s
-    plex-scanner:
+    plex_scanner:
         # container_name: pdp-plex-scanner
         networks:
             - internal
