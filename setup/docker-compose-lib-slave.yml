@@ -14,8 +14,8 @@ services:
         #command: 'lsd SECURE_BACKUP:'
         environment:
             - TZ=Australia/Melbourne
-            - PGID=100
             - PUID=99
+            - PGID=100
             - RCLONE_CONFIG_CONFIG_BACKUP_TYPE=${RCLONE_CONFIG_CONFIG_BACKUP_TYPE}
             - RCLONE_CONFIG_CONFIG_BACKUP_CLIENT_ID=${RCLONE_CONFIG_CONFIG_BACKUP_CLIENT_ID}
             - RCLONE_CONFIG_CONFIG_BACKUP_CLIENT_SECRET=${RCLONE_CONFIG_CONFIG_BACKUP_CLIENT_SECRET}

@@ -194,6 +194,7 @@ else
         docker run --rm -it \
         --env-file $INSTALL_ENV_FILE \
         --name rclone-config-download \
+        --user 99:100 \
         -v $DOCKER_ROOT/plexdrive/cache:/plexdrive/cache \
         rclone/rclone \
         copy secure_backup:plexdrive/cache /plexdrive/cache --progress
@@ -251,6 +252,7 @@ if ! [[ -z "$LIB_IMAGE_DOWNLOAD" ]]; then
         docker run --rm -it \
         --env-file $INSTALL_ENV_FILE \
         --name rclone-config-download \
+        --user 99:100 \
         -v $DOCKER_ROOT/plex-scanner:/plex-scanner \
         rclone/rclone \
         copy secure_backup:plex-scanner/backups /plex-scanner/backups --progress
