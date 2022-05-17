@@ -16,7 +16,7 @@ do
     #STREAMER_LIBRARY_FOLDERS=( "${STREAMER_LIBRARY_FOLDERS[@]/$FOLDER}" )
     echo "mounting $FOLDER"
     MEDIA_MOUNT_CONTAINER_PATH=/config/Library/Application\ Support/Plex\ Media\ Server/$FOLDER
-    MEDIA_MOUNT_CONTAINER_PATH_BACKUP=/config/Library/Application\ Support/Plex\ Media\ Server/${FOLDER}_BACKUP
+    MEDIA_MOUNT_CONTAINER_PATH_BACKUP=/config/Library/Application\ Support/Plex\ Media\ Server/${FOLDER}_OLD
     DRIVE_MOUNT_CONTAINER_PATH="$SCANNER_LIBRARY_PATH/$FOLDER"
 
     mkdir -p  "$DRIVE_MOUNT_CONTAINER_PATH"
