@@ -216,20 +216,24 @@ echo "DOCKER_ROOT=$DOCKER_ROOT" >> "$ENV_FILE"
 
 # start docker containers
 DOCKER_COMPOSE_FILE=$DOCKER_ROOT/setup/docker-compose.yml
+SLAVE_DOCKER_COMPOSE_FILE=$DOCKER_ROOT/setup/docker-compose-lib-slave.yml
 DOCKER_COMPOSE_FILE_LOGGING="-f /"$DOCKER_ROOT/setup/docker-compose-logging.yml/""
-DOCKER_COMPOSE_COMMAND="docker-compose --env-file $ENV_FILE --project-directory $DOCKER_ROOT/setup -f "$DOCKER_COMPOSE_FILE" $DOCKER_COMPOSE_FILE_LIB_MANGER $DOCKER_COMPOSE_FILE_LOGGING --project-name plexdriveplus up -d --remove-orphans"
-echo "starting docker containers with command: $DOCKER_COMPOSE_COMMAND"
-$DOCKER_COMPOSE_COMMAND
+
+if [[ $management_mode = "2" ]] || [[ $management_mode = "3" ]]; then
+    DOCKER_COMPOSE_COMMAND="docker-compose --env-file $ENV_FILE --project-directory $DOCKER_ROOT/setup -f "$DOCKER_COMPOSE_FILE" -f "$SLAVE_DOCKER_COMPOSE_FILE" $DOCKER_COMPOSE_FILE_LOGGING --project-name plexdriveplus up -d --remove-orphans"
+    echo "initialising docker containers with command: $DOCKER_COMPOSE_COMMAND"
+    $DOCKER_COMPOSE_COMMAND
+else
+    DOCKER_COMPOSE_COMMAND="docker-compose --env-file $ENV_FILE --project-directory $DOCKER_ROOT/setup -f "$DOCKER_COMPOSE_FILE" $DOCKER_COMPOSE_FILE_LIB_MANGER $DOCKER_COMPOSE_FILE_LOGGING --project-name plexdriveplus up -d --remove-orphans"
+    echo "starting docker containers with command: $DOCKER_COMPOSE_COMMAND"
+    $DOCKER_COMPOSE_COMMAND
+fi
 
 # Stop plex while library downloads
 echo "stopping plex instance(s) for plex library download"
 CONTAINER_PLEX_STREAMER=$(docker container ls --format {{.Names}} | grep plex_streamer)
 docker stop "$CONTAINER_PLEX_STREAMER"
 
-if [[ $management_mode = "2" ]] || [[ $management_mode = "3" ]]; then
-    CONTAINER_PLEX_SCANNER=$(docker container ls --format {{.Names}} | grep plex_scanner)
-    docker stop "$CONTAINER_PLEX_SCANNER"
-fi
 
 # copy generic Plex Preferences.xml
 mkdir -p "$DOCKER_ROOT/plex-streamer/Library/Application Support/Plex Media Server/"
@@ -277,7 +281,10 @@ if [[ $management_mode = "2" ]] || [[ $management_mode = "3" ]]; then
     
     cp -r "$DOCKER_ROOT/plex-scanner/Library/Application Support/Plex Media Server/Plug-in Support" "$DOCKER_ROOT/plex-scanner/Library/Application Support/Plex Media Server/Plug-in Support"
 
-    docker start "$CONTAINER_PLEX_SCANNER"
+    DOCKER_COMPOSE_COMMAND="docker-compose --env-file $ENV_FILE --project-directory $DOCKER_ROOT/setup -f "$DOCKER_COMPOSE_FILE" $DOCKER_COMPOSE_FILE_LIB_MANGER $DOCKER_COMPOSE_FILE_LOGGING --project-name plexdriveplus up -d --remove-orphans"
+    echo "starting docker containers with command: $DOCKER_COMPOSE_COMMAND"
+    $DOCKER_COMPOSE_COMMAND
+
     echo "open plex scanner in browser to continue configuration there: https://127.0.0.1:34400/web"
 fi
 
