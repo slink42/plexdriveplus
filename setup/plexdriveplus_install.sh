@@ -13,11 +13,11 @@ INSTALL_ENV_FILE=install.env
 [[ -z "$DOCKER_ROOT" ]] && DOCKER_ROOT=$(pwd) && echo "error: DOCKER_ROOT not set. using current path: $DOCKER_ROOT" 
 echo "Using DOCKER_ROOT path: $DOCKER_ROOT"
 
-UID=$(id -u)
-GID=$(id -g)
+USERID=$(id -u)
+GROUPID=$(id -g)
 
-UID=99
-GID=100
+USERID=99
+GROUPID=100
 
 SUDO=
 # SUDO=sudo
@@ -205,7 +205,7 @@ else
         docker run --rm -it \
         --env-file $INSTALL_ENV_FILE \
         --name rclone-config-download \
-        --user $UID:$GID \
+        --user $USERID:$GROUPID \
         -v $DOCKER_ROOT/plexdrive/cache:/plexdrive/cache \
         rclone/rclone \
         copy secure_backup:plexdrive/cache /plexdrive/cache --progress
@@ -221,8 +221,8 @@ ENV_FILE="$DOCKER_ROOT/config/.env"
 [[ $(cat $ENV_FILE | grep RCLONE_PASSWORD) ]] || echo "RCLONE_PASSWORD=rclone" >> "$ENV_FILE"
 
 # Set user and group id if not already provided in env file
-[[ $(cat $ENV_FILE | grep UID) ]] || echo "UID=$UID" >> "$ENV_FILE"
-[[ $(cat $ENV_FILE | grep GID) ]] || echo "GID=$GID" >> "$ENV_FILE"
+[[ $(cat $ENV_FILE | grep USERID) ]] || echo "USERID=$USERID" >> "$ENV_FILE"
+[[ $(cat $ENV_FILE | grep GROUPID) ]] || echo "GROUPID=$GROUPID" >> "$ENV_FILE"
 
 ## Start with updated rclone config
 echo "starting containers with docker-compose"
@@ -269,7 +269,7 @@ if ! [[ -z "$LIB_IMAGE_DOWNLOAD" ]]; then
         docker run --rm -it \
         --env-file $INSTALL_ENV_FILE \
         --name rclone-config-download \
-        --user $UID:$GID \
+        --user $USERID:$GROUPID \
         -v $DOCKER_ROOT/plex-scanner:/plex-scanner \
         rclone/rclone \
         copy secure_backup:plex-scanner/backups /plex-scanner/backups --progress
@@ -294,7 +294,7 @@ if [[ $management_mode = "2" ]] || [[ $management_mode = "3" ]]; then
     echo "copying streamer plex config from streamer to scanner"
 
     # Fix Library File Ownership
-    chmod -R $UID:$GID "$DOCKER_ROOT/plex-scanner/Library"
+    chmod -R $USERID:$GROUPID "$DOCKER_ROOT/plex-scanner/Library"
 
     # copy generic Plex Preferences.xml
     mkdir -p "$DOCKER_ROOT/plex-scanner/Library/Application Support/Plex Media Server/"
