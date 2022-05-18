@@ -185,7 +185,7 @@ services:
             - "autoheal=true"
         environment:
             - TZ=Australia/Melbourne
-            - PLEX_CLAIM=claim-xxxxxxxxxxxxxxx
+            - PLEX_CLAIM=${PLEX_CLAIM}
             - PLEX_UID=99
             - PLEX_GID=100
             - VERSION=latest
