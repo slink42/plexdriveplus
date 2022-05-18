@@ -217,8 +217,6 @@ services:
             - VERSION=latest
             - 'NVIDIA_VISIBLE_DEVICES='
             - 'RCLONE_MEDIA_PATH=/mnt/rclone/secure_media/Media'
-            - 'RCLONE_MEDIA_2_PATH=/mnt/rclone/secure_media2/Media'
-            - 'RCLONE_MEDIA_3_PATH=/mnt/rclone/secure_media3/Media'
             - 'PLEXDRIVE_MEDIA_PATH=/mnt/rclone/secure_media_plexdrive/Media'
             - 'PLEXDRIVE_MEDIA_FOLDERS=movies-4k tv-4k'
             - 'SCANNER_LIBRARY_PATH=/mnt/plex-scanner/Library/Application Support/Plex Media Server'

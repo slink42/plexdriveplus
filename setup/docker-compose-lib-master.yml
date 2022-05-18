@@ -190,10 +190,11 @@ services:
             - PLEX_GID=100
             - VERSION=latest
             - 'NVIDIA_VISIBLE_DEVICES='
+            - 'RCLONE_MEDIA_PATH=/mnt/rclone/secure_media_scanner/Media'
+            - 'PLEXDRIVE_MEDIA_PATH=/mnt/rclone/secure_media_plexdrive/Media'
+            - 'PLEXDRIVE_MEDIA_FOLDERS='
             - PUID=99
             - PGID=100
-            - 'PLEXDRIVE_MEDIA_FOLDERS='
-            - 'RCLONE_MEDIA_PATH=/mnt/rclone/secure_media_scanner/Media'
             - 'HEALTHCHECK_MOUNTS=/mnt/rclone/secure_media_scanner'
             - 'HEALTHCHECK_PATHS=/plex/media/Media/tv-4k'
         volumes:

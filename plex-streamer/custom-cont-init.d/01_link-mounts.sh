@@ -1,9 +1,7 @@
 #!/bin/bash
 
 if [ -z "$PLEXDRIVE_MEDIA_PATH" ]; then PLEXDRIVE_MEDIA_PATH=/mnt/rclone/secure_media_plexdrive/Media; else echo "PLEXDRIVE MOUNT: $PLEXDRIVE_MEDIA_PATH"; fi
-if [ -z "$RCLONE_MEDIA_PATH" ]; then RCLONE_MEDIA_PATH=/mnt/rclone/secure_media/Media; else echo "RCLONE MOUNT 1: $RCLONE_MEDIA_PATH"; fi
-if [ -z "$RCLONE_MEDIA_2_PATH" ]; then RCLONE_MEDIA_PATH=/mnt/rclone/secure_media2/Media; else echo "RCLONE MOUNT 2: $RCLONE_MEDIA_2_PATH"; fi
-if [ -z "$RCLONE_MEDIA_3_PATH" ]; then RCLONE_MEDIA_PATH=/mnt/rclone/secure_media3/Media; else echo "RCLONE MOUNT 3: $RCLONE_MEDIA_3_PATH"; fi
+if [ -z "$RCLONE_MEDIA_PATH" ]; then RCLONE_MEDIA_PATH=/mnt/rclone/secure_media/Media; else echo "RCLONE MOUNT: $RCLONE_MEDIA_PATH"; fi
 
 # PLEXDRIVE_MEDIA_FOLDERS="movies-4k tv-4k"
 
@@ -46,7 +44,7 @@ do
     mkdir -p  $DRIVE_MOUNT_CONTAINER_PATH
 
     path_found=$( ls -la $MEDIA_MOUNT_CONTAINER_PATH 2> /dev/null | grep -ic $DRIVE_MOUNT_CONTAINER_PATH )
-    if [ $path_found -eq 1 ]
+    if [ -L "$MEDIA_MOUNT_CONTAINER_PATH" ] && [ $path_found -eq 1 ]
     then
       echo "Already linked from $DRIVE_MOUNT_CONTAINER_PATH to $MEDIA_MOUNT_CONTAINER_PATH"
     else
