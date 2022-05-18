@@ -13,6 +13,12 @@ INSTALL_ENV_FILE=install.env
 [[ -z "$DOCKER_ROOT" ]] && DOCKER_ROOT=$(pwd) && echo "error: DOCKER_ROOT not set. using current path: $DOCKER_ROOT" 
 echo "Using DOCKER_ROOT path: $DOCKER_ROOT"
 
+UID=$(id -u)
+GID=$(id -g)
+
+UID=99
+GID=100
+
 SUDO=
 # SUDO=sudo
 # [[ $USER = "root" ]] && (echo "running as root user. wont use sudo " && SUDO=sudo)
@@ -199,7 +205,7 @@ else
         docker run --rm -it \
         --env-file $INSTALL_ENV_FILE \
         --name rclone-config-download \
-        --user 99:100 \
+        --user $UID:$GID \
         -v $DOCKER_ROOT/plexdrive/cache:/plexdrive/cache \
         rclone/rclone \
         copy secure_backup:plexdrive/cache /plexdrive/cache --progress
@@ -213,6 +219,10 @@ ENV_FILE="$DOCKER_ROOT/config/.env"
 # Set rclone rc username and password if not already provided in env file
 [[ $(cat $ENV_FILE | grep RCLONE_USER) ]] || echo "RCLONE_USER=rclone" >> "$ENV_FILE"
 [[ $(cat $ENV_FILE | grep RCLONE_PASSWORD) ]] || echo "RCLONE_PASSWORD=rclone" >> "$ENV_FILE"
+
+# Set user and group id if not already provided in env file
+[[ $(cat $ENV_FILE | grep UID) ]] || echo "UID=$UID" >> "$ENV_FILE"
+[[ $(cat $ENV_FILE | grep GID) ]] || echo "GID=$GID" >> "$ENV_FILE"
 
 ## Start with updated rclone config
 echo "starting containers with docker-compose"
@@ -259,7 +269,7 @@ if ! [[ -z "$LIB_IMAGE_DOWNLOAD" ]]; then
         docker run --rm -it \
         --env-file $INSTALL_ENV_FILE \
         --name rclone-config-download \
-        --user 99:100 \
+        --user $UID:$GID \
         -v $DOCKER_ROOT/plex-scanner:/plex-scanner \
         rclone/rclone \
         copy secure_backup:plex-scanner/backups /plex-scanner/backups --progress
@@ -282,6 +292,9 @@ echo "$(date) - library download using $CONTAINER_PLEX_LIBRARY_SYNC has complete
 # copy streamer plex db copied for cloud to scanner if required by selected library managemeent mode
 if [[ $management_mode = "2" ]] || [[ $management_mode = "3" ]]; then
     echo "copying streamer plex config from streamer to scanner"
+
+    # Fix Library File Ownership
+    chmod -R $UID:$GID "$DOCKER_ROOT/plex-scanner/Library"
 
     # copy generic Plex Preferences.xml
     mkdir -p "$DOCKER_ROOT/plex-scanner/Library/Application Support/Plex Media Server/"
