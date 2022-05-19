@@ -12,7 +12,7 @@ services:
             - PUID=99
             - 'HEALTHCHECK_MOUNTS=/cloud'
             - 'HEALTHCHECK_PATHS=/data /cloud /local'
-            - RCLONE_LOG_FILE=/config/rclone_media_scanner_mount_1.log
+            # - RCLONE_LOG_FILE=/config/rclone_media_scanner_mount_1.log
             - POOLING_FS=unionfs
             - RCLONE_LOG_LEVEL=INFO
             - 'RCLONE_REMOTE_PATH=secure_media_scanner:'
@@ -54,7 +54,7 @@ services:
             - PUID=99
             - 'HEALTHCHECK_MOUNTS=/cloud'
             - 'HEALTHCHECK_PATHS=/data /cloud /local'
-            - RCLONE_LOG_FILE=/config/rclone_media_scanner_mount_2.log
+            # - RCLONE_LOG_FILE=/config/rclone_media_scanner_mount_2.log
             - POOLING_FS=unionfs
             - RCLONE_LOG_LEVEL=INFO
             - 'RCLONE_REMOTE_PATH=secure_media_scanner:'
@@ -96,7 +96,7 @@ services:
             - PUID=99
             - 'HEALTHCHECK_MOUNTS=/cloud'
             - 'HEALTHCHECK_PATHS=/data /cloud'
-            - RCLONE_LOG_FILE=/config/rclone_media_scanner_mount_3.log
+            # - RCLONE_LOG_FILE=/config/rclone_media_scanner_mount_3.log
             - POOLING_FS=unionfs
             - RCLONE_LOG_LEVEL=INFO
             - 'RCLONE_REMOTE_PATH=secure_media_scanner:'
