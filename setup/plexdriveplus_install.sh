@@ -272,8 +272,8 @@ if [[ -z "$USE_CLOUD_CONFIG" ]] || ! [ -f "$DOCKER_ROOT/plex-streamer/Library/Ap
     echo "Using Preferences.xml downloaded from cloud for Plex server config"
     cp "$PLEX_PREF_MASTER" "$DOCKER_ROOT/plex-streamer/Library/Application Support/Plex Media Server/Preferences.xml"
     # load plex claim ID to plex_claim_id variable .env file
-    ( read -i 'claim-xxxxxxxxxxxxxxx' -p 'If you are running this headless, please enter you plex claim id generated from https://www.plex.tv/claim/. If you dont know what this means just press enter:
-plex claim id> ' -e plex_claim_id)
+    read -i 'claim-xxxxxxxxxxxxxxx' -p 'If you are running this headless, please enter you plex claim id generated from https://www.plex.tv/claim/. If you dont know what this means just press enter:
+plex claim id> ' -e plex_claim_id
 else
     echo "Using existing Preferences.xml for Plex server config"
 fi
