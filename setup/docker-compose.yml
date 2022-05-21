@@ -232,11 +232,11 @@ services:
             - UDP_PORT_32414=32414
             - PUID=99
             - PGID=100
-            - 'HEALTHCHECK_MOUNTS=/mnt/rclone/secure_media /mnt/rclone/secure_media_plexdrive'
-            - 'HEALTHCHECK_PATHS=/plex/media/Media/movies /plex/media/Media/movies-4k'
+            - 'HEALTHCHECK_MOUNTS=/plex/media'
+            - 'HEALTHCHECK_PATHS=/plex/media/Media/movies /plex/media/Media/movies-4k /plex/media/Media/tv'
         volumes:
             - '${DOCKER_ROOT}/plex-streamer/transcode:/transcode:rw'
-            - '${DOCKER_ROOT}/mnt/rclone:/mnt/rclone:rshared'
+            - '${DOCKER_ROOT}/mnt/rclone/secure_media:/plex/media:rshared'
             - '${DOCKER_ROOT}/plex-scanner/:/mnt/plex-scanner:rw'
             - '${DOCKER_ROOT}/plex-streamer/:/config:rw'
             - '${DOCKER_ROOT}/scripts/:/scripts:ro'

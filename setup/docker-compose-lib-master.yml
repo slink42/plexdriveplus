@@ -195,10 +195,10 @@ services:
             - 'PLEXDRIVE_MEDIA_FOLDERS='
             - PUID=99
             - PGID=100
-            - 'HEALTHCHECK_MOUNTS=/mnt/rclone/secure_media_scanner'
+            - 'HEALTHCHECK_MOUNTS=/plex/media'
             - 'HEALTHCHECK_PATHS=/plex/media/Media/tv-4k'
         volumes:
-            - '${DOCKER_ROOT}/mnt/rclone/secure_media_scanner/:/mnt/rclone/secure_media_scanner:rshared'
+            - '${DOCKER_ROOT}/mnt/rclone/secure_media_scanner:/plex/media:rshared'
             - '${DOCKER_ROOT}/plex-scanner/:/config:rw'
             - '${DOCKER_ROOT}/scripts/:/scripts:ro'
         ports:
