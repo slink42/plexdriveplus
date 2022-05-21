@@ -146,9 +146,9 @@ fi
 
 # authorize scanner rclone gdrive mount if required by selected library managemeent mode
 if [[ $management_mode = "2" ]] || [[ $management_mode = "3" ]]; then
-    
+    echo "**********************"
     echo "${C_PURPLE}setting up rclone authentication form library scanner mount. This can a different account to the one used for streaming so streaming isnt impacted by api bans caused by scanning${NO_FORMAT}!"
-
+    echo "**********************"
     SCANNER_GDRIVE_ENDPOINT=$(cat $DOCKER_ROOT/config/.env | grep RCLONE_CONFIG_SECURE_MEDIA_SCANNER_REMOTE)
     SCANNER_GDRIVE_ENDPOINT=${SCANNER_GDRIVE_ENDPOINT/RCLONE_CONFIG_SECURE_MEDIA_SCANNER_REMOTE=/}
     echo "Using rclone gdrive endpoint for scanner: $SCANNER_GDRIVE_ENDPOINT"

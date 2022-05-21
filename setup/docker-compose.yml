@@ -11,7 +11,7 @@ services:
             - PGID=100
             - PUID=99
             - 'HEALTHCHECK_MOUNTS=/cloud'
-            - 'HEALTHCHECK_PATHS=/data /cloud /local /data/checkmount'
+            - 'HEALTHCHECK_PATHS=/data'
             #- RCLONE_LOG_FILE=/config/rclone_media_mount_1.log
             - POOLING_FS=unionfs
             - RCLONE_LOG_LEVEL=INFO
@@ -23,7 +23,6 @@ services:
             - '${DOCKER_ROOT}/rclone/:/config:rw'
             - '${DOCKER_ROOT}/scripts/:/scripts:ro'
             - '${DOCKER_ROOT}/mnt/rclone/secure_media:/data:rshared'
-            - '${DOCKER_ROOT}/mnt/rclone/secure_media2:/local/:rshared'
         networks:
             - internal
         ports:
@@ -53,7 +52,7 @@ services:
             - PGID=100
             - PUID=99
             - 'HEALTHCHECK_MOUNTS=/cloud'
-            - 'HEALTHCHECK_PATHS=/data /cloud /local /data/checkmount'
+            - 'HEALTHCHECK_PATHS=/data'
             #- RCLONE_LOG_FILE=/config/rclone_media_mount_2.log
             - POOLING_FS=unionfs
             - RCLONE_LOG_LEVEL=INFO
@@ -65,7 +64,6 @@ services:
             - '${DOCKER_ROOT}/rclone/:/config:rw'
             - '${DOCKER_ROOT}/scripts/:/scripts:ro'
             - '${DOCKER_ROOT}/mnt/rclone/secure_media2:/data:rshared'
-            - '${DOCKER_ROOT}/mnt/rclone/secure_media3:/local/:rshared'
         networks:
             - internal
         ports:
@@ -95,10 +93,10 @@ services:
             - PGID=100
             - PUID=99
             - 'HEALTHCHECK_MOUNTS=/cloud'
-            - 'HEALTHCHECK_PATHS=/data /cloud /data/checkmount'
+            - 'HEALTHCHECK_PATHS=/data'
             - RCLONE_LOG_FILE=/config/rclone_media_mount_3.log
             - POOLING_FS=unionfs
-            - RCLONE_LOG_LEVEL=DEBUG
+            - RCLONE_LOG_LEVEL=INFO
             - 'RCLONE_REMOTE_PATH=secure_media:'
             - 'RCLONE_MOUNT_USER_OPTS=--read-only --use-json-log --acd-templink-threshold 1g --buffer-size 8M --timeout 5s --contimeout 5s --stats 300s --dir-cache-time 30m --multi-thread-streams=20 --allow-non-empty --allow-other --rc-web-gui --rc-web-gui-update --rc-web-gui-no-open-browser --rc-user ${RCLONE_USER} --rc-pass ${RCLONE_PASSWORD}'
             - RCLONE_CONFIG_GDRIVE_MOLE_TEAM_DRIVE=${RCLONE_CONFIG_GDRIVE_TEAM_DRIVE_3}
@@ -107,10 +105,6 @@ services:
             - '${DOCKER_ROOT}/rclone/:/config:rw'
             - '${DOCKER_ROOT}/scripts/:/scripts:ro'
             - '${DOCKER_ROOT}/mnt/rclone/secure_media3:/data:rshared'
-            - '${DOCKER_ROOT}/test-path/:/local' #inluded only to use in healthcheck
-            # - '${DOCKER_ROOT}/mnt/rclone/secure_media_plexdrive/Media/movies-4k/:/local/movies-4k'
-            # - '${DOCKER_ROOT}/mnt/rclone/secure_media_plexdrive/Media/tv-4k/:/local/tv-4k'
-            # - '${DOCKER_ROOT}/test-path/:/local/checkmount' #inluded only to use in healthcheck
         networks:
             - internal
         ports:
@@ -132,7 +126,6 @@ services:
             retries: 1
             start_period: 5s
     plexdrive:
-        # container_name: pdp-plexdrive-secure_media
         restart: always
         labels:
             - "autoheal=true"
@@ -141,7 +134,7 @@ services:
             - PUID=99
             - PGID=100
             - 'HEALTHCHECK_MOUNTS=/cloud'
-            - 'HEALTHCHECK_PATHS=/data /cloud /data/checkmount'
+            - 'HEALTHCHECK_PATHS=/data'
             - POOLING_FS=unionfs
             - 'PLEXDRIVE_OPTS=-v 2 --max-chunks=10 --chunk-size=20M --chunk-check-threads=20 --chunk-load-threads=4 --chunk-load-ahead=5 --drive-id=0ALNBa0QBHhldUk9PVA -o allow_other,read_only,nonempty'
         volumes:
@@ -149,7 +142,6 @@ services:
             - '${DOCKER_ROOT}/scripts/:/scripts:ro'
             - '${DOCKER_ROOT}/plexdrive/cache:/cache:rw'
             - '${DOCKER_ROOT}/mnt/plexdrive/secure_media:/data:rshared'
-            - '${DOCKER_ROOT}/test-path/:/local/checkmount'
         networks:
             - internal
         logging:
@@ -169,7 +161,6 @@ services:
             retries: 5
             start_period: 5s
     rclone_plexdrive:
-        # container_name: pdp-rclone-plexdrive
         command: 'mount --allow-other --allow-non-empty plexdrive_crypt: /mnt/plexdrive_decrypted --log-level INFO'
         restart: always
         labels:
@@ -182,12 +173,11 @@ services:
             - 'HEALTHCHECK_PATHS=/mnt/plexdrive'
         volumes:
             - '${DOCKER_ROOT}/mnt/plexdrive/secure_media/:/mnt/plexdrive:rshared'
-            - '${DOCKER_ROOT}/mnt/rclone/secure_media_plexdrive:/mnt/plexdrive_decrypted:rshared'
+            - '${DOCKER_ROOT}/mnt/rclone/plexdrive_secure_media:/mnt/plexdrive_decrypted:rshared'
             - '${DOCKER_ROOT}/rclone/:/config/rclone:rshared'
             - '${DOCKER_ROOT}/scripts/:/scripts:ro'
-        network_mode: host
-        # networks:
-        #     - internal
+        networks:
+            - internal
         logging:
             options:
                 max-size: 20m
@@ -198,6 +188,38 @@ services:
         security_opt:
             - apparmor:unconfined
         image: rclone/rclone
+        healthcheck:
+            test: ["CMD-SHELL", "sh /scripts/healthcheck"]
+            interval: 300s
+            timeout: 60s
+            retries: 3
+            start_period: 30s
+    mergerfs:
+        command: '/mnt/rclone/secure_media\*:/mnt/rclone/plexdrive_secure_media /data'
+        restart: always
+        labels:
+            - "autoheal=true"
+        environment:
+            - TZ=Australia/Melbourne
+            - PUID=99
+            - PGID=100
+            - 'HEALTHCHECK_MOUNTS=/data'
+            - 'HEALTHCHECK_PATHS=/data'
+        volumes:
+            - '${DOCKER_ROOT}/mnt/mergerfs/secure_media:/data:rshared'
+            - '${DOCKER_ROOT}/scripts/:/scripts:ro'
+        networks:
+            - internal
+        logging:
+            options:
+                max-size: 20m
+        devices:
+            - /dev/fuse
+        cap_add:
+            - SYS_ADMIN
+        security_opt:
+            - apparmor:unconfined
+        image: hotio/mergerfs
         healthcheck:
             test: ["CMD-SHELL", "sh /scripts/healthcheck"]
             interval: 300s
@@ -219,9 +241,6 @@ services:
             - PLEX_GID=100
             - VERSION=latest
             - 'NVIDIA_VISIBLE_DEVICES='
-            - 'RCLONE_MEDIA_PATH=/mnt/rclone/secure_media/Media'
-            - 'PLEXDRIVE_MEDIA_PATH=/mnt/rclone/secure_media_plexdrive/Media'
-            - 'PLEXDRIVE_MEDIA_FOLDERS=movies-4k tv-4k'
             - 'SCANNER_LIBRARY_PATH=/mnt/plex-scanner/Library/Application Support/Plex Media Server'
             - 'STREAMER_LIBRARY_PATH=/mnt/plex-streamer/Library/Application Support/Plex Media Server'
             - TCP_PORT_32400=32400
@@ -239,7 +258,7 @@ services:
             - 'HEALTHCHECK_PATHS=/plex/media/Media/movies /plex/media/Media/movies-4k /plex/media/Media/tv'
         volumes:
             - '${DOCKER_ROOT}/plex-streamer/transcode:/transcode:rw'
-            - '${DOCKER_ROOT}/mnt/rclone/secure_media:/plex/media:rshared'
+            - '${DOCKER_ROOT}/mnt/mergerfs/secure_media:/plex/media:rshared'
             - '${DOCKER_ROOT}/plex-scanner/:/mnt/plex-scanner:rw'
             - '${DOCKER_ROOT}/plex-streamer/:/config:rw'
             - '${DOCKER_ROOT}/scripts/:/scripts:ro'

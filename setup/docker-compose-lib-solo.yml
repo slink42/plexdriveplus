@@ -15,15 +15,15 @@ services:
             # - RCLONE_LOG_FILE=/config/rclone_media_scanner_mount_1.log
             - POOLING_FS=unionfs
             - RCLONE_LOG_LEVEL=INFO
-            - 'RCLONE_REMOTE_PATH=secure_media_scanner:'
+            - 'RCLONE_REMOTE_PATH=scanner_secure_media:'
             - 'RCLONE_MOUNT_USER_OPTS=--read-only --use-json-log --acd-templink-threshold 1g --buffer-size 8M --timeout 5s --contimeout 5s --stats 300s --dir-cache-time 30m --multi-thread-streams=20 --allow-non-empty --allow-other --rc-web-gui --rc-web-gui-update --rc-web-gui-no-open-browser --rc-user ${RCLONE_USER} --rc-pass ${RCLONE_PASSWORD}'
             - RCLONE_CONFIG_GDRIVE_MOLE_TEAM_DRIVE=${RCLONE_CONFIG_GDRIVE_TEAM_DRIVE_1}
             - RCLONE_CONFIG_GDRIVE_WOLF_TEAM_DRIVE=${RCLONE_CONFIG_GDRIVE_TEAM_DRIVE_1}
         volumes:
             - '${DOCKER_ROOT}/rclone/:/config:rw'
             - '${DOCKER_ROOT}/scripts/:/scripts:ro'
-            - '${DOCKER_ROOT}/mnt/rclone/secure_media_scanner:/data:rshared'
-            - '${DOCKER_ROOT}/mnt/rclone/secure_media_scanner2:/local/:rshared'
+            - '${DOCKER_ROOT}/mnt/rclone/scanner_secure_media:/data:rshared'
+            - '${DOCKER_ROOT}/mnt/rclone/scanner_secure_media2:/local/:rshared'
         networks:
             - internal
         ports:
@@ -57,15 +57,15 @@ services:
             # - RCLONE_LOG_FILE=/config/rclone_media_scanner_mount_2.log
             - POOLING_FS=unionfs
             - RCLONE_LOG_LEVEL=INFO
-            - 'RCLONE_REMOTE_PATH=secure_media_scanner:'
+            - 'RCLONE_REMOTE_PATH=scanner_secure_media:'
             - 'RCLONE_MOUNT_USER_OPTS=--read-only --use-json-log --acd-templink-threshold 1g --buffer-size 8M --timeout 5s --contimeout 5s --stats 300s --dir-cache-time 30m --multi-thread-streams=20 --allow-non-empty --allow-other --rc-web-gui --rc-web-gui-update --rc-web-gui-no-open-browser --rc-user ${RCLONE_USER} --rc-pass ${RCLONE_PASSWORD}'
             - RCLONE_CONFIG_GDRIVE_MOLE_TEAM_DRIVE=${RCLONE_CONFIG_GDRIVE_TEAM_DRIVE_2}
             - RCLONE_CONFIG_GDRIVE_WOLF_TEAM_DRIVE=${RCLONE_CONFIG_GDRIVE_TEAM_DRIVE_2}
         volumes:
             - '${DOCKER_ROOT}/rclone/:/config:rw'
             - '${DOCKER_ROOT}/scripts/:/scripts:ro'
-            - '${DOCKER_ROOT}/mnt/rclone/secure_media_scanner2:/data:rshared'
-            - '${DOCKER_ROOT}/mnt/rclone/secure_media_scanner3:/local/:rshared'
+            - '${DOCKER_ROOT}/mnt/rclone/scanner_secure_media2:/data:rshared'
+            - '${DOCKER_ROOT}/mnt/rclone/scanner_secure_media3:/local/:rshared'
         networks:
             - internal
         ports:
@@ -99,14 +99,14 @@ services:
             # - RCLONE_LOG_FILE=/config/rclone_media_scanner_mount_3.log
             - POOLING_FS=unionfs
             - RCLONE_LOG_LEVEL=INFO
-            - 'RCLONE_REMOTE_PATH=secure_media_scanner:'
+            - 'RCLONE_REMOTE_PATH=scanner_secure_media:'
             - 'RCLONE_MOUNT_USER_OPTS=--read-only --use-json-log --acd-templink-threshold 1g --buffer-size 8M --timeout 5s --contimeout 5s --stats 300s --dir-cache-time 30m --multi-thread-streams=20 --allow-non-empty --allow-other --rc-web-gui --rc-web-gui-update --rc-web-gui-no-open-browser --rc-user ${RCLONE_USER} --rc-pass ${RCLONE_PASSWORD}'
             - RCLONE_CONFIG_GDRIVE_MOLE_TEAM_DRIVE=${RCLONE_CONFIG_GDRIVE_TEAM_DRIVE_3}
             - RCLONE_CONFIG_GDRIVE_WOLF_TEAM_DRIVE=${RCLONE_CONFIG_GDRIVE_TEAM_DRIVE_3}
         volumes:
             - '${DOCKER_ROOT}/rclone/:/config:rw'
             - '${DOCKER_ROOT}/scripts/:/scripts:ro'
-            - '${DOCKER_ROOT}/mnt/rclone/secure_media_scanner3:/data:rshared'
+            - '${DOCKER_ROOT}/mnt/rclone/scanner_secure_media3:/data:rshared'
             - '${DOCKER_ROOT}/test-path/:/local/checkmount' #inluded only to use in healthcheck
         networks:
             - internal
@@ -144,13 +144,13 @@ services:
             - 'NVIDIA_VISIBLE_DEVICES='
             - PUID=99
             - PGID=100
-            - 'RCLONE_MEDIA_PATH=/mnt/rclone/secure_media_scanner/Media'
+            - 'RCLONE_MEDIA_PATH=/mnt/rclone/scanner_secure_media/Media'
             - 'PLEXDRIVE_MEDIA_PATH=/mnt/rclone/secure_media_plexdrive/Media'
             - 'PLEXDRIVE_MEDIA_FOLDERS='
             - 'HEALTHCHECK_MOUNTS=/plex/media'
             - 'HEALTHCHECK_PATHS=/plex/media/Media/tv-4k'
         volumes:
-            - '${DOCKER_ROOT}/mnt/rclone/secure_media_scanner:/plex/media:rshared'
+            - '${DOCKER_ROOT}/mnt/rclone/scanner_secure_media:/plex/media:rshared'
             - '${DOCKER_ROOT}/plex-scanner/:/config:rw'
             - '${DOCKER_ROOT}/scripts/:/scripts:ro'
         ports:
