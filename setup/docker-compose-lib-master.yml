@@ -155,7 +155,7 @@ services:
             - '${DOCKER_ROOT}/rclone/:/config:rw'
             - '${DOCKER_ROOT}/scripts/:/scripts:ro'
             - '${DOCKER_ROOT}/mnt/rclone/secure_media_scanner3:/data:rshared'
-            - '${DOCKER_ROOT}/rclone/:/local/:ro' #inluded only to use in healthcheck
+            - '${DOCKER_ROOT}/rclone/:/local/' #inluded only to use in healthcheck
         networks:
             - internal
         ports:
