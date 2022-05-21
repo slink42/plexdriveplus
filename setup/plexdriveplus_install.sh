@@ -272,15 +272,15 @@ if [[ -z "$USE_CLOUD_CONFIG" ]] || ! [ -f "$DOCKER_ROOT/plex-streamer/Library/Ap
     echo "Using Preferences.xml downloaded from cloud for Plex server config"
     cp "$PLEX_PREF_MASTER" "$DOCKER_ROOT/plex-streamer/Library/Application Support/Plex Media Server/Preferences.xml"
     # load plex claim ID to plex_claim_id variable .env file
-    [[ $(cat $ENV_FILE | grep PLEX_CLAIM) ]] || ( read -i 'claim-xxxxxxxxxxxxxxx' -p 'If you are running this headless, please enter you plex claim id generated from https://www.plex.tv/claim/. If you dont know what this means just press enter:
+    ( read -i 'claim-xxxxxxxxxxxxxxx' -p 'If you are running this headless, please enter you plex claim id generated from https://www.plex.tv/claim/. If you dont know what this means just press enter:
 plex claim id> ' -e plex_claim_id)
-    echo "Using PLEX_CLAIM: $plex_claim_id"
 else
     echo "Using existing Preferences.xml for Plex server config"
 fi
 # write plex_claim_id value to .env file
 [ -z "$plex_claim_id" ] && plex_claim_id="claim-xxxxxxxxxxxxxxx"
-[[ $(cat $ENV_FILE | grep PLEX_CLAIM) ]] || echo "PLEX_CLAIM=$plex_claim_id" >> "$ENV_FILE"
+echo "Using PLEX_CLAIM: $plex_claim_id"
+echo "PLEX_CLAIM=$plex_claim_id" >> "$ENV_FILE"
 
 # copy library images / metadata backup from master
 if ! [[ -z "$LIB_IMAGE_DOWNLOAD" ]]; then
