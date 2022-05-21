@@ -23,6 +23,16 @@ SUDO=
 # SUDO=sudo
 # [[ $USER = "root" ]] && (echo "running as root user. wont use sudo " && SUDO=sudo)
 
+# define text display colours
+
+NO_FORMAT="\033[0m"
+C_ORANGE1="\033[38;5;214m"
+C_SPRINGGREEN3="\033[38;5;41m"
+C_RED1="\033[38;5;196m"
+C_YELLOW1="\033[38;5;226m"
+C_DODGERBLUE1="\033[38;5;33m"
+C_PURPLE="\033[38;5;129m"
+
 ## install prerequisites
 
 # install rclone if not present
@@ -136,7 +146,9 @@ fi
 
 # authorize scanner rclone gdrive mount if required by selected library managemeent mode
 if [[ $management_mode = "2" ]] || [[ $management_mode = "3" ]]; then
-    echo "setting up rclone authentication form library scanner mount"
+    
+    echo "${C_PURPLE}setting up rclone authentication form library scanner mount. This can a different account to the one used for streaming so streaming isnt impacted by api bans caused by scanning${NO_FORMAT}!"
+
     SCANNER_GDRIVE_ENDPOINT=$(cat $DOCKER_ROOT/config/.env | grep RCLONE_CONFIG_SECURE_MEDIA_SCANNER_REMOTE)
     SCANNER_GDRIVE_ENDPOINT=${SCANNER_GDRIVE_ENDPOINT/RCLONE_CONFIG_SECURE_MEDIA_SCANNER_REMOTE=/}
     echo "Using rclone gdrive endpoint for scanner: $SCANNER_GDRIVE_ENDPOINT"
