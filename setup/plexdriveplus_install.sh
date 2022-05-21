@@ -255,12 +255,15 @@ docker stop "$CONTAINER_PLEX_STREAMER"
 mkdir -p "$DOCKER_ROOT/plex-streamer/Library/Application Support/Plex Media Server/"
 PLEX_PREF_MASTER="$DOCKER_ROOT/setup/plex_streamer_Preferences.xml" 
 [ -f "$PLEX_PREF_MASTER" ] || PLEX_PREF_MASTER="$DOCKER_ROOT/setup/Preferences.xml"
-if ! ([[ -z "$USE_CLOUD_CONFIG" ]] && [[ -f "$DOCKER_ROOT/plex-streamer/Library/Application Support/Plex Media Server/Preferences.xml" ]] && echo "Using existing Preferences.xml for Plex server config"); then
+if [[ -z "$USE_CLOUD_CONFIG" ]] || ! [ -f "$DOCKER_ROOT/plex-streamer/Library/Application Support/Plex Media Server/Preferences.xml" ]; then
     # copy default plex preference file into plex config dir
-    cp "$PLEX_PREF_MASTER" "$DOCKER_ROOT/plex-streamer/Library/Application Support/Plex Media Server/Preferences.xml"  && echo "Using Preferences.xml downloaded from cloud for Plex server config"
+    echo "Using Preferences.xml downloaded from cloud for Plex server config"
+    cp "$PLEX_PREF_MASTER" "$DOCKER_ROOT/plex-streamer/Library/Application Support/Plex Media Server/Preferences.xml"
     # load plex claim ID to plex_claim_id variable .env file
     [[ $(cat $ENV_FILE | grep PLEX_CLAIM) ]] || ( read -i 'claim-xxxxxxxxxxxxxxx' -p 'If you are running this headless, please enter you plex claim id generated from https://www.plex.tv/claim/. If you dont know what this means just press enter:
 plex claim id> ' -e plex_claim_id)
+else
+    echo "Using existing Preferences.xml for Plex server config"
 fi
 # write plex_claim_id value to .env file
 [ -z "$plex_claim_id" ] && plex_claim_id="claim-xxxxxxxxxxxxxxx"
