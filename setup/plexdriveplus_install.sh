@@ -240,6 +240,7 @@ ENV_FILE="$DOCKER_ROOT/config/.env"
 echo "starting containers with docker-compose"
 sed -i '/DOCKER_ROOT/'d "$ENV_FILE"
 echo "DOCKER_ROOT=$DOCKER_ROOT" >> "$ENV_FILE"
+mkdir -p "$DOCKER_ROOT/mnt/mergerfs/"
 
 # start docker containers
 DOCKER_COMPOSE_FILE=$DOCKER_ROOT/setup/docker-compose.yml
