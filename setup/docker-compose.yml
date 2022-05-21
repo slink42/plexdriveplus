@@ -11,7 +11,7 @@ services:
             - PGID=100
             - PUID=99
             - 'HEALTHCHECK_MOUNTS=/cloud'
-            - 'HEALTHCHECK_PATHS=/data /cloud /local /data/rclone.conf'
+            - 'HEALTHCHECK_PATHS=/data /cloud /local /data/checkmount'
             #- RCLONE_LOG_FILE=/config/rclone_media_mount_1.log
             - POOLING_FS=unionfs
             - RCLONE_LOG_LEVEL=INFO
@@ -53,7 +53,7 @@ services:
             - PGID=100
             - PUID=99
             - 'HEALTHCHECK_MOUNTS=/cloud'
-            - 'HEALTHCHECK_PATHS=/data /cloud /local /data/rclone.conf'
+            - 'HEALTHCHECK_PATHS=/data /cloud /local /data/checkmount'
             #- RCLONE_LOG_FILE=/config/rclone_media_mount_2.log
             - POOLING_FS=unionfs
             - RCLONE_LOG_LEVEL=INFO
@@ -95,7 +95,7 @@ services:
             - PGID=100
             - PUID=99
             - 'HEALTHCHECK_MOUNTS=/cloud'
-            - 'HEALTHCHECK_PATHS=/data /cloud /data/rclone.conf'
+            - 'HEALTHCHECK_PATHS=/data /cloud /data/checkmount'
             - RCLONE_LOG_FILE=/config/rclone_media_mount_3.log
             - POOLING_FS=unionfs
             - RCLONE_LOG_LEVEL=DEBUG
@@ -107,7 +107,9 @@ services:
             - '${DOCKER_ROOT}/rclone/:/config:rw'
             - '${DOCKER_ROOT}/scripts/:/scripts:ro'
             - '${DOCKER_ROOT}/mnt/rclone/secure_media3:/data:rshared'
-            - '${DOCKER_ROOT}/rclone/:/local/' #inluded only to use in healthcheck
+            - '${DOCKER_ROOT}/mnt/rclone/secure_media_plexdrive/Media/movies-4k/:/local/movies-4k'
+            - '${DOCKER_ROOT}/mnt/rclone/secure_media_plexdrive/Media/tv-4k/:/local/tv-4k'
+            - '${DOCKER_ROOT}/test-path/:/local/checkmount' #inluded only to use in healthcheck
         networks:
             - internal
         ports:
@@ -138,7 +140,7 @@ services:
             - PUID=99
             - PGID=100
             - 'HEALTHCHECK_MOUNTS=/cloud'
-            - 'HEALTHCHECK_PATHS=/data /cloud'
+            - 'HEALTHCHECK_PATHS=/data /cloud /data/checkmount'
             - POOLING_FS=unionfs
             - 'PLEXDRIVE_OPTS=-v 2 --max-chunks=10 --chunk-size=20M --chunk-check-threads=20 --chunk-load-threads=4 --chunk-load-ahead=5 --drive-id=0ALNBa0QBHhldUk9PVA -o allow_other,read_only,nonempty'
         volumes:
@@ -146,7 +148,7 @@ services:
             - '${DOCKER_ROOT}/scripts/:/scripts:ro'
             - '${DOCKER_ROOT}/plexdrive/cache:/cache:rw'
             - '${DOCKER_ROOT}/mnt/plexdrive/secure_media:/data:rshared'
-            - '${DOCKER_ROOT}/test-path/:/local/:ro'
+            - '${DOCKER_ROOT}/test-path/:/local/checkmount'
         networks:
             - internal
         logging:

@@ -59,7 +59,7 @@ services:
             - PGID=100
             - PUID=99
             - 'HEALTHCHECK_MOUNTS=/cloud'
-            - 'HEALTHCHECK_PATHS=/data /cloud /local /data/rclone.conf'
+            - 'HEALTHCHECK_PATHS=/data /cloud /local /data/checkmount'
             # - RCLONE_LOG_FILE=/config/rclone_media_scanner_mount_1.log
             - POOLING_FS=unionfs
             - RCLONE_LOG_LEVEL=INFO
@@ -101,7 +101,7 @@ services:
             - PGID=100
             - PUID=99
             - 'HEALTHCHECK_MOUNTS=/cloud'
-            - 'HEALTHCHECK_PATHS=/data /cloud /local /data/rclone.conf'
+            - 'HEALTHCHECK_PATHS=/data /cloud /local /data/checkmount'
             # - RCLONE_LOG_FILE=/config/rclone_media_scanner_mount_2.log
             - POOLING_FS=unionfs
             - RCLONE_LOG_LEVEL=INFO
@@ -143,7 +143,7 @@ services:
             - PGID=100
             - PUID=99
             - 'HEALTHCHECK_MOUNTS=/cloud'
-            - 'HEALTHCHECK_PATHS=/data /cloud /data/rclone.conf'
+            - 'HEALTHCHECK_PATHS=/data /cloud /data/checkmount'
             # - RCLONE_LOG_FILE=/config/rclone_media_scanner_mount_3.log
             - POOLING_FS=unionfs
             - RCLONE_LOG_LEVEL=INFO
@@ -155,7 +155,7 @@ services:
             - '${DOCKER_ROOT}/rclone/:/config:rw'
             - '${DOCKER_ROOT}/scripts/:/scripts:ro'
             - '${DOCKER_ROOT}/mnt/rclone/secure_media_scanner3:/data:rshared'
-            - '${DOCKER_ROOT}/rclone/:/local/' #inluded only to use in healthcheck
+            - '${DOCKER_ROOT}/test-path/:/local/checkmount' #inluded only to use in healthcheck
         networks:
             - internal
         ports:
