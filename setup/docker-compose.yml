@@ -107,9 +107,10 @@ services:
             - '${DOCKER_ROOT}/rclone/:/config:rw'
             - '${DOCKER_ROOT}/scripts/:/scripts:ro'
             - '${DOCKER_ROOT}/mnt/rclone/secure_media3:/data:rshared'
+            - '${DOCKER_ROOT}/test-path/:/local' #inluded only to use in healthcheck
             # - '${DOCKER_ROOT}/mnt/rclone/secure_media_plexdrive/Media/movies-4k/:/local/movies-4k'
             # - '${DOCKER_ROOT}/mnt/rclone/secure_media_plexdrive/Media/tv-4k/:/local/tv-4k'
-            - '${DOCKER_ROOT}/test-path/:/local/checkmount' #inluded only to use in healthcheck
+            # - '${DOCKER_ROOT}/test-path/:/local/checkmount' #inluded only to use in healthcheck
         networks:
             - internal
         ports:
