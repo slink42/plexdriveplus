@@ -258,6 +258,7 @@ PLEX_PREF_MASTER="$DOCKER_ROOT/setup/plex_streamer_Preferences.xml"
 if ! ([[ -z "$USE_CLOUD_CONFIG" ]] && [[ -f "$DOCKER_ROOT/plex-streamer/Library/Application Support/Plex Media Server/Preferences.xml" ]] && echo "Using existing Preferences.xml for Plex server config"); then
     # copy default plex preference file into plex config dir
     cp "$PLEX_PREF_MASTER" "$DOCKER_ROOT/plex-streamer/Library/Application Support/Plex Media Server/Preferences.xml"  && echo "Using Preferences.xml downloaded from cloud for Plex server config"
+else
     # load plex claim ID to plex_claim_id variable .env file
     [[ $(cat $ENV_FILE | grep PLEX_CLAIM) ]] || ( read -i 'claim-xxxxxxxxxxxxxxx' -p 'If you are running this headless, please enter you plex claim id generated from https://www.plex.tv/claim/. If you dont know what this means just press enter:
 plex claim id> ' -e plex_claim_id)
