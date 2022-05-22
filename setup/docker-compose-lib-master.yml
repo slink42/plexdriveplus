@@ -218,10 +218,10 @@ services:
         image: hotio/mergerfs
         healthcheck:
             test: ["CMD-SHELL", "sh /scripts/healthcheck"]
-            interval: 300s
-            timeout: 60s
+            interval: 30s
+            timeout: 10s
             retries: 3
-            start_period: 30s
+            start_period: 10s
     plex_scanner:
         # container_name: pdp-plex-scanner
         networks:
