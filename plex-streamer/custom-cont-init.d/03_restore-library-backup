@@ -1,5 +1,6 @@
 #!/bin/bash
 ( [ -z "$1" ] && PLEX_LIBRARY_PATH=/config/Library ) || ( PLEX_LIBRARY_PATH="$1" && FORCE_LIBRARY_RESTORE="TRUE" )
+echo "checking plex database under PLEX_LIBRARY_PATH: $PLEX_LIBRARY_PATH"
 BACKUP_FILE=$(find $PLEX_LIBRARY_PATH/Application\ Support/Plex\ Media\ Server/Plug-in\ Support/Databases/ -name com.plexapp.plugins.library.db-20[0-9][0-9]-[0-9][0-9]-[0-9][0-9] | sort | tail -n 1)
 LIBRARY_FILE=$PLEX_LIBRARY_PATH/Application\ Support/Plex\ Media\ Server/Plug-in\ Support/Databases/com.plexapp.plugins.library.db
 BACKUP_DATE=$(basename "$BACKUP_FILE")
