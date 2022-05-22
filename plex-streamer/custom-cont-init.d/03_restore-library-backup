@@ -20,6 +20,9 @@ BACKUP_BLOB_FILE=$(find $PLEX_LIBRARY_PATH/Application\ Support/Plex\ Media\ Ser
     && LIBRARY_DB_CORRUPT="TRUE" || \
     LIBRARY_DB_CORRUPT=
 
+# check tmp dir to see if pms appears to have been immediatly crashing and starting again within the last 5 minutes
+[ $(find /tmp -type d -mmin -5 | grep pms- |  wc -l) -gt 50 ] && echo "Plex server keeps crashing immediatly. Flagging DB as possibly corrupt" && LIBRARY_DB_CORRUPT="TRUE"
+
 if ( [[ $LIBRARY_DB_CORRUPT = "TRUE" ]] && echo "Library DB corrupt, restoring from latest backup.") || ! [[ -z $FORCE_LIBRARY_RESTORE ]]; then
     if [[ -f "$BACKUP_BLOB_FILE" ]]; then
         echo "Loaded plex library db from backup: $BACKUP_FILE"
