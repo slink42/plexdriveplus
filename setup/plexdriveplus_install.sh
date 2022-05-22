@@ -300,7 +300,7 @@ if ! [[ -z "$LIB_IMAGE_DOWNLOAD" ]]; then
         rclone/rclone \
         copy secure_backup:plex-scanner/backups /plex-scanner/backups --progress
     fi
-    tar -xzf $DOCKER_ROOT/plex-scanner/backups/meta/library_files.tar.gz -C $DOCKER_ROOT/plex-scanner/Library --checkpoint=.100
+    tar -xzf $DOCKER_ROOT/plex-scanner/backups/meta/library_files.tar.gz -C $DOCKER_ROOT/plex-scanner --checkpoint=.100
 fi
 
 sleep 7
