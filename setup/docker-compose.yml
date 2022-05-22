@@ -22,7 +22,7 @@ services:
         volumes:
             - '${DOCKER_ROOT}/rclone/:/config:rw'
             - '${DOCKER_ROOT}/scripts/:/scripts:ro'
-            - '${DOCKER_ROOT}/mnt/rclone/secure_media:/data:rshared'
+            - '${DOCKER_ROOT}/mnt/rclone/secure_media:/data:slave'
         networks:
             - internal
         ports:
@@ -63,7 +63,7 @@ services:
         volumes:
             - '${DOCKER_ROOT}/rclone/:/config:rw'
             - '${DOCKER_ROOT}/scripts/:/scripts:ro'
-            - '${DOCKER_ROOT}/mnt/rclone/secure_media2:/data:rshared'
+            - '${DOCKER_ROOT}/mnt/rclone/secure_media2:/data:slave'
         networks:
             - internal
         ports:
@@ -104,7 +104,7 @@ services:
         volumes:
             - '${DOCKER_ROOT}/rclone/:/config:rw'
             - '${DOCKER_ROOT}/scripts/:/scripts:ro'
-            - '${DOCKER_ROOT}/mnt/rclone/secure_media3:/data:rshared'
+            - '${DOCKER_ROOT}/mnt/rclone/secure_media3:/data:slave'
         networks:
             - internal
         ports:
@@ -134,15 +134,15 @@ services:
             - PUID=${USERID}
             - PGID=${GROUPID}
             - 'HEALTHCHECK_MOUNTS=/cloud'
-            - 'HEALTHCHECK_PATHS=/data'
+            - 'HEALTHCHECK_PATHS=/data /data/plex-rclone\ Setup\ Instructions'
             - POOLING_FS=unionfs
             - 'PLEXDRIVE_OPTS=-v 2 --max-chunks=10 --chunk-size=20M --chunk-check-threads=20 --chunk-load-threads=4 --chunk-load-ahead=5 --drive-id=0ALNBa0QBHhldUk9PVA -o allow_other,read_only,nonempty'
         volumes:
             - '${DOCKER_ROOT}/plexdrive/config:/config:rw'
             - '${DOCKER_ROOT}/scripts/:/scripts:ro'
             - '${DOCKER_ROOT}/plexdrive/cache:/cache:rw'
-            - '${DOCKER_ROOT}/mnt/plexdrive/secure_media:/data:rshared'
-            - '${DOCKER_ROOT}/mnt/plexdrive/local:/local:rshared'
+            - '${DOCKER_ROOT}/mnt/plexdrive/secure_media:/data:slave'
+            - '${DOCKER_ROOT}/mnt/plexdrive/local:/local:slave'
         networks:
             - internal
         logging:
@@ -173,9 +173,9 @@ services:
             - 'HEALTHCHECK_MOUNTS=/mnt/plexdrive /mnt/plexdrive_decrypted'
             - 'HEALTHCHECK_PATHS=/mnt/plexdrive'
         volumes:
-            - '${DOCKER_ROOT}/mnt/plexdrive/secure_media/:/mnt/plexdrive:rshared'
-            - '${DOCKER_ROOT}/mnt/rclone/plexdrive_secure_media:/mnt/plexdrive_decrypted:rshared'
-            - '${DOCKER_ROOT}/rclone/:/config/rclone:rshared'
+            - '${DOCKER_ROOT}/mnt/plexdrive/secure_media/:/mnt/plexdrive:slave'
+            - '${DOCKER_ROOT}/mnt/rclone/plexdrive_secure_media:/mnt/plexdrive_decrypted:slave'
+            - '${DOCKER_ROOT}/rclone/:/config/rclone:slave'
             - '${DOCKER_ROOT}/scripts/:/scripts:ro'
         networks:
             - internal
@@ -226,10 +226,10 @@ services:
             - 'HEALTHCHECK_MOUNTS=/cloud'
             - 'HEALTHCHECK_PATHS=/data'
         volumes:
-            - '${DOCKER_ROOT}/mnt/mergerfs/secure_media:/data:rshared'
-            - '${DOCKER_ROOT}/mnt/rclone:/mnt/rclone:rshared'
-            - '${DOCKER_ROOT}/mnt/rclone/plexdrive_secure_media/Media/movies-4k/:/mnt/plexdrive/secure_media/Media/movies-4k/:rshared'
-            - '${DOCKER_ROOT}/mnt/rclone/plexdrive_secure_media/Media/tv-4k/:/mnt/plexdrive/secure_media/Media/tv-4k/:rshared'
+            - '${DOCKER_ROOT}/mnt/mergerfs/secure_media:/data:slave'
+            - '${DOCKER_ROOT}/mnt/rclone:/mnt/rclone:slave'
+            - '${DOCKER_ROOT}/mnt/rclone/plexdrive_secure_media/Media/movies-4k/:/mnt/plexdrive/secure_media/Media/movies-4k/:slave'
+            - '${DOCKER_ROOT}/mnt/rclone/plexdrive_secure_media/Media/tv-4k/:/mnt/plexdrive/secure_media/Media/tv-4k/:slave'
             - '${DOCKER_ROOT}/scripts/:/scripts:ro'
         networks:
             - internal
@@ -281,7 +281,7 @@ services:
             - 'HEALTHCHECK_PATHS=/plex/media/Media/movies /plex/media/Media/movies-4k /plex/media/Media/tv'
         volumes:
             - '${DOCKER_ROOT}/plex-streamer/transcode:/transcode:rw'
-            - '${DOCKER_ROOT}/mnt/mergerfs/secure_media:/plex/media:rshared'
+            - '${DOCKER_ROOT}/mnt/mergerfs/secure_media:/plex/media:slave'
             - '${DOCKER_ROOT}/plex-scanner/:/mnt/plex-scanner:rw'
             - '${DOCKER_ROOT}/plex-streamer/:/config:rw'
             - '${DOCKER_ROOT}/scripts/:/scripts:ro'
