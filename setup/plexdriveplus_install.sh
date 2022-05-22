@@ -359,4 +359,8 @@ if ! [[ -z "$LIB_IMAGE_DOWNLOAD" ]]; then
         copy secure_backup:plex-scanner/backups /plex-scanner/backups --progress
     fi
     tar -xzf $DOCKER_ROOT/plex-scanner/backups/meta/library_files.tar.gz -C $DOCKER_ROOT/plex-scanner --checkpoint=.5000
+    
+    # Fix Library File Ownership
+    echo "setting library file ownership to $USERID:$GROUPID for $DOCKER_ROOT/plex-scanner/Library"
+    chown -R $USERID:$GROUPID "$DOCKER_ROOT/plex-scanner/Library"
 fi
