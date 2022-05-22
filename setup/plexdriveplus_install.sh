@@ -315,11 +315,12 @@ echo "PLEX_CLAIM=$PLEX_CLAIM_ID" >> "$ENV_FILE"
 
 # copy streamer plex db copied for cloud to scanner if required by selected library managemeent mode
 if [[ $management_mode = "2" ]] || [[ $management_mode = "3" ]]; then
-    echo "copying streamer plex config from streamer to scanner"
 
     # Fix Library File Ownership
+    echo "setting library file ownership to $USERID:$GROUPID for $DOCKER_ROOT/plex-scanner/Library"
     chown -R $USERID:$GROUPID "$DOCKER_ROOT/plex-scanner/Library"
-
+    
+    echo "copying streamer plex config from streamer to scanner"
     # copy generic Plex Preferences.xml
     mkdir -p "$DOCKER_ROOT/plex-scanner/Library/Application Support/Plex Media Server/"
     ([[ -z "$USE_CLOUD_CONFIG" ]] && [[ -f "$DOCKER_ROOT/plex-scanner/Library/Application Support/Plex Media Server/Preferences.xml" ]] && echo "Using existing Preferences.xml for Plex scanner server config") || \
