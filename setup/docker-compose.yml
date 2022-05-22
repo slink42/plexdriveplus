@@ -195,6 +195,9 @@ services:
             timeout: 60s
             retries: 3
             start_period: 30s
+        depends_on:
+            plexdrive:
+                condition: service_healthy
     streamer_mergerfs:
         command: # -f # foreground operation
             - -o
@@ -220,7 +223,7 @@ services:
             - TZ=Australia/Melbourne
             - PUID=${USERID}
             - PGID=${GROUPID}
-            - 'HEALTHCHECK_MOUNTS=/data'
+            - 'HEALTHCHECK_MOUNTS=/cloud'
             - 'HEALTHCHECK_PATHS=/data'
         volumes:
             - '${DOCKER_ROOT}/mnt/mergerfs/secure_media:/data:rshared'
