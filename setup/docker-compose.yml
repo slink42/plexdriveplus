@@ -204,43 +204,6 @@ services:
         depends_on:
             plexdrive:
                 condition: service_healthy
-    # rclone_plexdrive:
-    #     command: 'mount --allow-other --allow-non-empty plexdrive_crypt: /mnt/plexdrive_decrypted --log-level INFO'
-    #     restart: always
-    #     labels:
-    #         - "autoheal=true"
-    #     environment:
-    #         - TZ=Australia/Melbourne
-    #         - PUID=${USERID}
-    #         - PGID=${GROUPID}
-    #         - 'HEALTHCHECK_MOUNTS=/mnt/plexdrive /mnt/plexdrive_decrypted'
-    #         - 'HEALTHCHECK_PATHS=/mnt/plexdrive'
-    #     volumes:
-    #         - '${DOCKER_ROOT}/mnt/plexdrive/secure_media/:/mnt/plexdrive:slave'
-    #         - '${DOCKER_ROOT}/mnt/rclone/plexdrive_secure_media:/mnt/plexdrive_decrypted:slave'
-    #         - '${DOCKER_ROOT}/rclone/:/config/rclone:slave'
-    #         - '${DOCKER_ROOT}/scripts/:/scripts:ro'
-    #     networks:
-    #         - internal
-    #     logging:
-    #         options:
-    #             max-size: 20m
-    #     devices:
-    #         - /dev/fuse
-    #     cap_add:
-    #         - SYS_ADMIN
-    #     security_opt:
-    #         - apparmor:unconfined
-    #     image: wiserain/rclone
-    #     healthcheck:
-    #         test: ["CMD-SHELL", "sh /scripts/healthcheck"]
-    #         interval: 300s
-    #         timeout: 60s
-    #         retries: 3
-    #         start_period: 30s
-    #     depends_on:
-    #         plexdrive:
-    #             condition: service_healthy
     streamer_mergerfs:
         command: # -f # foreground operation
             - -o
