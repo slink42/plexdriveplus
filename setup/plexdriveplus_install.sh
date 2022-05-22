@@ -251,6 +251,19 @@ sed -i '/DOCKER_ROOT/'d "$ENV_FILE"
 echo "DOCKER_ROOT=$DOCKER_ROOT" >> "$ENV_FILE"
 mkdir -p "$DOCKER_ROOT/mnt/mergerfs/secure_media"
 
+
+# copy generic Plex Preferences.xml
+mkdir -p "$DOCKER_ROOT/plex-streamer/Library/Application Support/Plex Media Server/"
+PLEX_PREF_MASTER="$DOCKER_ROOT/setup/plex_streamer_Preferences.xml" 
+[ -f "$PLEX_PREF_MASTER" ] || PLEX_PREF_MASTER="$DOCKER_ROOT/setup/Preferences.xml"
+if [[ -z "$USE_CLOUD_CONFIG" ]] && [ -f "$DOCKER_ROOT/plex-streamer/Library/Application Support/Plex Media Server/Preferences.xml" ]; then
+    echo "Using existing Preferences.xml for Plex server config"
+else
+    # copy default plex preference file into plex config dir
+    echo "Using Preferences.xml downloaded from cloud for Plex server config"
+    cp "$PLEX_PREF_MASTER" "$DOCKER_ROOT/plex-streamer/Library/Application Support/Plex Media Server/Preferences.xml"
+fi
+
 # start docker containers
 DOCKER_COMPOSE_FILE=$DOCKER_ROOT/setup/docker-compose.yml
 SLAVE_DOCKER_COMPOSE_FILE=$DOCKER_ROOT/setup/docker-compose-lib-slave.yml
@@ -267,30 +280,10 @@ else
 fi
 
 ### Plex container setup
-
 # Stop plex while library downloads
 echo "stopping plex instance(s) for plex library download"
 CONTAINER_PLEX_STREAMER=$(docker container ls --format {{.Names}} | grep plex_streamer)
 docker stop "$CONTAINER_PLEX_STREAMER"
-
-# copy generic Plex Preferences.xml
-mkdir -p "$DOCKER_ROOT/plex-streamer/Library/Application Support/Plex Media Server/"
-PLEX_PREF_MASTER="$DOCKER_ROOT/setup/plex_streamer_Preferences.xml" 
-[ -f "$PLEX_PREF_MASTER" ] || PLEX_PREF_MASTER="$DOCKER_ROOT/setup/Preferences.xml"
-if [[ -z "$USE_CLOUD_CONFIG" ]] || ! [ -f "$DOCKER_ROOT/plex-streamer/Library/Application Support/Plex Media Server/Preferences.xml" ]; then
-    # copy default plex preference file into plex config dir
-    echo "Using Preferences.xml downloaded from cloud for Plex server config"
-    cp "$PLEX_PREF_MASTER" "$DOCKER_ROOT/plex-streamer/Library/Application Support/Plex Media Server/Preferences.xml"
-    # load plex claim ID to PLEX_CLAIM_ID variable .env file
-read -i 'claim-xxxxxxxxxxxxxxx' -p 'If you are running this headless, please enter you plex claim id generated from https://www.plex.tv/claim/. If you dont know what this means just press enter:
-plex claim id> ' -e PLEX_CLAIM_ID
-else
-    echo "Using existing Preferences.xml for Plex server config"
-fi
-# write PLEX_CLAIM_ID value to .env file
-[ -z "$PLEX_CLAIM_ID" ] && PLEX_CLAIM_ID="claim-xxxxxxxxxxxxxxx"
-echo "Using PLEX_CLAIM: $PLEX_CLAIM_ID"
-echo "PLEX_CLAIM=$PLEX_CLAIM_ID" >> "$ENV_FILE"
 
 # copy library images / metadata backup from master
 if ! [[ -z "$LIB_IMAGE_DOWNLOAD" ]]; then
@@ -321,6 +314,21 @@ echo "-----------------------------------------------------------------"
 sleep 30
 done
 echo "$(date) - library download using $CONTAINER_PLEX_LIBRARY_SYNC has completed. Restarting Plex"
+
+# load plex claim id env variable
+if grep -qs "PlexOnlineToken" "$DOCKER_ROOT/plex-streamer/Library/Application Support/Plex Media Server/Preferences.xml"  && \
+( !([[ $management_mode = "2" ]] || [[ $management_mode = "3" ]]) || grep -qs "PlexOnlineToken" "$DOCKER_ROOT/plex-scanner/Library/Application Support/Plex Media Server/Preferences.xml" ) ; then
+    echo "Plex servers already claimed"
+    PLEX_CLAIM_ID="claim-xxxxxxxxxxxxxxx"
+else
+    # load plex claim ID to PLEX_CLAIM_ID variable .env file
+read -i 'claim-xxxxxxxxxxxxxxx' -p 'If you are running this headless, please enter you plex claim id generated from https://www.plex.tv/claim/. If you dont know what this means just press enter:
+plex claim id> ' -e PLEX_CLAIM_ID
+    echo "Using PLEX_CLAIM: $PLEX_CLAIM_ID"
+fi
+# write PLEX_CLAIM_ID value to .env file
+echo "PLEX_CLAIM=$PLEX_CLAIM_ID" >> "$ENV_FILE"
+
 
 # copy streamer plex db copied for cloud to scanner if required by selected library managemeent mode
 if [[ $management_mode = "2" ]] || [[ $management_mode = "3" ]]; then
