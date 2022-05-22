@@ -194,38 +194,38 @@ services:
             timeout: 60s
             retries: 3
             start_period: 30s
-    mergerfs:
-        command: '/mnt/rclone/secure_media\*:/mnt/rclone/plexdrive_secure_media /data'
-        restart: always
-        labels:
-            - "autoheal=true"
-        environment:
-            - TZ=Australia/Melbourne
-            - PUID=99
-            - PGID=100
-            - 'HEALTHCHECK_MOUNTS=/data'
-            - 'HEALTHCHECK_PATHS=/data'
-        volumes:
-            - '${DOCKER_ROOT}/mnt/mergerfs/secure_media:/data:rshared'
-            - '${DOCKER_ROOT}/scripts/:/scripts:ro'
-        networks:
-            - internal
-        logging:
-            options:
-                max-size: 20m
-        devices:
-            - /dev/fuse
-        cap_add:
-            - SYS_ADMIN
-        security_opt:
-            - apparmor:unconfined
-        image: hotio/mergerfs
-        healthcheck:
-            test: ["CMD-SHELL", "sh /scripts/healthcheck"]
-            interval: 300s
-            timeout: 60s
-            retries: 3
-            start_period: 30s
+    # mergerfs:
+    #     command: '/mnt/rclone/secure_media\*:/mnt/rclone/plexdrive_secure_media /data'
+    #     restart: always
+    #     labels:
+    #         - "autoheal=true"
+    #     environment:
+    #         - TZ=Australia/Melbourne
+    #         - PUID=99
+    #         - PGID=100
+    #         - 'HEALTHCHECK_MOUNTS=/data'
+    #         - 'HEALTHCHECK_PATHS=/data'
+    #     volumes:
+    #         - '${DOCKER_ROOT}/mnt/mergerfs/secure_media:/data:rshared'
+    #         - '${DOCKER_ROOT}/scripts/:/scripts:ro'
+    #     networks:
+    #         - internal
+    #     logging:
+    #         options:
+    #             max-size: 20m
+    #     devices:
+    #         - /dev/fuse
+    #     cap_add:
+    #         - SYS_ADMIN
+    #     security_opt:
+    #         - apparmor:unconfined
+    #     image: hotio/mergerfs
+    #     healthcheck:
+    #         test: ["CMD-SHELL", "sh /scripts/healthcheck"]
+    #         interval: 300s
+    #         timeout: 60s
+    #         retries: 3
+    #         start_period: 30s
     plex_streamer:
         # network_mode: bridge
         networks:

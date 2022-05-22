@@ -147,7 +147,9 @@ fi
 # authorize scanner rclone gdrive mount if required by selected library managemeent mode
 if [[ $management_mode = "2" ]] || [[ $management_mode = "3" ]]; then
     echo "**********************"
-    echo "${C_PURPLE}setting up rclone authentication form library scanner mount. This can a different account to the one used for streaming so streaming isnt impacted by api bans caused by scanning${NO_FORMAT}!"
+    echo "${C_PURPLE}
+    setting up rclone authentication from library scanner mount. This can a different account to the one used for streaming so streaming isnt impacted by api bans caused by scanning
+    ${NO_FORMAT}!"
     echo "**********************"
     SCANNER_GDRIVE_ENDPOINT=$(cat $DOCKER_ROOT/config/.env | grep RCLONE_CONFIG_SECURE_MEDIA_SCANNER_REMOTE)
     SCANNER_GDRIVE_ENDPOINT=${SCANNER_GDRIVE_ENDPOINT/RCLONE_CONFIG_SECURE_MEDIA_SCANNER_REMOTE=/}
@@ -240,7 +242,7 @@ ENV_FILE="$DOCKER_ROOT/config/.env"
 echo "starting containers with docker-compose"
 sed -i '/DOCKER_ROOT/'d "$ENV_FILE"
 echo "DOCKER_ROOT=$DOCKER_ROOT" >> "$ENV_FILE"
-mkdir -p "$DOCKER_ROOT/mnt/mergerfs/"
+mkdir -p "$DOCKER_ROOT/mnt/mergerfs/secure_media"
 
 # start docker containers
 DOCKER_COMPOSE_FILE=$DOCKER_ROOT/setup/docker-compose.yml
