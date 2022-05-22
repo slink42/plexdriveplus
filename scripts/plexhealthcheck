@@ -1,5 +1,12 @@
 #!/usr/bin/with-contenv bash
 
+
+# Check plex service web service is active 
+if [ $(find /tmp -type d -mmin -2 | grep pms- |  wc -l) -gt 20 ]; then
+echo "unhealthy - tmp folder has 20+ pms-* directories in last 2 mins"
+exit 1
+fi
+
 # Check web service is active 
 PLEX_URL=http://localhost:32400
 if ! [[ $(curl --connect-timeout 15 --silent --show-error --fail $PLEX_URL/identity) ]]; then 
