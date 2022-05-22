@@ -191,7 +191,7 @@ services:
             - PUID=${USERID}
             - PGID=${GROUPID}
             - 'HEALTHCHECK_MOUNTS=/plex/media'
-            - 'HEALTHCHECK_PATHS=/plex/media/Media/tv-4k'
+            - 'HEALTHCHECK_PATHS=/plex/media/Media/movies /plex/media/Media/movies-4k /plex/media/Media/tv /plex/media/Media/tv-4k'
         volumes:
             - '${DOCKER_ROOT}/mnt/mergerfs/scanner_secure_media:/plex/media:rshared'
             - '${DOCKER_ROOT}/plex-scanner/:/config:rw'

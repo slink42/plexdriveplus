@@ -284,7 +284,7 @@ services:
             - PUID=${USERID}
             - PGID=${GROUPID}
             - 'HEALTHCHECK_MOUNTS=/plex/media'
-            - 'HEALTHCHECK_PATHS=/plex/media/Media/movies /plex/media/Media/movies-4k /plex/media/Media/tv'
+            - 'HEALTHCHECK_PATHS=/plex/media/Media/movies /plex/media/Media/movies-4k /plex/media/Media/tv /plex/media/Media/tv-4k'
         volumes:
             - '${DOCKER_ROOT}/plex-streamer/transcode:/transcode:rw'
             - '${DOCKER_ROOT}/mnt/mergerfs/secure_media:/plex/media:rshared'
