@@ -14,9 +14,9 @@ fusermount -uz "$CHECK_MOUNT"
 exit 1
 fi
 done
+echo "healthy mounts - fuse mounts found for: $HEALTHCHECK_MOUNTS"
 fi
 
-echo "healthy mounts - fuse mounts found for: $HEALTHCHECK_MOUNTS"
 
 # Check mount paths are linked to plex library paths
 # eg.
