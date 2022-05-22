@@ -210,7 +210,7 @@ services:
             - sync_read # perform reads synchronously
             - -o
             - uid=${USERID} # set file owner
-            - /mnt/rclone/secure_media=RO:/mnt/rclone/secure_media2=RO:/mnt/rclone/secure_media3=RO:/mnt/rclone/plexdrive_secure_media=RO # source paths
+            - /mnt/plexdrive/secure_media/=RO:/mnt/rclone/secure_media=RO:/mnt/rclone/secure_media2=RO:/mnt/rclone/secure_media3=RO # source paths
             - /data # mergerfs mounts
         restart: always
         labels:
@@ -224,6 +224,8 @@ services:
         volumes:
             - '${DOCKER_ROOT}/mnt/mergerfs/secure_media:/data:rshared'
             - '${DOCKER_ROOT}/mnt/rclone:/mnt/rclone:rshared'
+            - '${DOCKER_ROOT}/mnt/rclone/plexdrive_secure_media/Media/movies-4k/:/mnt/plexdrive/secure_media/Media/movies-4k/:rshared'
+            - '${DOCKER_ROOT}/mnt/rclone/plexdrive_secure_media/Media/tv-4k/:/mnt/plexdrive/secure_media/Media/tv-4k/:rshared'
             - '${DOCKER_ROOT}/scripts/:/scripts:ro'
         networks:
             - internal
