@@ -14,8 +14,8 @@ services:
         #command: 'lsd SECURE_BACKUP:'
         environment:
             - TZ=Australia/Melbourne
-            - PUID=99
-            - PGID=100
+            - PUID=${USERID}   
+            - PGID=${GROUPID}
             - RCLONE_CONFIG_CONFIG_BACKUP_TYPE=${RCLONE_CONFIG_CONFIG_BACKUP_TYPE}
             - RCLONE_CONFIG_CONFIG_BACKUP_CLIENT_ID=${RCLONE_CONFIG_CONFIG_BACKUP_CLIENT_ID}
             - RCLONE_CONFIG_CONFIG_BACKUP_CLIENT_SECRET=${RCLONE_CONFIG_CONFIG_BACKUP_CLIENT_SECRET}
@@ -56,8 +56,8 @@ services:
             - "autoheal=true"
         environment:
             - TZ=Australia/Melbourne
-            - PGID=100
-            - PUID=99
+            - PGID=${GROUPID}
+            - PUID=${USERID}   
             - 'HEALTHCHECK_MOUNTS=/cloud'
             - 'HEALTHCHECK_PATHS=/data /cloud /local /data/checkmount'
             # - RCLONE_LOG_FILE=/config/rclone_media_scanner_mount_1.log
@@ -98,8 +98,8 @@ services:
             - "autoheal=true"
         environment:
             - TZ=Australia/Melbourne
-            - PGID=100
-            - PUID=99
+            - PGID=${GROUPID}
+            - PUID=${USERID}   
             - 'HEALTHCHECK_MOUNTS=/cloud'
             - 'HEALTHCHECK_PATHS=/data /cloud /local /data/checkmount'
             # - RCLONE_LOG_FILE=/config/rclone_media_scanner_mount_2.log
@@ -140,8 +140,8 @@ services:
             - "autoheal=true"
         environment:
             - TZ=Australia/Melbourne
-            - PGID=100
-            - PUID=99
+            - PGID=${GROUPID}
+            - PUID=${USERID}   
             - 'HEALTHCHECK_MOUNTS=/cloud'
             - 'HEALTHCHECK_PATHS=/data /cloud /data/checkmount'
             # - RCLONE_LOG_FILE=/config/rclone_media_scanner_mount_3.log
@@ -176,6 +176,55 @@ services:
             timeout: 10s
             retries: 1
             start_period: 5s
+    mergerfs:
+        command: # -f # foreground operation
+            - -o
+            - allow_other # allow access to other users
+            - -o
+            - auto_cache # enable caching based on modification times
+            - -o
+            - auto_unmount # auto unmount on process termination
+            - -o
+            - direct_io # use direct I/O
+            - -o
+            - gid=${GROUPID} # set file group
+            - -o
+            - sync_read # perform reads synchronously
+            - -o
+            - uid=${USERID} # set file owner
+            - /mnt/rclone/scanner_secure_media=RO:/mnt/rclone/scanner_secure_media2=RO:/mnt/rclone/scanner_secure_media3=RO # source paths
+            - /data # mergerfs mounts
+        restart: always
+        labels:
+            - "autoheal=true"
+        environment:
+            - TZ=Australia/Melbourne
+            - PUID=${USERID}
+            - PGID=${GROUPID}
+            - 'HEALTHCHECK_MOUNTS=/data'
+            - 'HEALTHCHECK_PATHS=/data'
+        volumes:
+            - '${DOCKER_ROOT}/mnt/mergerfs/scanner_secure_media:/data:rshared'
+            - '${DOCKER_ROOT}/mnt/rclone:/mnt/rclone:rshared'
+            - '${DOCKER_ROOT}/scripts/:/scripts:ro'
+        networks:
+            - internal
+        logging:
+            options:
+                max-size: 20m
+        devices:
+            - /dev/fuse
+        cap_add:
+            - SYS_ADMIN
+        security_opt:
+            - apparmor:unconfined
+        image: hotio/mergerfs
+        healthcheck:
+            test: ["CMD-SHELL", "sh /scripts/healthcheck"]
+            interval: 300s
+            timeout: 60s
+            retries: 3
+            start_period: 30s
     plex_scanner:
         # container_name: pdp-plex-scanner
         networks:
@@ -186,19 +235,16 @@ services:
         environment:
             - TZ=Australia/Melbourne
             - PLEX_CLAIM=${PLEX_CLAIM}
-            - PLEX_UID=99
-            - PLEX_GID=100
+            - PLEX_UID=${USERID}   
+            - PLEX_GID=${GROUPID}
             - VERSION=latest
             - 'NVIDIA_VISIBLE_DEVICES='
-            - 'RCLONE_MEDIA_PATH=/mnt/rclone/scanner_secure_media/Media'
-            - 'PLEXDRIVE_MEDIA_PATH=/mnt/rclone/secure_media_plexdrive/Media'
-            - 'PLEXDRIVE_MEDIA_FOLDERS='
-            - PUID=99
-            - PGID=100
+            - PUID=${USERID}   
+            - PGID=${GROUPID}
             - 'HEALTHCHECK_MOUNTS=/plex/media'
             - 'HEALTHCHECK_PATHS=/plex/media/Media/tv-4k'
         volumes:
-            - '${DOCKER_ROOT}/mnt/rclone/scanner_secure_media:/plex/media:rshared'
+            - '${DOCKER_ROOT}/mnt/mergerfs/scanner_secure_media:/plex/media:rshared'
             - '${DOCKER_ROOT}/plex-scanner/:/config:rw'
             - '${DOCKER_ROOT}/scripts/:/scripts:ro'
         ports:
