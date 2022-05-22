@@ -197,15 +197,15 @@ services:
     mergerfs:
         command: # -f # foreground operation
             - | 
-                -o allow_other
-                -o auto_cache
-                -o auto_unmount
-                -o cow
-                -o direct_io
-                -o gid=${GROUPID}
-                -o sync_read
-                -o uid=${USERID}
-                /mnt/rclone/secure_media=RO:/mnt/rclone/secure_media2=RO:/mnt/rclone/secure_media3=RO:/mnt/rclone/plexdrive_secure_media=RO
+                -o allow_other 
+                -o auto_cache 
+                -o auto_unmount 
+                -o cow 
+                -o direct_io 
+                -o gid=${GROUPID} 
+                -o sync_read 
+                -o uid=${USERID} 
+                /mnt/rclone/secure_media=RO:/mnt/rclone/secure_media2=RO:/mnt/rclone/secure_media3=RO:/mnt/rclone/plexdrive_secure_media=RO 
                 /data
         restart: always
         labels:
