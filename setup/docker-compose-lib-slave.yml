@@ -5,8 +5,8 @@ services:
     rclone_library_sync:
         # container_name: pdp-rclone-library-download
         # # command: 'lsd SECURE_BACKUP:'
-        # library download from master
-        command: 'copy SECURE_BACKUP:Library /config/Library --progress'
+        # library download from master, exclude current db files s they are usually corrupt
+        command: 'copy SECURE_BACKUP:Library /config/Library --progress --filter "- *.db" --filter "- *.db-wal" --filter "- *.db-shm"'
         # # library upload from master
         # command: 'sync /config SECURE_BACKUP: --progress'
         labels:
