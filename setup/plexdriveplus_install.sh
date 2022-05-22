@@ -285,24 +285,6 @@ echo "stopping plex instance(s) for plex library download"
 CONTAINER_PLEX_STREAMER=$(docker container ls --format {{.Names}} | grep plex_streamer)
 docker stop "$CONTAINER_PLEX_STREAMER"
 
-# copy library images / metadata backup from master
-if ! [[ -z "$LIB_IMAGE_DOWNLOAD" ]]; then
-    if [[ -z "$USE_CLOUD_CONFIG" ]] && [[ -f "$DOCKER_ROOT/plex-scanner/backups/meta/library_files.tar.gz" ]]; then
-        echo "using existing copy of library media covers backup tar file"
-    else
-        echo "downloading library media covers backup from cloud"
-        [[ -f $INSTALL_ENV_FILE ]] || (echo "error $INSTALL_ENV_FILE file not found, missing credentials required to load rclone config from cloud storage" &&  exit 1)
-        docker run --rm -it \
-        --env-file $INSTALL_ENV_FILE \
-        --name rclone-config-download \
-        --user $USERID:$GROUPID \
-        -v $DOCKER_ROOT/plex-scanner:/plex-scanner \
-        rclone/rclone \
-        copy secure_backup:plex-scanner/backups /plex-scanner/backups --progress
-    fi
-    tar -xzf $DOCKER_ROOT/plex-scanner/backups/meta/library_files.tar.gz -C $DOCKER_ROOT/plex-scanner --checkpoint=.5000
-fi
-
 sleep 7
 CONTAINER_PLEX_LIBRARY_SYNC=$(docker container ls --format {{.Names}} | grep rclone_library_sync)
 while [[ $(docker ps | grep $CONTAINER_PLEX_LIBRARY_SYNC) ]]
@@ -358,3 +340,22 @@ docker start "$CONTAINER_PLEX_STREAMER"
 echo "please open portainer in web browser to set admin user and password for docker management web gui: https://127.0.0.1:9999"
 ( [ $(xdg-open --version) ] && xdg-open https://127.0.0.1:32400/web && echo "opening plex in browser" && exit 0 ) 2>/dev/null
 echo "open plex in browser to continue configuration there: https://127.0.0.1:32400/web"
+
+
+# copy library images / metadata backup from master
+if ! [[ -z "$LIB_IMAGE_DOWNLOAD" ]]; then
+    if [[ -z "$USE_CLOUD_CONFIG" ]] && [[ -f "$DOCKER_ROOT/plex-scanner/backups/meta/library_files.tar.gz" ]]; then
+        echo "using existing copy of library media covers backup tar file"
+    else
+        echo "downloading library media covers backup from cloud"
+        [[ -f $INSTALL_ENV_FILE ]] || (echo "error $INSTALL_ENV_FILE file not found, missing credentials required to load rclone config from cloud storage" &&  exit 1)
+        docker run --rm -it \
+        --env-file $INSTALL_ENV_FILE \
+        --name rclone-config-download \
+        --user $USERID:$GROUPID \
+        -v $DOCKER_ROOT/plex-scanner:/plex-scanner \
+        rclone/rclone \
+        copy secure_backup:plex-scanner/backups /plex-scanner/backups --progress
+    fi
+    tar -xzf $DOCKER_ROOT/plex-scanner/backups/meta/library_files.tar.gz -C $DOCKER_ROOT/plex-scanner --checkpoint=.5000
+fi
