@@ -176,7 +176,7 @@ services:
             timeout: 10s
             retries: 1
             start_period: 5s
-    mergerfs:
+    scanner_mergerfs:
         command: # -f # foreground operation
             - -o
             - allow_other # allow access to other users
@@ -256,6 +256,6 @@ services:
             timeout: 60s
             retries: 3
             start_period: 30s
-        # depends_on:
-            # rclone_media_scanner:
-                # condition: service_healthy
+        depends_on:
+            scanner_mergerfs:
+                condition: service_healthy

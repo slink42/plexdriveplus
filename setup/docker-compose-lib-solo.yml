@@ -128,7 +128,7 @@ services:
             timeout: 10s
             retries: 1
             start_period: 5s
-    mergerfs:
+    scanner_mergerfs:
         command: # -f # foreground operation
             - -o
             - allow_other # allow access to other users
