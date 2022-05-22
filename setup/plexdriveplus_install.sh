@@ -1,6 +1,7 @@
 #!/bin/bash
-
+echo
 echo "$(date) - Plexdriveplus install started"
+echo
 
 # set version to download a specific release of slink42/plexdriveplus, otherwise current master branch will be used
 PDP_VERSION=
@@ -365,6 +366,10 @@ if ! [[ -z "$LIB_IMAGE_DOWNLOAD" ]]; then
     # Fix Library File Ownership
     echo "setting library file ownership to $USERID:$GROUPID for $DOCKER_ROOT/plex-scanner/Library"
     chown -R $USERID:$GROUPID "$DOCKER_ROOT/plex-scanner/Library"
+    
+    # Restart plex streamer
+    docker restart "$CONTAINER_PLEX_STREAMER"
 fi
-
+echo
 echo "$(date) - Plexdriveplus install Done!!!"
+echo

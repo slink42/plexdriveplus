@@ -171,7 +171,7 @@ services:
             - PGID=${GROUPID}
             - PUID=${USERID}
             - 'HEALTHCHECK_MOUNTS=/cloud'
-            - 'HEALTHCHECK_PATHS=/data'
+            - 'HEALTHCHECK_PATHS=/data /cloud /data/mountcheck'
             #- RCLONE_LOG_FILE=/config/rclone_plexdrive_mount.log
             - POOLING_FS=unionfs
             - RCLONE_LOG_LEVEL=INFO
@@ -180,7 +180,7 @@ services:
         volumes:
             - '${DOCKER_ROOT}/rclone/:/config:rw'
             - '${DOCKER_ROOT}/scripts/:/scripts:ro'
-            - '${DOCKER_ROOT}/mnt/plexdrive/secure_media/:/mnt/plexdrive:rshared'
+            - '${DOCKER_ROOT}/mnt/plexdrive/secure_media/:/mnt/plexdrive:slave'
             - '${DOCKER_ROOT}/mnt/rclone/plexdrive_secure_media:/data:rshared'
         networks:
             - internal
@@ -234,9 +234,9 @@ services:
             - 'HEALTHCHECK_PATHS=/data'
         volumes:
             - '${DOCKER_ROOT}/mnt/mergerfs/secure_media:/data:rshared'
-            - '${DOCKER_ROOT}/mnt/rclone:/mnt/rclone:rshared'
-            - '${DOCKER_ROOT}/mnt/rclone/plexdrive_secure_media/Media/movies-4k/:/mnt/plexdrive/secure_media/Media/movies-4k/:rshared'
-            - '${DOCKER_ROOT}/mnt/rclone/plexdrive_secure_media/Media/tv-4k/:/mnt/plexdrive/secure_media/Media/tv-4k/:rshared'
+            - '${DOCKER_ROOT}/mnt/rclone:/mnt/rclone:slave'
+            - '${DOCKER_ROOT}/mnt/rclone/plexdrive_secure_media/Media/movies-4k/:/mnt/plexdrive/secure_media/Media/movies-4k/:slave'
+            - '${DOCKER_ROOT}/mnt/rclone/plexdrive_secure_media/Media/tv-4k/:/mnt/plexdrive/secure_media/Media/tv-4k/:slave'
             - '${DOCKER_ROOT}/scripts/:/scripts:ro'
         networks:
             - internal
