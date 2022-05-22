@@ -153,7 +153,7 @@ services:
             - SYS_ADMIN
         security_opt:
             - apparmor:unconfined
-        image: 'wiserain/plexdrive:5.1.0'
+        image: 'wiserain/plexdrive'
         healthcheck:
             test: ["CMD-SHELL", "sh /scripts/healthcheck"]
             interval: 300s

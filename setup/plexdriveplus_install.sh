@@ -327,7 +327,7 @@ if [[ $management_mode = "2" ]] || [[ $management_mode = "3" ]]; then
     echo "copying streamer plex config from streamer to scanner"
 
     # Fix Library File Ownership
-    chmod -R $USERID:$GROUPID "$DOCKER_ROOT/plex-scanner/Library"
+    chown -R $USERID:$GROUPID "$DOCKER_ROOT/plex-scanner/Library"
 
     # copy generic Plex Preferences.xml
     mkdir -p "$DOCKER_ROOT/plex-scanner/Library/Application Support/Plex Media Server/"
