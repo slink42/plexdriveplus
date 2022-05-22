@@ -196,17 +196,22 @@ services:
             start_period: 30s
     mergerfs:
         command: # -f # foreground operation
-            - | 
-                -o allow_other 
-                -o auto_cache 
-                -o auto_unmount 
-                -o cow 
-                -o direct_io 
-                -o gid=${GROUPID} 
-                -o sync_read 
-                -o uid=${USERID} 
-                /mnt/rclone/secure_media=RO:/mnt/rclone/secure_media2=RO:/mnt/rclone/secure_media3=RO:/mnt/rclone/plexdrive_secure_media=RO 
-                /data
+            - -o
+            - allow_other # allow access to other users
+            - -o
+            - auto_cache # enable caching based on modification times
+            - -o
+            - auto_unmount # auto unmount on process termination
+            - -o
+            - direct_io # use direct I/O
+            - -o
+            - gid=${GROUPID} # set file group
+            - -o
+            - sync_read # perform reads synchronously
+            - -o
+            - uid=${USERID} # set file owner
+            - /mnt/rclone/secure_media=RO:/mnt/rclone/secure_media2=RO:/mnt/rclone/secure_media3=RO:/mnt/rclone/plexdrive_secure_media=RO # source paths
+            - /data # mergerfs mounts
         restart: always
         labels:
             - "autoheal=true"
