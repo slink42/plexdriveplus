@@ -257,7 +257,7 @@ SLAVE_DOCKER_COMPOSE_FILE=$DOCKER_ROOT/setup/docker-compose-lib-slave.yml
 DOCKER_COMPOSE_FILE_LOGGING="-f /"$DOCKER_ROOT/setup/docker-compose-logging.yml/""
 
 if [[ $management_mode = "2" ]] || [[ $management_mode = "3" ]]; then
-    DOCKER_COMPOSE_COMMAND="docker-compose --env-file $ENV_FILE --project-directory $DOCKER_ROOT/setup -f "$DOCKER_COMPOSE_FILE" -f "$SLAVE_DOCKER_COMPOSE_FILE" $DOCKER_COMPOSE_FILE_LOGGING --project-name plexdriveplus up -d --remove-orphans"
+    DOCKER_COMPOSE_COMMAND="docker-compose --env-file $ENV_FILE --project-directory $DOCKER_ROOT/setup -f "$DOCKER_COMPOSE_FILE" -f "$SLAVE_DOCKER_COMPOSE_FILE" $DOCKER_COMPOSE_FILE_LOGGING --project-name plexdriveplus up -d"
     echo "initialising docker containers with command: $DOCKER_COMPOSE_COMMAND"
     $DOCKER_COMPOSE_COMMAND
 else
