@@ -217,6 +217,7 @@ services:
             - 'HEALTHCHECK_PATHS=/data'
         volumes:
             - '${DOCKER_ROOT}/mnt/mergerfs/secure_media:/data:rshared'
+            - '${DOCKER_ROOT}/mnt/rclone:/mnt/rclone:rshared'
             - '${DOCKER_ROOT}/scripts/:/scripts:ro'
         networks:
             - internal
