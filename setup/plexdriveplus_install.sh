@@ -288,7 +288,7 @@ docker stop "$CONTAINER_PLEX_STREAMER"
 # copy library images / metadata backup from master
 if ! [[ -z "$LIB_IMAGE_DOWNLOAD" ]]; then
     if [[ -z "$USE_CLOUD_CONFIG" ]] && [[ -f "$DOCKER_ROOT/plex-scanner/backups/meta/library_files.tar.gz" ]]; then
-        echo "using existing copy library media covers backup"
+        echo "using existing copy of library media covers backup tar file"
     else
         echo "downloading library media covers backup from cloud"
         [[ -f $INSTALL_ENV_FILE ]] || (echo "error $INSTALL_ENV_FILE file not found, missing credentials required to load rclone config from cloud storage" &&  exit 1)
@@ -300,7 +300,7 @@ if ! [[ -z "$LIB_IMAGE_DOWNLOAD" ]]; then
         rclone/rclone \
         copy secure_backup:plex-scanner/backups /plex-scanner/backups --progress
     fi
-    tar -xzf $DOCKER_ROOT/plex-scanner/backups/meta/library_files.tar.gz -C $DOCKER_ROOT/plex-scanner --checkpoint=.100
+    tar -xzf $DOCKER_ROOT/plex-scanner/backups/meta/library_files.tar.gz -C $DOCKER_ROOT/plex-scanner --checkpoint=.5000
 fi
 
 sleep 7
