@@ -142,6 +142,7 @@ services:
             - '${DOCKER_ROOT}/scripts/:/scripts:ro'
             - '${DOCKER_ROOT}/plexdrive/cache:/cache:rw'
             - '${DOCKER_ROOT}/mnt/plexdrive/secure_media:/data:rshared'
+            - '${DOCKER_ROOT}/mnt/plexdrive/local:/local:rshared'
         networks:
             - internal
         logging:
