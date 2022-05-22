@@ -343,6 +343,7 @@ if [[ $management_mode = "2" ]] || [[ $management_mode = "3" ]]; then
     echo "open plex scanner in browser to continue configuration there: https://127.0.0.1:34400/web"
 fi
 
+bash "$DOCKER_ROOT/plex-streamer/custom-cont-init.d/03_restore-library-backup" "$DOCKER_ROOT/plex-scanner/Library"
 docker start "$CONTAINER_PLEX_STREAMER"
 
 # Open plex in browser
