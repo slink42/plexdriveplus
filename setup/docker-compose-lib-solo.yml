@@ -11,7 +11,7 @@ services:
             - PGID=${GROUPID}
             - PUID=${USERID}
             - 'HEALTHCHECK_MOUNTS=/cloud'
-            - 'HEALTHCHECK_PATHS=/data /cloud /local /data/checkmount'
+            - 'HEALTHCHECK_PATHS=/data'
             # - RCLONE_LOG_FILE=/config/rclone_media_scanner_mount_1.log
             - POOLING_FS=unionfs
             - RCLONE_LOG_LEVEL=INFO
@@ -23,7 +23,6 @@ services:
             - '${DOCKER_ROOT}/rclone/:/config:rw'
             - '${DOCKER_ROOT}/scripts/:/scripts:ro'
             - '${DOCKER_ROOT}/mnt/rclone/scanner_secure_media:/data:rshared'
-            - '${DOCKER_ROOT}/mnt/rclone/scanner_secure_media2:/local/:rshared'
         networks:
             - internal
         ports:
@@ -53,7 +52,7 @@ services:
             - PGID=${GROUPID}
             - PUID=${USERID}
             - 'HEALTHCHECK_MOUNTS=/cloud'
-            - 'HEALTHCHECK_PATHS=/data /cloud /local /data/checkmount'
+            - 'HEALTHCHECK_PATHS=/data'
             # - RCLONE_LOG_FILE=/config/rclone_media_scanner_mount_2.log
             - POOLING_FS=unionfs
             - RCLONE_LOG_LEVEL=INFO
@@ -65,7 +64,6 @@ services:
             - '${DOCKER_ROOT}/rclone/:/config:rw'
             - '${DOCKER_ROOT}/scripts/:/scripts:ro'
             - '${DOCKER_ROOT}/mnt/rclone/scanner_secure_media2:/data:rshared'
-            - '${DOCKER_ROOT}/mnt/rclone/scanner_secure_media3:/local/:rshared'
         networks:
             - internal
         ports:
@@ -95,7 +93,7 @@ services:
             - PGID=${GROUPID}
             - PUID=${USERID}
             - 'HEALTHCHECK_MOUNTS=/cloud'
-            - 'HEALTHCHECK_PATHS=/data /cloud /data/checkmount'
+            - 'HEALTHCHECK_PATHS=/data'
             # - RCLONE_LOG_FILE=/config/rclone_media_scanner_mount_3.log
             - POOLING_FS=unionfs
             - RCLONE_LOG_LEVEL=INFO
@@ -107,7 +105,6 @@ services:
             - '${DOCKER_ROOT}/rclone/:/config:rw'
             - '${DOCKER_ROOT}/scripts/:/scripts:ro'
             - '${DOCKER_ROOT}/mnt/rclone/scanner_secure_media3:/data:rshared'
-            - '${DOCKER_ROOT}/test-path/:/local/checkmount' #inluded only to use in healthcheck
         networks:
             - internal
         ports:
