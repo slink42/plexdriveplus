@@ -195,16 +195,16 @@ services:
             retries: 3
             start_period: 30s
     mergerfs:
-        command: # -f `# foreground operation` \
-            - -o allow_other `# allow access to other users` \
-            - -o auto_cache `# enable caching based on modification times` \
-            - -o auto_unmount `# auto unmount on process termination` \
-            - -o cow `# enable copy-on-write` \
-            - -o direct_io `# use direct I/O` \
-            - -o gid=$PGID `# set file group` \
-            - -o sync_read `# perform reads synchronously` \
-            - -o uid=$PUID `# set file owner` \
-            - /mnt/rclone/secure_media=RO:/mnt/rclone/secure_media2=RO:/mnt/rclone/secure_media3=RO:/mnt/rclone/plexdrive_secure_media=RO \
+        command: # -f `# foreground operation`
+            - -o allow_other `# allow access to other users`
+            - -o auto_cache `# enable caching based on modification times`
+            - -o auto_unmount `# auto unmount on process termination`
+            - -o cow `# enable copy-on-write`
+            - -o direct_io `# use direct I/O`
+            - -o gid=$PGID `# set file group`
+            - -o sync_read `# perform reads synchronously`
+            - -o uid=$PUID `# set file owner`
+            - /mnt/rclone/secure_media=RO:/mnt/rclone/secure_media2=RO:/mnt/rclone/secure_media3=RO:/mnt/rclone/plexdrive_secure_media=RO
             - /data
         restart: always
         labels:
