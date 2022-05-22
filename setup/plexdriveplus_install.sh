@@ -10,7 +10,7 @@ USE_CLOUD_CONFIG=
 INSTALL_ENV_FILE=install.env
 [[ -z "$1" ]] || INSTALL_ENV_FILE=$1
 [[ -f $INSTALL_ENV_FILE ]] && source $INSTALL_ENV_FILE || echo "warning $INSTALL_ENV_FILE file not found"
-[[ -z "$DOCKER_ROOT" ]] && DOCKER_ROOT=$(pwd) && echo "error: DOCKER_ROOT not set. using current path: $DOCKER_ROOT" 
+[[ -z "$DOCKER_ROOT" ]] && DOCKER_ROOT=$(pwd) && echo "warning: DOCKER_ROOT not set. using current path: $DOCKER_ROOT" 
 echo "Using DOCKER_ROOT path: $DOCKER_ROOT"
 
 USERID=$(id -u)
@@ -44,12 +44,13 @@ C_PURPLE="\033[38;5;129m"
 # install docker-compose not found
 [[ $(docker-compose --version) ]] || (echo "installing docker-compose" &&  curl -SL https://github.com/docker/compose/releases/download/v2.5.0/docker-compose-linux-x86_64 -o /usr/local/bin/docker-compose && chmod +x /usr/local/bin/docker-compose)
 
-# install docker-compose not found
-$SUDO groupadd docker
-$SUDO usermod -aG docker $USER
+# add current user to docker security group
+[[ $(groups root | grep docker) ]] || $SUDO groupadd docker
+[[ $(groups | grep docker) ]] || $SUDO usermod -aG docker $USER
 
-# Install portainer, start it already present
-[[ $(docker container ls -f name=portainer) ]] && docker start portainer || $SUDO docker run -d -p 8000:8000 -p 9000:9000 --name=portainer --restart=always -v /var/run/docker.sock:/var/run/docker.sock -v portainer_data:/data portainer/portainer-ce:2.6.3
+# Install and/or start portainer
+PORTAINER_CONTAINER=$(docker container ls -f ancestor=portainer/portainer-ce --format "{{.ID}}")
+[ -z $PORTAINER_CONTAINER ] && $SUDO docker run -d -p 8000:8000 -p 9000:9000 --name=portainer --restart=always -v /var/run/docker.sock:/var/run/docker.sock -v portainer_data:/data portainer/portainer-ce || docker start "$PORTAINER_CONTAINER"
 
 ## prepare envrionment
 
