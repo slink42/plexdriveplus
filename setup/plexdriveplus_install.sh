@@ -311,9 +311,10 @@ echo "$(date) - waiting for library download using $CONTAINER_PLEX_LIBRARY_SYNC 
 echo "------------------------- progress ------------------------------"
 docker logs --tail 5 "$CONTAINER_PLEX_LIBRARY_SYNC"
 echo "-----------------------------------------------------------------"
-sleep 30
+sleep 20
 done
 echo "$(date) - library download using $CONTAINER_PLEX_LIBRARY_SYNC has completed. Restarting Plex"
+bash  "$DOCKER_ROOT/plex-streamer/custom-cont-init.d/03_restore-library-backup" "$DOCKER_ROOT/plex-scanner/Library"
 
 # load plex claim id env variable
 if grep -qs "PlexOnlineToken" "$DOCKER_ROOT/plex-streamer/Library/Application Support/Plex Media Server/Preferences.xml"  && \
