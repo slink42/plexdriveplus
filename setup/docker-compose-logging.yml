@@ -50,26 +50,16 @@ services:
         networks:
             - internal
         restart: unless-stopped
-    swag:
-        image: lscr.io/linuxserver/swag
+    nginx:
+        image: lscr.io/linuxserver/nginx:latest
         cap_add:
             - NET_ADMIN
         environment:
             - PGID=${GROUPID}
             - PUID=${USERID} 
             - TZ=Australia/Melbourne
-            - URL=yourdomain.url
-            - SUBDOMAINS=www,
-            - VALIDATION=http
-            - CERTPROVIDER= #optional
-            - DNSPLUGIN=cloudflare #optional
-            - DUCKDNSTOKEN=<token> #optional
-            - EMAIL=<e-mail> #optional
-            - ONLY_SUBDOMAINS=false #optional
-            - EXTRA_DOMAINS=<extradomains> #optional
-            - STAGING=false #optional
         volumes:
-            - ${DOCKER_ROOT}/swag:/config
+            - ${DOCKER_ROOT}/nginx:/config
         ports:
             - 4443:443
             - 8888:80 #optional
