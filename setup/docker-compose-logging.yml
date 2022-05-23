@@ -45,11 +45,35 @@ services:
         volumes:
             - ${DOCKER_ROOT}/heimdall:/config
         ports:
-            - 8888:80
-            - 4443:443
+            - 8889:80
+            - 4444:443
         networks:
             - internal
-        restart: unless-stopped            
+        restart: unless-stopped
+    swag:
+        image: lscr.io/linuxserver/swag
+        cap_add:
+            - NET_ADMIN
+        environment:
+            - PGID=${GROUPID}
+            - PUID=${USERID} 
+            - TZ=Australia/Melbourne
+            - URL=yourdomain.url
+            - SUBDOMAINS=www,
+            - VALIDATION=http
+            - CERTPROVIDER= #optional
+            - DNSPLUGIN=cloudflare #optional
+            - DUCKDNSTOKEN=<token> #optional
+            - EMAIL=<e-mail> #optional
+            - ONLY_SUBDOMAINS=false #optional
+            - EXTRA_DOMAINS=<extradomains> #optional
+            - STAGING=false #optional
+        volumes:
+            - ${DOCKER_ROOT}/swag:/config
+        ports:
+            - 4443:443
+            - 8888:80 #optional
+    restart: unless-stopped
 #   rclone:
 #     image: docker.io/rclone/rclone:1.50
 #     stdin_open: true
