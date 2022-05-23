@@ -10,10 +10,9 @@ services:
             - TZ=Australia/Melbourne
             - PGID=${GROUPID}
             - PUID=${USERID}
-            - 'HEALTHCHECK_MOUNTS=/cloud'
+            - 'HEALTHCHECK_MOUNTS=/data'
             - 'HEALTHCHECK_PATHS=/data'
             # - RCLONE_LOG_FILE=/config/rclone_media_scanner_mount_1.log
-            - POOLING_FS=unionfs
             - RCLONE_LOG_LEVEL=INFO
             - 'RCLONE_REMOTE_PATH=secure_media_scanner:'
             - 'RCLONE_MOUNT_USER_OPTS=--read-only --use-json-log --acd-templink-threshold 1g --buffer-size 8M --timeout 5s --contimeout 5s --stats 300s --dir-cache-time 30m --multi-thread-streams=20 --allow-non-empty --allow-other --rc-web-gui --rc-web-gui-update --rc-web-gui-no-open-browser --rc-user ${RCLONE_USER} --rc-pass ${RCLONE_PASSWORD}'
@@ -51,10 +50,9 @@ services:
             - TZ=Australia/Melbourne
             - PGID=${GROUPID}
             - PUID=${USERID}
-            - 'HEALTHCHECK_MOUNTS=/cloud'
+            - 'HEALTHCHECK_MOUNTS=/data'
             - 'HEALTHCHECK_PATHS=/data'
             # - RCLONE_LOG_FILE=/config/rclone_media_scanner_mount_2.log
-            - POOLING_FS=unionfs
             - RCLONE_LOG_LEVEL=INFO
             - 'RCLONE_REMOTE_PATH=secure_media_scanner:'
             - 'RCLONE_MOUNT_USER_OPTS=--read-only --use-json-log --acd-templink-threshold 1g --buffer-size 8M --timeout 5s --contimeout 5s --stats 300s --dir-cache-time 30m --multi-thread-streams=20 --allow-non-empty --allow-other --rc-web-gui --rc-web-gui-update --rc-web-gui-no-open-browser --rc-user ${RCLONE_USER} --rc-pass ${RCLONE_PASSWORD}'
@@ -92,10 +90,9 @@ services:
             - TZ=Australia/Melbourne
             - PGID=${GROUPID}
             - PUID=${USERID}
-            - 'HEALTHCHECK_MOUNTS=/cloud'
+            - 'HEALTHCHECK_MOUNTS=/data'
             - 'HEALTHCHECK_PATHS=/data'
             # - RCLONE_LOG_FILE=/config/rclone_media_scanner_mount_3.log
-            - POOLING_FS=unionfs
             - RCLONE_LOG_LEVEL=INFO
             - 'RCLONE_REMOTE_PATH=secure_media_scanner:'
             - 'RCLONE_MOUNT_USER_OPTS=--read-only --use-json-log --acd-templink-threshold 1g --buffer-size 8M --timeout 5s --contimeout 5s --stats 300s --dir-cache-time 30m --multi-thread-streams=20 --allow-non-empty --allow-other --rc-web-gui --rc-web-gui-update --rc-web-gui-no-open-browser --rc-user ${RCLONE_USER} --rc-pass ${RCLONE_PASSWORD}'
