@@ -45,8 +45,8 @@ services:
         volumes:
             - ${DOCKER_ROOT}/heimdall:/config
         ports:
-            - 80:80
-            - 443:443
+            - 80:8888
+            - 443:4443
         networks:
             - internal
         restart: unless-stopped            
