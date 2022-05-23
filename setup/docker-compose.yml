@@ -139,7 +139,7 @@ services:
             - '${DOCKER_ROOT}/scripts/:/scripts:ro'
             - '${DOCKER_ROOT}/plexdrive/cache:/cache:rw'
             - '${DOCKER_ROOT}/mnt/plexdrive/secure_media:/data:rshared'
-            # - '${DOCKER_ROOT}/mnt/plexdrive/local:/local:rshared'
+            # - '${DOCKER_ROOT}/mnt/plexdrive/local:/local:shared'
         networks:
             - internal
         logging:
@@ -175,7 +175,7 @@ services:
         volumes:
             - '${DOCKER_ROOT}/rclone/:/config:rw'
             - '${DOCKER_ROOT}/scripts/:/scripts:ro'
-            - '${DOCKER_ROOT}/mnt/plexdrive/secure_media/:/mnt/plexdrive:slave'
+            - '${DOCKER_ROOT}/mnt/plexdrive/secure_media/:/mnt/plexdrive'
             - '${DOCKER_ROOT}/mnt/rclone/plexdrive_secure_media:/data:rshared'
         networks:
             - internal
