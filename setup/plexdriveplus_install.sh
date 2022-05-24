@@ -16,8 +16,8 @@ INSTALL_ENV_FILE=install.env
 [[ -z "$DOCKER_ROOT" ]] && DOCKER_ROOT=$(pwd) && echo "warning: DOCKER_ROOT not set. using current path: $DOCKER_ROOT" 
 echo "Using DOCKER_ROOT path: $DOCKER_ROOT"
 
-USERID=$(id -u)
-GROUPID=$(id -g)
+ADMIN_USERID=$(id -u)
+ADMIN_GROUPID=$(id -g)
 
 USERID=99
 GROUPID=100
@@ -49,7 +49,7 @@ C_PURPLE="\033[38;5;129m"
 
 # add current user to docker security group
 [[ $(groups root | grep docker) ]] || $SUDO groupadd docker
-[[ $(groups | grep docker) ]] || $SUDO usermod -aG docker $USER
+[[ $(groups | grep docker) ]] || $SUDO usermod -aG docker $ADMIN_USERID
 
 # Install and/or start portainer
 PORTAINER_CONTAINER=$(docker container ls -f ancestor=portainer/portainer-ce --format "{{.ID}}")
