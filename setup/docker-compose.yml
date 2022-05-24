@@ -139,9 +139,9 @@ services:
             - '${DOCKER_ROOT}/plexdrive/config:/config:rw'
             - '${DOCKER_ROOT}/scripts/:/scripts:ro'
             - '${DOCKER_ROOT}/plexdrive/cache:/cache:rw'
-            - '${DOCKER_ROOT}/mnt/plexdrive/secure_media_data:/data:rshared'
+            - '${DOCKER_ROOT}/mnt/plexdrive/secure_media:/data:rshared'
             - '${DOCKER_ROOT}/mnt/plexdrive/local:/local:rshared'
-            - '${DOCKER_ROOT}/mnt/plexdrive/secure_media:/cloud:rshared'
+            - '${DOCKER_ROOT}/mnt/plexdrive/cloud:/cloud:rshared'
             # - '${DOCKER_ROOT}/mnt/plexdrive/local:/local:rshared'
         networks:
             - internal
@@ -155,12 +155,12 @@ services:
         security_opt:
             - apparmor:unconfined
         image: 'wiserain/plexdrive'
-        healthcheck:
-            test: ["CMD-SHELL", "sh /scripts/healthcheck"]
-            interval: 30s
-            timeout: 25s
-            retries: 5
-            start_period: 20s
+        # healthcheck:
+        #     test: ["CMD-SHELL", "sh /scripts/healthcheck"]
+        #     interval: 30s
+        #     timeout: 25s
+        #     retries: 5
+        #     start_period: 20s
     rclone_plexdrive:
         restart: always
         labels:

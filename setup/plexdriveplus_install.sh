@@ -178,7 +178,7 @@ fusermount -uz "$DOCKER_ROOT/mnt/rclone/secure_media2" 2>/dev/null
 fusermount -uz "$DOCKER_ROOT/mnt/rclone/secure_media3" 2>/dev/null
 # plexdrive & it rclone crypt
 fusermount -uz "$DOCKER_ROOT/mnt/plexdrive/secure_media" 2>/dev/null
-fusermount -uz "$DOCKER_ROOT/mnt/plexdrive/secure_media_data" 2>/dev/null
+fusermount -uz "$DOCKER_ROOT/mnt/plexdrive/cloud" 2>/dev/null # need to use mergerfs in plexdrive container as workaround, otherwise mount doesnt get exposed to host properly
 fusermount -uz "$DOCKER_ROOT/mnt/plexdrive/local" 2>/dev/null
 fusermount -uz "$DOCKER_ROOT/mnt/rclone/plexdrive_secure_media" 2>/dev/null
 # mergerfs
