@@ -6,9 +6,9 @@ services:
         # container_name: pdp-rclone-library-download
         # # command: 'lsd SECURE_BACKUP:'
         # # library download from master
-        # command: 'copy SECURE_BACKUP: /config --progress'
+        # command: 'copy SECURE_BACKUP: /master_data --progress'
         # library upload from master
-        command: 'sync /config SECURE_BACKUP: --progress'
+        command: 'sync /master_data SECURE_BACKUP: --progress'
         labels:
             - "autoheal-library=true"
         #command: 'lsd SECURE_BACKUP:'
@@ -29,9 +29,10 @@ services:
             - RCLONE_CONFIG_SECURE_BACKUP_PASSWORD=${RCLONE_CONFIG_SECURE_BACKUP_PASSWORD}
             - RCLONE_CONFIG_SECURE_BACKUP_PASSWORD2=${RCLONE_CONFIG_SECURE_BACKUP_PASSWORD2}
         volumes:
-            - '${DOCKER_ROOT}/plex-scanner/Library/Application Support/Plex Media Server/Plug-in Support/:/config/Library/Application Support/Plex Media Server/Plug-in Support/:rw'
-            - '${DOCKER_ROOT}/config/:/config/config:rw'
-            - '${DOCKER_ROOT}/plexdrive/cache/:/config/plexdrive/cache:rw'
+            - '${DOCKER_ROOT}/plex-scanner/Library/Application Support/Plex Media Server/Plug-in Support/:/master_data/Library/Application Support/Plex Media Server/Plug-in Support/:rw'
+            - '${DOCKER_ROOT}/config/:/master_data/config:rw'
+            - '${DOCKER_ROOT}/plexdrive/cache/:/master_data/plexdrive/cache:rw'
+            - '${DOCKER_ROOT}/plex-scanner/backups/:/master_data/plex-scanner/backups:rw'
         networks:
             - internal
         logging:
@@ -58,10 +59,9 @@ services:
             - TZ=Australia/Melbourne
             - PGID=${GROUPID}
             - PUID=${USERID}   
-            - 'HEALTHCHECK_MOUNTS=/cloud'
+            - 'HEALTHCHECK_MOUNTS=/data'
             - 'HEALTHCHECK_PATHS=/data'
             # - RCLONE_LOG_FILE=/config/rclone_media_scanner_mount_1.log
-            - POOLING_FS=unionfs
             - RCLONE_LOG_LEVEL=INFO
             - 'RCLONE_REMOTE_PATH=secure_media_scanner:'
             - 'RCLONE_MOUNT_USER_OPTS=--read-only --use-json-log --acd-templink-threshold 1g --buffer-size 8M --timeout 5s --contimeout 5s --stats 300s --dir-cache-time 30m --multi-thread-streams=20 --allow-non-empty --allow-other --rc-web-gui --rc-web-gui-update --rc-web-gui-no-open-browser --rc-user ${RCLONE_USER} --rc-pass ${RCLONE_PASSWORD}'
@@ -99,10 +99,9 @@ services:
             - TZ=Australia/Melbourne
             - PGID=${GROUPID}
             - PUID=${USERID}   
-            - 'HEALTHCHECK_MOUNTS=/cloud'
+            - 'HEALTHCHECK_MOUNTS=/data'
             - 'HEALTHCHECK_PATHS=/data'
             # - RCLONE_LOG_FILE=/config/rclone_media_scanner_mount_2.log
-            - POOLING_FS=unionfs
             - RCLONE_LOG_LEVEL=INFO
             - 'RCLONE_REMOTE_PATH=secure_media_scanner:'
             - 'RCLONE_MOUNT_USER_OPTS=--read-only --use-json-log --acd-templink-threshold 1g --buffer-size 8M --timeout 5s --contimeout 5s --stats 300s --dir-cache-time 30m --multi-thread-streams=20 --allow-non-empty --allow-other --rc-web-gui --rc-web-gui-update --rc-web-gui-no-open-browser --rc-user ${RCLONE_USER} --rc-pass ${RCLONE_PASSWORD}'
@@ -140,10 +139,9 @@ services:
             - TZ=Australia/Melbourne
             - PGID=${GROUPID}
             - PUID=${USERID}   
-            - 'HEALTHCHECK_MOUNTS=/cloud'
+            - 'HEALTHCHECK_MOUNTS=/data'
             - 'HEALTHCHECK_PATHS=/data'
             # - RCLONE_LOG_FILE=/config/rclone_media_scanner_mount_3.log
-            - POOLING_FS=unionfs
             - RCLONE_LOG_LEVEL=INFO
             - 'RCLONE_REMOTE_PATH=secure_media_scanner:'
             - 'RCLONE_MOUNT_USER_OPTS=--read-only --use-json-log --acd-templink-threshold 1g --buffer-size 8M --timeout 5s --contimeout 5s --stats 300s --dir-cache-time 30m --multi-thread-streams=20 --allow-non-empty --allow-other --rc-web-gui --rc-web-gui-update --rc-web-gui-no-open-browser --rc-user ${RCLONE_USER} --rc-pass ${RCLONE_PASSWORD}'

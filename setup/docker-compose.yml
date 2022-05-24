@@ -10,10 +10,9 @@ services:
             - TZ=Australia/Melbourne
             - PGID=${GROUPID}
             - PUID=${USERID}
-            - 'HEALTHCHECK_MOUNTS=/cloud'
+            - 'HEALTHCHECK_MOUNTS=/data'
             - 'HEALTHCHECK_PATHS=/data'
             #- RCLONE_LOG_FILE=/config/rclone_media_mount_1.log
-            - POOLING_FS=unionfs
             - RCLONE_LOG_LEVEL=INFO
             - 'RCLONE_REMOTE_PATH=secure_media:'
             - 'RCLONE_MOUNT_USER_OPTS=--read-only --use-json-log --acd-templink-threshold 1g --buffer-size 8M --timeout 5s --contimeout 5s --stats 300s --dir-cache-time 30m --multi-thread-streams=20 --allow-non-empty --allow-other --rc-web-gui --rc-web-gui-update --rc-web-gui-no-open-browser --rc-user ${RCLONE_USER} --rc-pass ${RCLONE_PASSWORD}'
@@ -51,10 +50,9 @@ services:
             - TZ=Australia/Melbourne
             - PGID=${GROUPID}
             - PUID=${USERID}
-            - 'HEALTHCHECK_MOUNTS=/cloud'
+            - 'HEALTHCHECK_MOUNTS=/data'
             - 'HEALTHCHECK_PATHS=/data'
             #- RCLONE_LOG_FILE=/config/rclone_media_mount_2.log
-            - POOLING_FS=unionfs
             - RCLONE_LOG_LEVEL=INFO
             - 'RCLONE_REMOTE_PATH=secure_media:'
             - 'RCLONE_MOUNT_USER_OPTS=--read-only --use-json-log --acd-templink-threshold 1g --buffer-size 8M --timeout 5s --contimeout 5s --stats 300s --dir-cache-time 30m --multi-thread-streams=20 --allow-non-empty --allow-other --rc-web-gui --rc-web-gui-update --rc-web-gui-no-open-browser --rc-user ${RCLONE_USER} --rc-pass ${RCLONE_PASSWORD}'
@@ -92,10 +90,9 @@ services:
             - TZ=Australia/Melbourne
             - PGID=${GROUPID}
             - PUID=${USERID}
-            - 'HEALTHCHECK_MOUNTS=/cloud'
+            - 'HEALTHCHECK_MOUNTS=/data'
             - 'HEALTHCHECK_PATHS=/data'
             - RCLONE_LOG_FILE=/config/rclone_media_mount_3.log
-            - POOLING_FS=unionfs
             - RCLONE_LOG_LEVEL=INFO
             - 'RCLONE_REMOTE_PATH=secure_media:'
             - 'RCLONE_MOUNT_USER_OPTS=--read-only --use-json-log --acd-templink-threshold 1g --buffer-size 8M --timeout 5s --contimeout 5s --stats 300s --dir-cache-time 30m --multi-thread-streams=20 --allow-non-empty --allow-other --rc-web-gui --rc-web-gui-update --rc-web-gui-no-open-browser --rc-user ${RCLONE_USER} --rc-pass ${RCLONE_PASSWORD}'
@@ -133,9 +130,8 @@ services:
             - TZ=Australia/Melbourne
             - PUID=${USERID}
             - PGID=${GROUPID}
-            - 'HEALTHCHECK_MOUNTS=/cloud'
+            - 'HEALTHCHECK_MOUNTS=/data'
             - HEALTHCHECK_PATHS=/data /data/Config
-            - POOLING_FS=unionfs
             - 'PLEXDRIVE_OPTS=-v 2 --max-chunks=10 --chunk-size=20M --chunk-check-threads=20 --chunk-load-threads=4 --chunk-load-ahead=5 --drive-id=0ALNBa0QBHhldUk9PVA -o allow_other,read_only,nonempty,auto_unmount'
             - MFS_USER_OPTS="auto_unmount,rw,use_ino,func.getattr=newest,category.action=all,category.create=ff,cache.files=auto-full,dropcacheonclose=true"
         volumes:
@@ -172,17 +168,16 @@ services:
             - TZ=Australia/Melbourne
             - PGID=${GROUPID}
             - PUID=${USERID}
-            - 'HEALTHCHECK_MOUNTS=/cloud'
-            - 'HEALTHCHECK_PATHS=/data /cloud /data/mountcheck'
+            - 'HEALTHCHECK_MOUNTS=/data'
+            - 'HEALTHCHECK_PATHS=/data /data/mountcheck'
             #- RCLONE_LOG_FILE=/config/rclone_plexdrive_mount.log
-            - POOLING_FS=unionfs
             - RCLONE_LOG_LEVEL=INFO
             - 'RCLONE_REMOTE_PATH=plexdrive_crypt:'
             - 'RCLONE_MOUNT_USER_OPTS=--read-only --use-json-log --dir-cache-time 30m --multi-thread-streams=20 --allow-non-empty --allow-other --rc-web-gui --rc-web-gui-update --rc-web-gui-no-open-browser --rc-user ${RCLONE_USER} --rc-pass ${RCLONE_PASSWORD}'
         volumes:
             - '${DOCKER_ROOT}/rclone/:/config:rw'
             - '${DOCKER_ROOT}/scripts/:/scripts:ro'
-            - '${DOCKER_ROOT}/mnt/plexdrive/secure_media/:/mnt/plexdrive:slave'
+            - '${DOCKER_ROOT}/mnt/plexdrive/secure_media/:/mnt/plexdrive'
             - '${DOCKER_ROOT}/mnt/rclone/plexdrive_secure_media:/data:rshared'
         networks:
             - internal
@@ -232,7 +227,7 @@ services:
             - TZ=Australia/Melbourne
             - PUID=${USERID}
             - PGID=${GROUPID}
-            - 'HEALTHCHECK_MOUNTS=/cloud'
+            - 'HEALTHCHECK_MOUNTS=/data'
             - 'HEALTHCHECK_PATHS=/data'
         volumes:
             - '${DOCKER_ROOT}/mnt/mergerfs/secure_media:/data:rshared'
@@ -318,8 +313,3 @@ services:
             - /var/run/docker.sock:/var/run/docker.sock
         networks:
             - internal
-
-volumes:
-    rclone_empty_volume:
-    rclone_secure_media2:
-    rclone_secure_media3:
