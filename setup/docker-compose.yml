@@ -132,6 +132,7 @@ services:
             - PGID=${GROUPID}
             - 'HEALTHCHECK_MOUNTS=/data'
             - HEALTHCHECK_PATHS=/data /data/Config
+            - POOLING_FS=mergerfs
             - 'PLEXDRIVE_OPTS=-v 2 --max-chunks=10 --chunk-size=20M --chunk-check-threads=20 --chunk-load-threads=4 --chunk-load-ahead=5 --drive-id=0ALNBa0QBHhldUk9PVA -o allow_other,read_only,nonempty,auto_unmount'
             - MFS_USER_OPTS="auto_unmount,rw,use_ino,func.getattr=newest,category.action=all,category.create=ff,cache.files=auto-full,dropcacheonclose=true"
         volumes:
