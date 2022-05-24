@@ -165,22 +165,24 @@ if [[ $management_mode = "2" ]] || [[ $management_mode = "3" ]]; then
         rclone config --config "$DOCKER_ROOT/rclone/rclone.conf" reconnect $SCANNER_GDRIVE_ENDPOINT
     fi
     # make sure paths aren't mounted
-    fusermount -uz $DOCKER_ROOT/mnt/rclone/scanner_secure_media 2>/dev/null
-    fusermount -uz $DOCKER_ROOT/mnt/rclone/scanner_secure_media2 2>/dev/null
-    fusermount -uz $DOCKER_ROOT/mnt/rclone/scanner_secure_media3 2>/dev/null
-    fusermount -uz $DOCKER_ROOT/mnt/mergerfs/scanner_secure_media 2>/dev/null
+    fusermount -uz "$DOCKER_ROOT/mnt/rclone/scanner_secure_media" 2>/dev/null
+    fusermount -uz "$DOCKER_ROOT/mnt/rclone/scanner_secure_media2" 2>/dev/null
+    fusermount -uz "$DOCKER_ROOT/mnt/rclone/scanner_secure_media3" 2>/dev/null
+    fusermount -uz "$DOCKER_ROOT/mnt/mergerfs/scanner_secure_media" 2>/dev/null
 fi
 
 ## make sure scanner rclone paths aren't mounted
 # rclone
-fusermount -uz $DOCKER_ROOT/mnt/rclone/secure_media 2>/dev/null
-fusermount -uz $DOCKER_ROOT/mnt/rclone/secure_media2 2>/dev/null
-fusermount -uz $DOCKER_ROOT/mnt/rclone/secure_media3 2>/dev/null
+fusermount -uz "$DOCKER_ROOT/mnt/rclone/secure_media" 2>/dev/null
+fusermount -uz "$DOCKER_ROOT/mnt/rclone/secure_media2" 2>/dev/null
+fusermount -uz "$DOCKER_ROOT/mnt/rclone/secure_media3" 2>/dev/null
 # plexdrive & it rclone crypt
-fusermount -uz $DOCKER_ROOT/mnt/plexdrive/secure_media 2>/dev/null
-fusermount -uz $DOCKER_ROOT/mnt/rclone/plexdrive_secure_media 2>/dev/null
+fusermount -uz "$DOCKER_ROOT/mnt/plexdrive/secure_media" 2>/dev/null
+fusermount -uz "$DOCKER_ROOT/mnt/plexdrive/secure_media_data" 2>/dev/null
+fusermount -uz "$DOCKER_ROOT/mnt/plexdrive/local" 2>/dev/null
+fusermount -uz "$DOCKER_ROOT/mnt/rclone/plexdrive_secure_media" 2>/dev/null
 # mergerfs
-fusermount -uz $DOCKER_ROOT/mnt/mergerfs/secure_media 2>/dev/null
+fusermount -uz "$DOCKER_ROOT/mnt/mergerfs/secure_media" 2>/dev/null
 
 ## copy gdrive mount tokens to plexdrive
 echo "copying rclone token to plexdrive"
