@@ -25,7 +25,7 @@ services:
             - RCLONE_CONFIG_SECURE_BACKUP_PASSWORD=${RCLONE_CONFIG_SECURE_BACKUP_PASSWORD}
             - RCLONE_CONFIG_SECURE_BACKUP_PASSWORD2=${RCLONE_CONFIG_SECURE_BACKUP_PASSWORD2}
         volumes:
-            - '${DOCKER_ROOT}/rclone/:/config:rw'
+            - '${DOCKER_ROOT}/rclone/:/config/rclone:rw'
             - '${DOCKER_ROOT}/plex-scanner/Library/Application Support/Plex Media Server/Plug-in Support/:/master_data/Library/Application Support/Plex Media Server/Plug-in Support/:rw'
             - '${DOCKER_ROOT}/config/:/master_data/config:rw'
             - '${DOCKER_ROOT}/plexdrive/cache/:/master_data/plexdrive/cache:rw'
