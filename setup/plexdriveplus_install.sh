@@ -368,7 +368,9 @@ if ! [[ -z "$LIB_IMAGE_DOWNLOAD" ]]; then
         rclone/rclone \
         copy secure_backup:plex-scanner/backups /plex-scanner/backups --progress
     fi
-    tar -xzf $DOCKER_ROOT/plex-scanner/backups/meta/library_files.tar.gz -C $DOCKER_ROOT/plex-scanner --checkpoint=.5000
+    PLEX_IMAGE_BACKUPS = "$DOCKER_ROOT/plex-scanner/backups/meta/library_files.tar.gz"
+    [[ -f "$PLEX_IMAGE_BACKUPS" ]] || echo "error: backup file not found - $PLEX_IMAGE_BACKUPS"
+    tar -xzf "$PLEX_IMAGE_BACKUPS" -C $DOCKER_ROOT/plex-scanner --checkpoint=.5000
     
     # Fix Library File Ownership
     echo "setting library file ownership to $USERID:$GROUPID for $DOCKER_ROOT/plex-scanner/Library"
