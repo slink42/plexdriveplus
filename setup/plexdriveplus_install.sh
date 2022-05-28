@@ -161,9 +161,23 @@ if [[ $management_mode = "2" ]] || [[ $management_mode = "3" ]]; then
     if [[ $(rclone --config  "$DOCKER_ROOT/rclone/rclone.conf" lsd $SCANNER_GDRIVE_ENDPOINT) ]]; then 
         echo "rclone auth already present. Skipping config copy from master copy mount reconnection"
     else
-        echo "rclone onfig copy from master $SCANNER_GDRIVE_ENDPOINT mount reconnection"
+        echo "reconnecting rclone mount: $SCANNER_GDRIVE_ENDPOINT"
         rclone config --config "$DOCKER_ROOT/rclone/rclone.conf" reconnect $SCANNER_GDRIVE_ENDPOINT
     fi
+    if [[ $management_mode = "2" ]]; then
+            # authorize rclone gdrive mount
+        echo "setting up config backup rclone authentication"
+        BACKUP_GDRIVE_ENDPOINT=gdrive_backup_rw:
+        echo "Using rclone gdrive endpoint: $BACKUP_GDRIVE_ENDPOINT"
+        if [[ $(rclone --config  "$DOCKER_ROOT/rclone/rclone.conf" lsd $BACKUP_GDRIVE_ENDPOINT) ]]; then 
+            echo "rclone auth already present. Skipping config copy from master copy mount reconnection"
+        else
+            echo "reconnecting rclone mount: $BACKUP_GDRIVE_ENDPOINT"
+            rclone config --config "$DOCKER_ROOT/rclone/rclone.conf" reconnect $BACKUP_GDRIVE_ENDPOINT
+        fi
+    fi
+
+
     # make sure paths aren't mounted
     fusermount -uz "$DOCKER_ROOT/mnt/rclone/scanner_secure_media" 2>/dev/null
     fusermount -uz "$DOCKER_ROOT/mnt/rclone/scanner_secure_media2" 2>/dev/null
