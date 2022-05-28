@@ -231,7 +231,7 @@ services:
             - 'HEALTHCHECK_MOUNTS=/data'
             - 'HEALTHCHECK_PATHS=/data'
         volumes:
-            - '${DOCKER_ROOT}/mnt/mergerfs/secure_media:/data:rshared'
+            - '${DOCKER_ROOT}/mnt/mergerfs/streamer/media:/data:rshared'
             - '${DOCKER_ROOT}/mnt/rclone:/mnt/rclone:slave'
             - '${DOCKER_ROOT}/mnt/rclone/plexdrive_secure_media/Media/movies-4k/:/mnt/plexdrive/secure_media/Media/movies-4k/:slave'
             - '${DOCKER_ROOT}/mnt/rclone/plexdrive_secure_media/Media/tv-4k/:/mnt/plexdrive/secure_media/Media/tv-4k/:slave'
@@ -286,7 +286,7 @@ services:
             - 'HEALTHCHECK_PATHS=/plex/media/Media/movies /plex/media/Media/movies-4k /plex/media/Media/tv /plex/media/Media/tv-4k'
         volumes:
             - '${DOCKER_ROOT}/plex-streamer/transcode:/transcode:rw'
-            - '${DOCKER_ROOT}/mnt/mergerfs/secure_media:/plex/media:rshared'
+            - '${DOCKER_ROOT}/mnt/mergerfs/streamer:/plex:rshared'
             - '${DOCKER_ROOT}/plex-scanner/:/mnt/plex-scanner:rw'
             - '${DOCKER_ROOT}/plex-streamer/:/config:rw'
             - '${DOCKER_ROOT}/scripts/:/scripts:ro'

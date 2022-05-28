@@ -199,7 +199,7 @@ services:
             - 'HEALTHCHECK_MOUNTS=/data'
             - 'HEALTHCHECK_PATHS=/data'
         volumes:
-            - '${DOCKER_ROOT}/mnt/mergerfs/scanner_secure_media:/data:rshared'
+            - '${DOCKER_ROOT}/mnt/mergerfs/scanner/media:/data:rshared'
             - '${DOCKER_ROOT}/mnt/rclone:/mnt/rclone:rshared'
             - '${DOCKER_ROOT}/scripts/:/scripts:ro'
         networks:
@@ -239,7 +239,7 @@ services:
             - 'HEALTHCHECK_MOUNTS=/plex/media'
             - 'HEALTHCHECK_PATHS=/plex/media/Media/movies /plex/media/Media/movies-4k /plex/media/Media/tv /plex/media/Media/tv-4k'
         volumes:
-            - '${DOCKER_ROOT}/mnt/mergerfs/scanner_secure_media:/plex/media:rshared'
+            - '${DOCKER_ROOT}/mnt/mergerfs/scanner:/plex:rshared' # should contain subfolder: media
             - '${DOCKER_ROOT}/plex-scanner/:/config:rw'
             - '${DOCKER_ROOT}/scripts/:/scripts:ro'
         ports:

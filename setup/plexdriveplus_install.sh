@@ -254,7 +254,8 @@ ENV_FILE="$DOCKER_ROOT/config/.env"
 echo "starting containers with docker-compose"
 sed -i '/DOCKER_ROOT/'d "$ENV_FILE"
 echo "DOCKER_ROOT=$DOCKER_ROOT" >> "$ENV_FILE"
-mkdir -p "$DOCKER_ROOT/mnt/mergerfs/secure_media"
+# mkdir -p "${DOCKER_ROOT}/mnt/mergerfs/streamer/media"
+# mkdir -p "${DOCKER_ROOT}/mnt/mergerfs/scanner/media"
 
 
 # copy generic Plex Preferences.xml
@@ -315,6 +316,7 @@ plex claim id> ' -e PLEX_CLAIM_ID
     echo "Using PLEX_CLAIM: $PLEX_CLAIM_ID"
 fi
 # write PLEX_CLAIM_ID value to .env file
+sed -i '/PLEX_CLAIM/'d "$ENV_FILE"
 echo "PLEX_CLAIM=$PLEX_CLAIM_ID" >> "$ENV_FILE"
 
 
