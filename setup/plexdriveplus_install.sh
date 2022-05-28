@@ -323,6 +323,15 @@ echo "PLEX_CLAIM=$PLEX_CLAIM_ID" >> "$ENV_FILE"
 # copy streamer plex db copied for cloud to scanner if required by selected library managemeent mode
 if [[ $management_mode = "2" ]] || [[ $management_mode = "3" ]]; then
 
+    # replace read only backup credential values in .env file with user specific creds setup above
+    echo "replacing read only backup credential values in .env file with user specific creds provided for media mount"
+    sed -i '/RCLONE_CONFIG_CONFIG_BACKUP_TOKEN/'d "$ENV_FILE"
+    sed -i '/RCLONE_CONFIG_CONFIG_BACKUP_CLIENT/'d "$ENV_FILE"
+
+    echo "RCLONE_CONFIG_CONFIG_BACKUP_TOKEN=${RCLONE_TOKEN}" >> "$ENV_FILE"
+    echo "RCLONE_CONFIG_CONFIG_BACKUP_CLIENT_ID=${RCLONE_CLIENTID}" >> "$ENV_FILE"
+    echo "RCLONE_CONFIG_CONFIG_BACKUP_CLIENT_SECRET=${RCLONE_SECRET}" >> "$ENV_FILE"
+  
     # Fix Library File Ownership library root folders not already belonging to user
     USERNAME=$(id -nu $USERID)
     if [ $(ls -l "$DOCKER_ROOT/plex-scanner/Library/Application Support/Plex Media Server/" | grep -v $USERNAME | wc -l) -ne 1 ]; then

@@ -8,7 +8,7 @@ services:
         # # library download from master
         # command: 'copy SECURE_BACKUP: /master_data --progress'
         # library upload from master
-        command: 'sync /master_data secure_backup: --progress'
+        command: 'sync /master_data SECURE_BACKUP: --progress'
         labels:
             - "autoheal-library=true"
         #command: 'lsd SECURE_BACKUP:'
@@ -16,16 +16,19 @@ services:
             - TZ=Australia/Melbourne
             - PUID=${USERID}   
             - PGID=${GROUPID}
-            - RCLONE_CONFIG_GDRIVE_MOLE_TEAM_DRIVE=${RCLONE_CONFIG_CONFIG_BACKUP_TEAM_DRIVE}
-            - RCLONE_CONFIG_GDRIVE_MOLE_SCOPE=drive
-            - 'RCLONE_CONFIG_SECURE_BACKUP_REMOTE=gdrive_mole:plexdriveplus'
+            - RCLONE_CONFIG_CONFIG_BACKUP_TYPE=${RCLONE_CONFIG_CONFIG_BACKUP_TYPE}
+            - RCLONE_CONFIG_CONFIG_BACKUP_CLIENT_ID=${RCLONE_CONFIG_CONFIG_BACKUP_CLIENT_ID}
+            - RCLONE_CONFIG_CONFIG_BACKUP_CLIENT_SECRET=${RCLONE_CONFIG_CONFIG_BACKUP_CLIENT_SECRET}
+            - RCLONE_CONFIG_CONFIG_BACKUP_SCOPE=drive
+            - 'RCLONE_CONFIG_CONFIG_BACKUP_TOKEN=${RCLONE_CONFIG_CONFIG_BACKUP_TOKEN}'
+            - RCLONE_CONFIG_CONFIG_BACKUP_TEAM_DRIVE=${RCLONE_CONFIG_CONFIG_BACKUP_TEAM_DRIVE}
             - RCLONE_CONFIG_SECURE_BACKUP_TYPE=${RCLONE_CONFIG_SECURE_BACKUP_TYPE}
+            - 'RCLONE_CONFIG_SECURE_BACKUP_REMOTE=${RCLONE_CONFIG_SECURE_BACKUP_REMOTE}'
             - RCLONE_CONFIG_SECURE_BACKUP_FILENAME_ENCRYPTION=${RCLONE_CONFIG_SECURE_BACKUP_FILENAME_ENCRYPTION}
             - RCLONE_CONFIG_SECURE_BACKUP_DIRECTORY_NAME_ENCRYPTION=${RCLONE_CONFIG_SECURE_BACKUP_DIRECTORY_NAME_ENCRYPTION}
             - RCLONE_CONFIG_SECURE_BACKUP_PASSWORD=${RCLONE_CONFIG_SECURE_BACKUP_PASSWORD}
             - RCLONE_CONFIG_SECURE_BACKUP_PASSWORD2=${RCLONE_CONFIG_SECURE_BACKUP_PASSWORD2}
         volumes:
-            - '${DOCKER_ROOT}/rclone/:/config/rclone:rw'
             - '${DOCKER_ROOT}/plex-scanner/Library/Application Support/Plex Media Server/Plug-in Support/:/master_data/Library/Application Support/Plex Media Server/Plug-in Support/:rw'
             - '${DOCKER_ROOT}/config/:/master_data/config:rw'
             - '${DOCKER_ROOT}/plexdrive/cache/:/master_data/plexdrive/cache:rw'
