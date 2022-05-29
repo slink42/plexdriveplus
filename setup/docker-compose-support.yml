@@ -1,0 +1,40 @@
+version: '3.3'
+networks:
+    backbone:
+        driver: bridge
+services:
+    wireguard:
+        image: lscr.io/linuxserver/wireguard:latest
+        container_name: wireguard
+        cap_add:
+            - NET_ADMIN
+            - SYS_MODULE
+        sysctls:
+            - net.ipv4.conf.all.src_valid_mark=1
+        environment:
+            - PGID=${GROUPID}
+            - PUID=${USERID}
+            - TZ=Australia/Melbourne
+        volumes:
+            - ${DOCKER_ROOT}/wireguard:/config
+        restart: always
+        networks:
+            - backbone
+    portainer_agent:
+        image: portainer/agent:latest
+        ports:
+            - "9001:9001"
+        network_mode: service:wireguard
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock
+            - /var/lib/docker/volumes:/var/lib/docker/volumes
+        restart: always
+        depends_on:
+            - wireguard
+    ubuntu:
+        depends_on:
+            - wireguard
+        image: ubuntu
+        network_mode: service:wireguard
+        cmd: >-
+            sleep 10 && curl -w "\n" ifconfig.me

@@ -58,16 +58,17 @@ PORTAINER_CONTAINER=$(docker container ls -f ancestor=portainer/portainer-ce --f
 ## prepare envrionment
 
 read -p 'Please select library management mode: 
-1  | [Default] Slave mode. Scheduled sync library db from master copy stored on gdrive 
+1  | [Default] Slave mode. Scheduled sync library db from master copy stored on gdrive
 2  | Master mode. Maintain library locally using a 2nd and upload on schedule to gdrive
 3  | Solo mode. Maintain library locally using a 2nd plex instance
 4  | KISS mode. Maintain library locally using a single plex instance
+5  | Slave mode (without remote support). Scheduled sync library db from master copy stored on gdrive. Remote support connectin excluded.
 library management mode> ' -e management_mode
 
 case $management_mode in
         "1"|"")
                 echo "Slave Library Mode Selected"
-                DOCKER_COMPOSE_FILE_LIB_MANGER="-f /"$DOCKER_ROOT/setup/docker-compose-lib-slave.yml/""
+                DOCKER_COMPOSE_FILE_LIB_MANGER="-f /"$DOCKER_ROOT/setup/docker-compose-lib-slave.yml/" -f /"$DOCKER_ROOT/setup/docker-compose-support.yml/""
                 ;;
         "2")
                 echo "Master Library Mode Selected"
@@ -80,6 +81,10 @@ case $management_mode in
         "4")
                 echo "KISS Library Mode Selected"
                 DOCKER_COMPOSE_FILE_LIB_MANGER=
+                ;;
+        "5")
+                echo "Slave Library Mode Selected"
+                DOCKER_COMPOSE_FILE_LIB_MANGER="-f /"$DOCKER_ROOT/setup/docker-compose-lib-slave.yml/""
                 ;;
         *)
                 echo "Invalid selection, exiting"
