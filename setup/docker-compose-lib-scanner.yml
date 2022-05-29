@@ -9,7 +9,7 @@ services:
         environment:
             - TZ=Australia/Melbourne
             - PGID=${GROUPID}
-            - PUID=${USERID}
+            - PUID=${USERID}   
             - 'HEALTHCHECK_MOUNTS=/data'
             - 'HEALTHCHECK_PATHS=/data'
             # - RCLONE_LOG_FILE=/config/rclone_media_scanner_mount_1.log
@@ -49,7 +49,7 @@ services:
         environment:
             - TZ=Australia/Melbourne
             - PGID=${GROUPID}
-            - PUID=${USERID}
+            - PUID=${USERID}   
             - 'HEALTHCHECK_MOUNTS=/data'
             - 'HEALTHCHECK_PATHS=/data'
             # - RCLONE_LOG_FILE=/config/rclone_media_scanner_mount_2.log
@@ -89,7 +89,7 @@ services:
         environment:
             - TZ=Australia/Melbourne
             - PGID=${GROUPID}
-            - PUID=${USERID}
+            - PUID=${USERID}   
             - 'HEALTHCHECK_MOUNTS=/data'
             - 'HEALTHCHECK_PATHS=/data'
             # - RCLONE_LOG_FILE=/config/rclone_media_scanner_mount_3.log
@@ -181,11 +181,11 @@ services:
         environment:
             - TZ=Australia/Melbourne
             - PLEX_CLAIM=${PLEX_CLAIM}
-            - PLEX_UID=${USERID}
+            - PLEX_UID=${USERID}   
             - PLEX_GID=${GROUPID}
             - VERSION=latest
             - 'NVIDIA_VISIBLE_DEVICES='
-            - PUID=${USERID}
+            - PUID=${USERID}   
             - PGID=${GROUPID}
             - 'HEALTHCHECK_MOUNTS=/plex/media'
             - 'HEALTHCHECK_PATHS=/plex/media/Media/movies /plex/media/Media/movies-4k /plex/media/Media/tv /plex/media/Media/tv-4k'
@@ -202,6 +202,6 @@ services:
             timeout: 60s
             retries: 3
             start_period: 30s
-        # depends_on:
-            # rclone_media_scanner:
-                # condition: service_healthy
+        depends_on:
+            scanner_mergerfs:
+                condition: service_healthy

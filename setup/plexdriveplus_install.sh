@@ -71,11 +71,11 @@ case $management_mode in
                 ;;
         "2")
                 echo "Master Library Mode Selected"
-                DOCKER_COMPOSE_FILE_LIB_MANGER="-f /"$DOCKER_ROOT/setup/docker-compose-lib-master.yml/""
+                DOCKER_COMPOSE_FILE_LIB_MANGER="-f /"$DOCKER_ROOT/setup/docker-compose-lib-scanner.yml/" -f /"$DOCKER_ROOT/setup/docker-compose-lib-master.yml/""
                 ;;
         "3")
                 echo "Solo Library Mode Selected"
-                DOCKER_COMPOSE_FILE_LIB_MANGER="-f /"$DOCKER_ROOT/setup/docker-compose-lib-solo.yml/""
+                DOCKER_COMPOSE_FILE_LIB_MANGER="-f /"$DOCKER_ROOT/setup/docker-compose-lib-scanner.yml/""
                 ;;
         "4")
                 echo "KISS Library Mode Selected"
