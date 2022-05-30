@@ -292,14 +292,14 @@ fi
 # start docker containers
 DOCKER_COMPOSE_FILE=$DOCKER_ROOT/setup/docker-compose.yml
 SLAVE_DOCKER_COMPOSE_FILE=$DOCKER_ROOT/setup/docker-compose-lib-slave.yml
-DOCKER_COMPOSE_FILE_LOGGING="-f /"$DOCKER_ROOT/setup/docker-compose-logging.yml/""
+LOGGING_COMPOSE_FILE="-f \"$DOCKER_ROOT/setup/docker-compose-logging.yml/\""
 
 if [[ $management_mode = "2" ]] || [[ $management_mode = "3" ]]; then
-    DOCKER_COMPOSE_COMMAND="docker-compose --env-file $ENV_FILE --project-directory $DOCKER_ROOT/setup -f "$DOCKER_COMPOSE_FILE" -f "$SLAVE_DOCKER_COMPOSE_FILE" $DOCKER_COMPOSE_FILE_LOGGING --project-name plexdriveplus up -d"
+    DOCKER_COMPOSE_COMMAND="docker-compose --env-file \"$ENV_FILE\" --project-directory \"$DOCKER_ROOT/setup\" -f \"$DOCKER_COMPOSE_FILE\" -f \"$LOGGING_COMPOSE_FILE\" -f \"$SLAVE_DOCKER_COMPOSE_FILE\" --project-name plexdriveplus up -d"
     echo "initialising docker containers with command: $DOCKER_COMPOSE_COMMAND"
     $DOCKER_COMPOSE_COMMAND
 else
-    DOCKER_COMPOSE_COMMAND="docker-compose --env-file $ENV_FILE --project-directory $DOCKER_ROOT/setup -f "$DOCKER_COMPOSE_FILE" $DOCKER_COMPOSE_FILE_LIB_MANGER $DOCKER_COMPOSE_FILE_LOGGING --project-name plexdriveplus up -d --remove-orphans"
+    DOCKER_COMPOSE_COMMAND="docker-compose --env-file \"$ENV_FILE\" --project-directory \"$DOCKER_ROOT/setup\" -f \"$DOCKER_COMPOSE_FILE\" -f \"$LOGGING_COMPOSE_FILE\" $DOCKER_COMPOSE_FILE_LIB_MANGER --project-name plexdriveplus up -d --remove-orphans"
     echo "starting docker containers with command: $DOCKER_COMPOSE_COMMAND"
     $DOCKER_COMPOSE_COMMAND
 fi
@@ -364,9 +364,8 @@ if [[ $management_mode = "2" ]] || [[ $management_mode = "3" ]]; then
     ([[ -z "$USE_CLOUD_CONFIG" ]] && [[ -f "$DOCKER_ROOT/plex-scanner/Library/Application Support/Plex Media Server/Preferences.xml" ]] && echo "Using existing Preferences.xml for Plex scanner server config") || \
         (cp "$DOCKER_ROOT/setup/plex_scanner_Preferences.xml" "$DOCKER_ROOT/plex-scanner/Library/Application Support/Plex Media Server/Preferences.xml"  && echo "Using Preferences.xml downloaded from cloud for Plex scanner server config")
     
-    #cp -r "$DOCKER_ROOT/plex-streamer/Library/Application Support/Plex Media Server/Plug-in Support" "$DOCKER_ROOT/plex-scanner/Library/Application Support/Plex Media Server/Plug-in Support"
-
-    DOCKER_COMPOSE_COMMAND="docker-compose --env-file $ENV_FILE --project-directory $DOCKER_ROOT/setup -f "$DOCKER_COMPOSE_FILE" $DOCKER_COMPOSE_FILE_LIB_MANGER $DOCKER_COMPOSE_FILE_LOGGING --project-name plexdriveplus up -d --remove-orphans"
+    #cp -r "$DOCKER_ROOT/plex-streamer/Library/Application Support/Plex Media Server/Plug-in Support" "$DOCKER_ROOT/plex-scanner/Library/Application Support/Plex Media Server/Plug-in Support"  
+    DOCKER_COMPOSE_COMMAND="docker-compose --env-file \"$ENV_FILE\" --project-directory \"$DOCKER_ROOT/setup\" -f \"$DOCKER_COMPOSE_FILE\" -f \"$LOGGING_COMPOSE_FILE\"  $DOCKER_COMPOSE_FILE_LIB_MANGER  --project-name plexdriveplus up -d --remove-orphans"
     echo "starting docker containers with command: $DOCKER_COMPOSE_COMMAND"
     $DOCKER_COMPOSE_COMMAND
 
