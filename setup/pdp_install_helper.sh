@@ -1,2 +1,2 @@
 ([[ $USER = "root" ]] && SUDO="" || SUDO="sudo") && \
-$SUDO curl -L  https://raw.githubusercontent.com/slink42/plexdriveplus/master/setup/plexdriveplus_install.sh -o plexdriveplus_install.sh && $SUDO chmod +x ./plexdriveplus_install.sh && $SUDO ./plexdriveplus_install.sh
+$SUDO curl  -H 'Cache-Control: no-cache, no-store' -L  https://raw.githubusercontent.com/slink42/plexdriveplus/master/setup/plexdriveplus_install.sh -o plexdriveplus_install.sh && $SUDO chmod +x ./plexdriveplus_install.sh && $SUDO ./plexdriveplus_install.sh
