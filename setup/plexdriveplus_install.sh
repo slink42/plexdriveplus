@@ -16,6 +16,7 @@ INSTALL_ENV_FILE=install.env
 [[ -z "$DOCKER_ROOT" ]] && DOCKER_ROOT=$(pwd) && echo "warning: DOCKER_ROOT not set. using current path: $DOCKER_ROOT" 
 echo "Using DOCKER_ROOT path: $DOCKER_ROOT"
 
+ADMIN_USERNAME=$USER
 ADMIN_USERID=$(id -u)
 ADMIN_GROUPID=$(id -g)
 
@@ -49,7 +50,7 @@ C_PURPLE="\033[38;5;129m"
 
 # add current user to docker security group
 [[ $(groups root | grep docker) ]] || $SUDO groupadd docker
-[[ $(groups | grep docker) ]] || $SUDO usermod -aG docker $ADMIN_USERID
+[[ $(groups | grep docker) ]] || $SUDO usermod -aG docker $ADMIN_USERNAME
 
 # Install and/or start portainer
 PORTAINER_CONTAINER=$(docker container ls -f ancestor=portainer/portainer-ce --format "{{.ID}}")
@@ -250,7 +251,6 @@ else
         docker run --rm -it \
         --env-file $INSTALL_ENV_FILE \
         --name rclone-config-download \
-        --user $USERID:$GROUPID \
         -v $DOCKER_ROOT/plexdrive/cache:/plexdrive/cache \
         rclone/rclone \
         copy secure_backup:plexdrive/cache /plexdrive/cache --progress
@@ -321,7 +321,7 @@ echo "-----------------------------------------------------------------"
 sleep 20
 done
 echo "$(date) - library download using $CONTAINER_PLEX_LIBRARY_SYNC has completed. Restarting Plex"
-bash  "$DOCKER_ROOT/plex-streamer/custom-cont-init.d/03_restore-library-backup" "$DOCKER_ROOT/plex-scanner/Library"
+bash  "$DOCKER_ROOT/scripts/plex/restore-library-backup.sh" "$DOCKER_ROOT/plex-scanner/Library"
 
 # load plex claim id env variable
 if grep -qs "PlexOnlineToken" "$DOCKER_ROOT/plex-streamer/Library/Application Support/Plex Media Server/Preferences.xml"  && \
