@@ -175,7 +175,7 @@ services:
         # container_name: pdp-plex-scanner
         networks:
             - internal
-        restart: always
+        restart: unless-stopped
         labels:
             - "autoheal=true"
         environment:

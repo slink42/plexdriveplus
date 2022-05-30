@@ -258,7 +258,7 @@ services:
         # network_mode: bridge
         networks:
             - internal
-        restart: always
+        restart: unless-stopped
         labels:
             - "autoheal=true"
         environment:
