@@ -290,9 +290,9 @@ else
 fi
 
 # start docker containers
-DOCKER_COMPOSE_FILE=$DOCKER_ROOT/setup/docker-compose.yml
-SLAVE_DOCKER_COMPOSE_FILE=$DOCKER_ROOT/setup/docker-compose-lib-slave.yml
-LOGGING_COMPOSE_FILE="-f \"$DOCKER_ROOT/setup/docker-compose-logging.yml/\""
+DOCKER_COMPOSE_FILE="$DOCKER_ROOT/setup/docker-compose.yml"
+SLAVE_DOCKER_COMPOSE_FILE="$DOCKER_ROOT/setup/docker-compose-lib-slave.yml"
+LOGGING_COMPOSE_FILE="$DOCKER_ROOT/setup/docker-compose-logging.yml"
 
 if [[ $management_mode = "2" ]] || [[ $management_mode = "3" ]]; then
     DOCKER_COMPOSE_COMMAND="docker-compose --env-file \"$ENV_FILE\" --project-directory \"$DOCKER_ROOT/setup\" -f \"$DOCKER_COMPOSE_FILE\" -f \"$LOGGING_COMPOSE_FILE\" -f \"$SLAVE_DOCKER_COMPOSE_FILE\" --project-name plexdriveplus up -d"
