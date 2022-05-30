@@ -31,10 +31,10 @@ services:
         restart: always
         depends_on:
             - wireguard
-    ubuntu:
-        depends_on:
-            - wireguard
-        image: ubuntu
-        network_mode: service:wireguard
-        cmd: >-
-            sleep 10 && curl -w "\n" ifconfig.me
+    # ubuntu:
+    #     depends_on:
+    #         - wireguard
+    #     image: ubuntu
+    #     network_mode: service:wireguard
+    #     cmd: >-
+    #         sleep 10 && curl -w "\n" ifconfig.me
