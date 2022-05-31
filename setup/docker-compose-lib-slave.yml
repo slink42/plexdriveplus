@@ -33,6 +33,7 @@ services:
             - '${DOCKER_ROOT}/plex-scanner/Library/Application Support/Plex Media Server/Plug-in Support/:/config/Library/Application Support/Plex Media Server/Plug-in Support/:rw'
         networks:
             - internal
+        user: '${USERID}:${GROUPID}'
         logging:
             options:
                 max-size: 20m
