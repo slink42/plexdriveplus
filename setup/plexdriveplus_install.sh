@@ -20,8 +20,8 @@ ADMIN_USERNAME=$USER
 ADMIN_USERID=$(id -u)
 ADMIN_GROUPID=$(id -g)
 
-USERID=99
-GROUPID=100
+USERID=$ADMIN_USERID
+GROUPID=$ADMIN_GROUPID
 
 SUDO=
 # SUDO=sudo
@@ -121,12 +121,13 @@ if [[ -z "$USE_CLOUD_CONFIG" ]] && [[ -f "$DOCKER_ROOT/config/.env" ]] && ([[ -f
     echo "setting up rclone using local copies of rclone.conf & .env"
 else
     echo "setting up rclone using rclone.conf & .env from cloud"
+    mkdir -p "$DOCKER_ROOT/config"
     [[ -f $INSTALL_ENV_FILE ]] || (echo "error $INSTALL_ENV_FILE file not found, missing credentials required to load rclone config from cloud storage" &&  exit 1)
     docker run --rm -it \
     --env-file $INSTALL_ENV_FILE \
     --name rclone-config-download \
-    -v $DOCKER_ROOT/config:/config \
-    --user "$USERID:$GROUPID" \
+    -v "$DOCKER_ROOT/config:/config" \
+    --user $(id -u):$(id -g) \
     rclone/rclone \
     copy secure_backup:config /config --progress
 fi
@@ -143,7 +144,7 @@ tar xvzf "${DOCKER_ROOT}/plexdriveplus.tar.gz" --strip=1 -C "${DOCKER_ROOT}"
 
 # authorize rclone gdrive mount
 echo "setting up rclone authentication"
-GDRIVE_ENDPOINT=$(cat $DOCKER_ROOT/config/.env | grep RCLONE_CONFIG_SECURE_MEDIA_REMOTE)
+GDRIVE_ENDPOINT=$(cat "$DOCKER_ROOT/config/.env" | grep RCLONE_CONFIG_SECURE_MEDIA_REMOTE)
 GDRIVE_ENDPOINT=${GDRIVE_ENDPOINT/RCLONE_CONFIG_SECURE_MEDIA_REMOTE=/}
 echo "Using rclone gdrive endpoint: $GDRIVE_ENDPOINT"
 if [[ -f "$DOCKER_ROOT/rclone/rclone.conf" ]] && [[ $(rclone --config  "$DOCKER_ROOT/rclone/rclone.conf" lsd $GDRIVE_ENDPOINT) ]]; then 
@@ -162,7 +163,7 @@ if [[ $management_mode = "2" ]] || [[ $management_mode = "3" ]]; then
     setting up rclone authentication from library scanner mount. This can a different account to the one used for streaming so streaming isnt impacted by api bans caused by scanning
     ${NO_FORMAT}!"
     echo "**********************"
-    SCANNER_GDRIVE_ENDPOINT=$(cat $DOCKER_ROOT/config/.env | grep RCLONE_CONFIG_SECURE_MEDIA_SCANNER_REMOTE)
+    SCANNER_GDRIVE_ENDPOINT=$(cat "$DOCKER_ROOT/config/.env" | grep RCLONE_CONFIG_SECURE_MEDIA_SCANNER_REMOTE)
     SCANNER_GDRIVE_ENDPOINT=${SCANNER_GDRIVE_ENDPOINT/RCLONE_CONFIG_SECURE_MEDIA_SCANNER_REMOTE=/}
     echo "Using rclone gdrive endpoint for scanner: $SCANNER_GDRIVE_ENDPOINT"
     if [[ $(rclone --config  "$DOCKER_ROOT/rclone/rclone.conf" lsd $SCANNER_GDRIVE_ENDPOINT) ]]; then 
@@ -248,12 +249,13 @@ if [[ -z "$USE_CLOUD_CONFIG" ]] && [[ -f "$DOCKER_ROOT/plexdrive/cache/cache.bol
     echo "using local plexdrive cache file"
 else
     echo "local plexdrive cache file not found. Initalising with master copy from cloud"
+    mkdir -p "$DOCKER_ROOT/plexdrive/cache"
     if [[ -f $INSTALL_ENV_FILE ]]; then
         docker run --rm -it \
         --env-file $INSTALL_ENV_FILE \
         --name rclone-config-download \
-        --user "$USERID:$GROUPID" \
-        -v $DOCKER_ROOT/plexdrive/cache:/plexdrive/cache \
+        --user $(id -u):$(id -g) \
+        -v "$DOCKER_ROOT/plexdrive/cache:/plexdrive/cache" \
         rclone/rclone \
         copy secure_backup:plexdrive/cache /plexdrive/cache --progress
     else
@@ -389,18 +391,19 @@ if ! [[ -z "$LIB_IMAGE_DOWNLOAD" ]]; then
         echo "using existing copy of library media covers backup tar file"
     else
         echo "downloading library media covers backup from cloud"
+        mkdir -p "$DOCKER_ROOT/plex-scanner"
         [[ -f $INSTALL_ENV_FILE ]] || (echo "error $INSTALL_ENV_FILE file not found, missing credentials required to load rclone config from cloud storage" &&  exit 1)
         docker run --rm -it \
         --env-file $INSTALL_ENV_FILE \
         --name rclone-config-download \
-        --user "$USERID:$GROUPID" \
-        -v $DOCKER_ROOT/plex-scanner:/plex-scanner \
+        --user $(id -u):$(id -g) \
+        -v "$DOCKER_ROOT/plex-scanner:/plex-scanner" \
         rclone/rclone \
         copy secure_backup:plex-scanner/backups /plex-scanner/backups --progress
     fi
     PLEX_IMAGE_BACKUPS = "$DOCKER_ROOT/plex-scanner/backups/meta/library_files.tar.gz"
     [[ -f "$PLEX_IMAGE_BACKUPS" ]] || echo "error: backup file not found - $PLEX_IMAGE_BACKUPS"
-    tar -xzf "$PLEX_IMAGE_BACKUPS" -C $DOCKER_ROOT/plex-scanner --checkpoint=.5000
+    tar -xzf "$PLEX_IMAGE_BACKUPS" -C "$DOCKER_ROOT/plex-scanner" --checkpoint=.5000
     
     # Fix Library File Ownership
     echo "setting library file ownership to $USERID:$GROUPID for $DOCKER_ROOT/plex-scanner/Library"
