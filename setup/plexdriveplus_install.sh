@@ -328,11 +328,11 @@ LOGGING_COMPOSE_FILE="$DOCKER_ROOT/setup/docker-compose-logging.yml"
 if [[ $management_mode = "2" ]] || [[ $management_mode = "3" ]]; then
     DOCKER_COMPOSE_COMMAND="docker-compose --env-file \"$ENV_FILE\" --project-directory \"$DOCKER_ROOT/setup\" -f \"$DOCKER_COMPOSE_FILE\" -f \"$LOGGING_COMPOSE_FILE\" -f \"$SLAVE_DOCKER_COMPOSE_FILE\" --project-name plexdriveplus up -d"
     echo "initialising docker containers with command: $DOCKER_COMPOSE_COMMAND"
-    $DOCKER_COMPOSE_COMMAND
+    bash -c "$DOCKER_COMPOSE_COMMAND"
 else
     DOCKER_COMPOSE_COMMAND="docker-compose --env-file \"$ENV_FILE\" --project-directory \"$DOCKER_ROOT/setup\" -f \"$DOCKER_COMPOSE_FILE\" -f \"$LOGGING_COMPOSE_FILE\" $DOCKER_COMPOSE_FILE_LIB_MANGER --project-name plexdriveplus up -d --remove-orphans"
     echo "starting docker containers with command: $DOCKER_COMPOSE_COMMAND"
-    $DOCKER_COMPOSE_COMMAND
+    bash -c "$DOCKER_COMPOSE_COMMAND"
 fi
 
 ### Plex container setup
@@ -343,7 +343,7 @@ docker stop "$CONTAINER_PLEX_STREAMER"
 
 sleep 7
 CONTAINER_PLEX_LIBRARY_SYNC=$(docker container ls --format {{.Names}} | grep rclone_library_sync)
-while [[ $(docker ps | grep $CONTAINER_PLEX_LIBRARY_SYNC) ]]
+while [[ $(docker ps | grep "$CONTAINER_PLEX_LIBRARY_SYNC") ]]
 do
 echo "$(date) - waiting for library download using $CONTAINER_PLEX_LIBRARY_SYNC to complete"
 echo "------------------------- progress ------------------------------"
@@ -399,7 +399,7 @@ if [[ $management_mode = "2" ]] || [[ $management_mode = "3" ]]; then
     #cp -r "$DOCKER_ROOT/plex-streamer/Library/Application Support/Plex Media Server/Plug-in Support" "$DOCKER_ROOT/plex-scanner/Library/Application Support/Plex Media Server/Plug-in Support"  
     DOCKER_COMPOSE_COMMAND="docker-compose --env-file \"$ENV_FILE\" --project-directory \"$DOCKER_ROOT/setup\" -f \"$DOCKER_COMPOSE_FILE\" -f \"$LOGGING_COMPOSE_FILE\"  $DOCKER_COMPOSE_FILE_LIB_MANGER  --project-name plexdriveplus up -d --remove-orphans"
     echo "starting docker containers with command: $DOCKER_COMPOSE_COMMAND"
-    $DOCKER_COMPOSE_COMMAND
+    bash -c "$DOCKER_COMPOSE_COMMAND"
 
     echo "open plex scanner in browser to continue configuration there: https://127.0.0.1:34400/web"
 fi
