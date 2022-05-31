@@ -8,7 +8,7 @@ fi
 PLEX_LIBRARY_PATH="$PLEX_LIBRARY_ROOT/Application Support/Plex Media Server"
 PLEX_DATABASE_PATH="$PLEX_LIBRARY_PATH/Plug-in Support/Databases"
 
-if [ -d "$PLEX_DATABASE_PATH"]; then
+if [ -d "$PLEX_DATABASE_PATH" ]; then
     echo "checking plex database under PLEX_DATABASE_PATH: $PLEX_DATABASE_PATH"
 
     BACKUP_FILE=$(find "$PLEX_DATABASE_PATH" -name com.plexapp.plugins.library.db-20[0-9][0-9]-[0-9][0-9]-[0-9][0-9] | sort | tail -n 1)
