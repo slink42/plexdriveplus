@@ -191,6 +191,11 @@ if [[ $management_mode = "2" ]] || [[ $management_mode = "3" ]]; then
     fusermount -uz "$DOCKER_ROOT/mnt/rclone/scanner_secure_media2" 2>/dev/null
     fusermount -uz "$DOCKER_ROOT/mnt/rclone/scanner_secure_media3" 2>/dev/null
     fusermount -uz "$DOCKER_ROOT/mnt/mergerfs/scanner_secure_media" 2>/dev/null
+
+    mkdir -p "$DOCKER_ROOT/mnt/rclone/scanner_secure_media"
+    mkdir -p "$DOCKER_ROOT/mnt/rclone/scanner_secure_media2"
+    mkdir -p "$DOCKER_ROOT/mnt/rclone/scanner_secure_media3"
+    mkdir -p "$DOCKER_ROOT/mnt/mergerfs/scanner_secure_media"
 fi
 
 ## make sure scanner rclone paths aren't mounted
@@ -200,11 +205,23 @@ fusermount -uz "$DOCKER_ROOT/mnt/rclone/secure_media2" 2>/dev/null
 fusermount -uz "$DOCKER_ROOT/mnt/rclone/secure_media3" 2>/dev/null
 # plexdrive & it rclone crypt
 fusermount -uz "$DOCKER_ROOT/mnt/plexdrive/secure_media" 2>/dev/null
-fusermount -uz "$DOCKER_ROOT/mnt/plexdrive/cloud" 2>/dev/null # need to use mergerfs in plexdrive container as workaround, otherwise mount doesnt get exposed to host properly
+fusermount -uz "$DOCKER_ROOT/mnt/plexdrive/cloud" 2>/dev/null # need to use mergerfs in plexdrive container as workaround, otherwise mount doesn't get exposed to host properly
 fusermount -uz "$DOCKER_ROOT/mnt/plexdrive/local" 2>/dev/null
 fusermount -uz "$DOCKER_ROOT/mnt/rclone/plexdrive_secure_media" 2>/dev/null
 # mergerfs
 fusermount -uz "$DOCKER_ROOT/mnt/mergerfs/secure_media" 2>/dev/null
+
+# rclone
+mkdir -p "$DOCKER_ROOT/mnt/rclone/secure_media"
+mkdir -p "$DOCKER_ROOT/mnt/rclone/secure_media2"
+mkdir -p "$DOCKER_ROOT/mnt/rclone/secure_media3"
+# plexdrive & it rclone crypt
+mkdir -p "$DOCKER_ROOT/mnt/plexdrive/secure_media"
+mkdir -p "$DOCKER_ROOT/mnt/plexdrive/cloud"
+mkdir -p "$DOCKER_ROOT/mnt/plexdrive/local"
+mkdir -p "$DOCKER_ROOT/mnt/rclone/plexdrive_secure_media"
+# mergerfs
+mkdir -p "$DOCKER_ROOT/mnt/mergerfs/secure_media"
 
 ## copy gdrive mount tokens to plexdrive
 echo "copying rclone token to plexdrive"
