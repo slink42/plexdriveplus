@@ -210,6 +210,8 @@ fusermount -uz "$DOCKER_ROOT/mnt/plexdrive/local" 2>/dev/null
 fusermount -uz "$DOCKER_ROOT/mnt/rclone/plexdrive_secure_media" 2>/dev/null
 # mergerfs
 fusermount -uz "$DOCKER_ROOT/mnt/mergerfs/secure_media" 2>/dev/null
+fusermount -uz "$DOCKER_ROOT/mnt/mergerfs/streamer" 2>/dev/null
+fusermount -uz "${DOCKER_ROOT}/mnt/mergerfs/streamer"
 
 # rclone
 mkdir -p "$DOCKER_ROOT/mnt/rclone/secure_media"
@@ -222,6 +224,7 @@ mkdir -p "$DOCKER_ROOT/mnt/plexdrive/local"
 mkdir -p "$DOCKER_ROOT/mnt/rclone/plexdrive_secure_media"
 # mergerfs
 mkdir -p "$DOCKER_ROOT/mnt/mergerfs/secure_media"
+mkdir -p "${DOCKER_ROOT}/mnt/mergerfs/streamer"
 
 ## copy gdrive mount tokens to plexdrive
 echo "copying rclone token to plexdrive"
@@ -296,7 +299,14 @@ sed -i '/DOCKER_ROOT/'d "$ENV_FILE"
 echo "DOCKER_ROOT=$DOCKER_ROOT" >> "$ENV_FILE"
 mkdir -p "${DOCKER_ROOT}/mnt/mergerfs/streamer/media"
 mkdir -p "${DOCKER_ROOT}/mnt/mergerfs/scanner/media"
-mkdir -p "$DOCKER_ROOT/plex-scanner/Library/Application Support/Plex Media Server/Plug-in Support/"
+mkdir -p "${DOCKER_ROOT}/plex-scanner/Library/Application Support/Plex Media Server/Plug-in Support/"
+mkdir -p "${DOCKER_ROOT}/mnt/rclone/plexdrive_secure_media/Media/movies-4k/"
+mkdir -p "${DOCKER_ROOT}/mnt/rclone/plexdrive_secure_media/Media/tv-4k/"
+mkdir -p ""
+mkdir -p ""
+mkdir -p "${DOCKER_ROOT}/plex-streamer/transcode"
+mkdir -p "${DOCKER_ROOT}/mnt/mergerfs/streamer"
+mkdir -p "${DOCKER_ROOT}/scripts/"
 
 # copy generic Plex Preferences.xml
 mkdir -p "$DOCKER_ROOT/plex-streamer/Library/Application Support/Plex Media Server/"
