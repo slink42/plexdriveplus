@@ -401,13 +401,15 @@ if ! [[ -z "$LIB_IMAGE_DOWNLOAD" ]]; then
         rclone/rclone \
         copy secure_backup:plex-scanner/backups /plex-scanner/backups --progress
     fi
-    PLEX_IMAGE_BACKUPS = "$DOCKER_ROOT/plex-scanner/backups/meta/library_files.tar.gz"
-    [[ -f "$PLEX_IMAGE_BACKUPS" ]] || echo "error: backup file not found - $PLEX_IMAGE_BACKUPS"
-    tar -xzf "$PLEX_IMAGE_BACKUPS" -C "$DOCKER_ROOT/plex-scanner" --checkpoint=.5000
+    PLEX_IMAGE_BACKUP_TAR="$DOCKER_ROOT/plex-scanner/backups/meta/library_files.tar.gz"
+    [[ -f "$PLEX_IMAGE_BACKUP_TAR" ]] || echo "error: backup file not found - $PLEX_IMAGE_BACKUPS"
+    tar -xzf "$PLEX_IMAGE_BACKUP_TAR" -C "$DOCKER_ROOT/plex-scanner" --checkpoint=.5000
     
     # Fix Library File Ownership
-    echo "setting library file ownership to $USERID:$GROUPID for $DOCKER_ROOT/plex-scanner/Library"
-    chown -R $USERID:$GROUPID "$DOCKER_ROOT/plex-scanner/Library"
+    if [ "$ADMIN_USERID" -ne "$USERID" ]; then
+        echo "setting library file ownership to $USERID:$GROUPID for $DOCKER_ROOT/plex-scanner/Library"
+        chown -R $USERID:$GROUPID "$DOCKER_ROOT/plex-scanner/Library"
+    fi
     
     # Restart plex streamer
     docker restart "$CONTAINER_PLEX_STREAMER"
