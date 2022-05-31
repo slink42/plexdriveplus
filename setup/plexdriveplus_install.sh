@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bashUSERID
 echo
 echo "$(date) - Plexdriveplus install started"
 echo
@@ -289,9 +289,16 @@ ENV_FILE="$DOCKER_ROOT/config/.env"
 [[ $(cat $ENV_FILE | grep RCLONE_USER) ]] || echo "RCLONE_USER=rclone" >> "$ENV_FILE"
 [[ $(cat $ENV_FILE | grep RCLONE_PASSWORD) ]] || echo "RCLONE_PASSWORD=rclone" >> "$ENV_FILE"
 
+# Remove user and group id if provided in env file - bugfix
+sed -i '/USERID/'d "$ENV_FILE"
+sed -i '/GROUPID/'d "$ENV_FILE"
+
 # Set user and group id if not already provided in env file
 [[ $(cat $ENV_FILE | grep USERID) ]] || echo "USERID=$USERID" >> "$ENV_FILE"
 [[ $(cat $ENV_FILE | grep GROUPID) ]] || echo "GROUPID=$GROUPID" >> "$ENV_FILE"
+
+
+
 
 ## Start with updated rclone config
 echo "starting containers with docker-compose"
@@ -302,10 +309,9 @@ mkdir -p "${DOCKER_ROOT}/mnt/mergerfs/scanner/media"
 mkdir -p "${DOCKER_ROOT}/plex-scanner/Library/Application Support/Plex Media Server/Plug-in Support/"
 mkdir -p "${DOCKER_ROOT}/mnt/rclone/plexdrive_secure_media/Media/movies-4k/"
 mkdir -p "${DOCKER_ROOT}/mnt/rclone/plexdrive_secure_media/Media/tv-4k/"
-mkdir -p ""
-mkdir -p ""
+
+mkdir -p "${DOCKER_ROOT}/plex-streamer/custom-cont-init.d"
 mkdir -p "${DOCKER_ROOT}/plex-streamer/transcode"
-mkdir -p "${DOCKER_ROOT}/mnt/mergerfs/streamer"
 mkdir -p "${DOCKER_ROOT}/scripts/"
 
 # copy generic Plex Preferences.xml
