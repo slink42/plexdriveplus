@@ -289,9 +289,11 @@ ENV_FILE="$DOCKER_ROOT/config/.env"
 [[ $(cat $ENV_FILE | grep RCLONE_USER) ]] || echo "RCLONE_USER=rclone" >> "$ENV_FILE"
 [[ $(cat $ENV_FILE | grep RCLONE_PASSWORD) ]] || echo "RCLONE_PASSWORD=rclone" >> "$ENV_FILE"
 
-# Remove user and group id if provided in env file - bugfix
-sed -i '/USERID/'d "$ENV_FILE"
-sed -i '/GROUPID/'d "$ENV_FILE"
+# Remove user and group id if provided in env file and running as root
+if [ "$USERID" -eq "0" ]; then
+    sed -i '/USERID/'d "$ENV_FILE"
+    sed -i '/GROUPID/'d "$ENV_FILE"
+fi
 
 # Set user and group id if not already provided in env file
 [[ $(cat $ENV_FILE | grep USERID) ]] || echo "USERID=$USERID" >> "$ENV_FILE"
