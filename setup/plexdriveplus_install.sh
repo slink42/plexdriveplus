@@ -277,9 +277,9 @@ ENV_FILE="$DOCKER_ROOT/config/.env"
 echo "starting containers with docker-compose"
 sed -i '/DOCKER_ROOT/'d "$ENV_FILE"
 echo "DOCKER_ROOT=$DOCKER_ROOT" >> "$ENV_FILE"
-# mkdir -p "${DOCKER_ROOT}/mnt/mergerfs/streamer/media"
-# mkdir -p "${DOCKER_ROOT}/mnt/mergerfs/scanner/media"
-
+mkdir -p "${DOCKER_ROOT}/mnt/mergerfs/streamer/media"
+mkdir -p "${DOCKER_ROOT}/mnt/mergerfs/scanner/media"
+mkdir -p "$DOCKER_ROOT/plex-scanner/Library/Application Support/Plex Media Server/Plug-in Support/"
 
 # copy generic Plex Preferences.xml
 mkdir -p "$DOCKER_ROOT/plex-streamer/Library/Application Support/Plex Media Server/"
