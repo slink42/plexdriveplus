@@ -255,9 +255,9 @@ services:
             retries: 3
             start_period: 10s
     plex_streamer:
-        # network_mode: bridge
-        networks:
-            - internal
+        network_mode: host
+        # networks:
+        #     - internal
         restart: unless-stopped
         labels:
             - "autoheal=true"
