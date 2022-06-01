@@ -1,4 +1,4 @@
-#!/bin/bashUSERID
+#!/bin/bash
 echo
 echo "$(date) - Plexdriveplus install started"
 echo
