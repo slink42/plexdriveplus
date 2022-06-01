@@ -313,6 +313,7 @@ mkdir -p "${DOCKER_ROOT}/mnt/rclone/plexdrive_secure_media/Media/movies-4k/"
 mkdir -p "${DOCKER_ROOT}/mnt/rclone/plexdrive_secure_media/Media/tv-4k/"
 
 mkdir -p "${DOCKER_ROOT}/plex-streamer/custom-cont-init.d"
+chown -R root:root "${DOCKER_ROOT}/plex-streamer/custom-cont-init.d" # needs to be owned by root to run / for security
 mkdir -p "${DOCKER_ROOT}/plex-streamer/transcode"
 mkdir -p "${DOCKER_ROOT}/scripts/"
 
