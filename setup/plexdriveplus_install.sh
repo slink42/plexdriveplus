@@ -328,6 +328,22 @@ else
     cp "$PLEX_PREF_MASTER" "$DOCKER_ROOT/plex-streamer/Library/Application Support/Plex Media Server/Preferences.xml"
 fi
 
+# load plex claim id env variable
+if grep -qs "PlexOnlineToken" "$DOCKER_ROOT/plex-streamer/Library/Application Support/Plex Media Server/Preferences.xml"  && \
+( !([[ $management_mode = "2" ]] || [[ $management_mode = "3" ]]) || grep -qs "PlexOnlineToken" "$DOCKER_ROOT/plex-scanner/Library/Application Support/Plex Media Server/Preferences.xml" ) ; then
+    echo "Plex servers already claimed"
+    PLEX_CLAIM_ID="claim-xxxxxxxxxxxxxxx"
+else
+    # load plex claim ID to PLEX_CLAIM_ID variable .env file
+read -i 'claim-xxxxxxxxxxxxxxx' -p 'If you are running this headless, please enter you plex claim id generated from https://www.plex.tv/claim/. If you dont know what this means just press enter:
+plex claim id> ' -e PLEX_CLAIM_ID
+    echo "Using PLEX_CLAIM: $PLEX_CLAIM_ID"
+fi
+# write PLEX_CLAIM_ID value to .env file
+sed -i '/PLEX_CLAIM/'d "$ENV_FILE"
+echo "PLEX_CLAIM=$PLEX_CLAIM_ID" >> "$ENV_FILE"
+
+
 # start docker containers
 DOCKER_COMPOSE_FILE="$DOCKER_ROOT/setup/docker-compose.yml"
 SLAVE_DOCKER_COMPOSE_FILE="$DOCKER_ROOT/setup/docker-compose-lib-slave.yml"
@@ -343,19 +359,20 @@ else
     bash -c "$DOCKER_COMPOSE_COMMAND"
 fi
 
+sleep 10 # get plex container time to run claim script before stopping it 
+
 ### Plex container setup
 # Stop plex while library downloads
 echo "stopping plex instance(s) for plex library download"
 CONTAINER_PLEX_STREAMER=$(docker container ls --format {{.Names}} | grep plex_streamer)
 docker stop "$CONTAINER_PLEX_STREAMER"
 
-sleep 7
 CONTAINER_PLEX_LIBRARY_SYNC=$(docker container ls --format {{.Names}} | grep rclone_library_sync)
 while [[ $(docker ps | grep "$CONTAINER_PLEX_LIBRARY_SYNC") ]]
 do
 echo "$(date) - waiting for library download using $CONTAINER_PLEX_LIBRARY_SYNC to complete"
 echo "------------------------- progress ------------------------------"
-docker logs --tail 5 "$CONTAINER_PLEX_LIBRARY_SYNC"
+docker logs --tail 7 "$CONTAINER_PLEX_LIBRARY_SYNC"
 echo "-----------------------------------------------------------------"
 sleep 20
 done
@@ -363,20 +380,6 @@ echo "$(date) - library download using $CONTAINER_PLEX_LIBRARY_SYNC has complete
 # Restore from latest backup. Current DB often corrupted in sync
 bash  "$DOCKER_ROOT/scripts/plex/restore-library-backup.sh" "$DOCKER_ROOT/plex-scanner/Library"
 
-# load plex claim id env variable
-if grep -qs "PlexOnlineToken" "$DOCKER_ROOT/plex-streamer/Library/Application Support/Plex Media Server/Preferences.xml"  && \
-( !([[ $management_mode = "2" ]] || [[ $management_mode = "3" ]]) || grep -qs "PlexOnlineToken" "$DOCKER_ROOT/plex-scanner/Library/Application Support/Plex Media Server/Preferences.xml" ) ; then
-    echo "Plex servers already claimed"
-    PLEX_CLAIM_ID="claim-xxxxxxxxxxxxxxx"
-else
-    # load plex claim ID to PLEX_CLAIM_ID variable .env file
-read -i 'claim-xxxxxxxxxxxxxxx' -p 'If you are running this headless, please enter you plex claim id generated from https://www.plex.tv/claim/. If you dont know what this means just press enter:
-plex claim id> ' -e PLEX_CLAIM_ID
-    echo "Using PLEX_CLAIM: $PLEX_CLAIM_ID"
-fi
-# write PLEX_CLAIM_ID value to .env file
-sed -i '/PLEX_CLAIM/'d "$ENV_FILE"
-echo "PLEX_CLAIM=$PLEX_CLAIM_ID" >> "$ENV_FILE"
 
 
 # copy streamer plex db copied for cloud to scanner if required by selected library managemeent mode
