@@ -137,7 +137,15 @@ mkdir -p "$DOCKER_ROOT/rclone"
 [[ -z "$PDP_VERSION" ]] && PDP_URL="https://github.com/slink42/plexdriveplus/archive/master.tar.gz" || PDP_URL="https://github.com/slink42/plexdriveplus/archive/refs/tags/${PDP_VERSION}.tar.gz"
 # remove existing custom-cont-init.d scripts if they exist to ensure only scripts downloaded remain for running at plex startup
 wget --no-check-certificate --content-disposition ${PDP_URL} -O "${DOCKER_ROOT}/plexdriveplus.tar.gz"
-[ -d "${DOCKER_ROOT}/plex-streamer/custom-cont-init.d/" ] && rm -r "${DOCKER_ROOT}/plex-streamer/custom-cont-init.d/"
+if [ -d "${DOCKER_ROOT}/plex-streamer/custom-cont-init.d/" ]; then
+    if rm -r "${DOCKER_ROOT}/plex-streamer/custom-cont-init.d/"; then
+        echo "sucessfully removed existing dir: ${DOCKER_ROOT}/plex-streamer/custom-cont-init.d/"
+    else
+        echo "failed to remove existing dir: ${DOCKER_ROOT}/plex-streamer/custom-cont-init.d/"
+        echo "trying again with sudo. If this fails too library linking might not work"
+        sudo rm -r "${DOCKER_ROOT}/plex-streamer/custom-cont-init.d/"
+    fi
+fi
 tar xvzf "${DOCKER_ROOT}/plexdriveplus.tar.gz" --strip=1 -C "${DOCKER_ROOT}"
 
 ### Rclone & Plexdrive setup
