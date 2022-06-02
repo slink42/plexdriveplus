@@ -320,6 +320,8 @@ echo "DOCKER_ROOT=$DOCKER_ROOT" >> "$ENV_FILE"
 mkdir -p "${DOCKER_ROOT}/mnt/mergerfs/streamer/media"
 mkdir -p "${DOCKER_ROOT}/mnt/mergerfs/scanner/media"
 mkdir -p "${DOCKER_ROOT}/plex-scanner/Library/Application Support/Plex Media Server/Plug-in Support/"
+mkdir -p "${DOCKER_ROOT}/plex-scanner/Library/Application Support/Plex Media Server/Metadata/"
+mkdir -p "${DOCKER_ROOT}/plex-scanner/Library/Application Support/Plex Media Server/Media/"
 mkdir -p "${DOCKER_ROOT}/mnt/rclone/plexdrive_secure_media/Media/movies-4k/"
 mkdir -p "${DOCKER_ROOT}/mnt/rclone/plexdrive_secure_media/Media/tv-4k/"
 
