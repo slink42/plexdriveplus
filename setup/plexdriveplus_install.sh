@@ -47,7 +47,7 @@ C_PURPLE="\033[38;5;129m"
 [[ $(docker-compose --version) ]] || (echo "installing docker-compose" &&  curl -SL https://github.com/docker/compose/releases/download/v2.5.0/docker-compose-linux-x86_64 -o /usr/local/bin/docker-compose && chmod +x /usr/local/bin/docker-compose)
 
 # add current user to docker security group
-[[ $(groups root | grep docker) ]] || $SUDO groupadd docker
+# [[ $(groups root | grep docker) ]] || $SUDO groupadd docker
 if ! [[ $(groups | grep docker) ]]; then
     echo "Adding current user to docker management group: docker"
     $SUDO usermod -aG docker $ADMIN_USERNAME
@@ -130,7 +130,7 @@ else
     --env-file $INSTALL_ENV_FILE \
     --name rclone-config-download \
     -v "$DOCKER_ROOT/config:/config" \
-    --user $(id -u):$(id -g) \
+    --user "$ADMIN_USERID:$ADMIN_GROUPID" \
     rclone/rclone \
     copy secure_backup:config /config --progress
 fi
@@ -285,7 +285,7 @@ else
         docker run --rm -it \
         --env-file $INSTALL_ENV_FILE \
         --name rclone-config-download \
-        --user $(id -u):$(id -g) \
+        --user "$ADMIN_USERID:$ADMIN_GROUPID" \
         -v "$DOCKER_ROOT/plexdrive/cache:/plexdrive/cache" \
         rclone/rclone \
         copy secure_backup:plexdrive/cache /plexdrive/cache --progress
@@ -447,7 +447,7 @@ if ! [[ -z "$LIB_IMAGE_DOWNLOAD" ]]; then
         docker run --rm -it \
         --env-file $INSTALL_ENV_FILE \
         --name rclone-config-download \
-        --user $(id -u):$(id -g) \
+        --user "$ADMIN_USERID:$ADMIN_GROUPID" \
         -v "$DOCKER_ROOT/plex-scanner:/plex-scanner" \
         rclone/rclone \
         copy secure_backup:plex-scanner/backups /plex-scanner/backups --progress

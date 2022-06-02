@@ -148,7 +148,7 @@ services:
             - PUID=${USERID}
             - PGID=${GROUPID}
             - 'HEALTHCHECK_MOUNTS=/data'
-            - 'HEALTHCHECK_PATHS=/data'
+            - 'HEALTHCHECK_PATHS=/data/mountcheck /data/Media/movies /data/Media/movies-4k /data/Media/tv /data/Media/tv-4k'
         volumes:
             - '${DOCKER_ROOT}/mnt/mergerfs/scanner/media:/data:rshared'
             - '${DOCKER_ROOT}/mnt/rclone:/mnt/rclone:rshared'

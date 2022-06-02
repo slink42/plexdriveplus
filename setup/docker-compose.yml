@@ -11,7 +11,7 @@ services:
             - PGID=${GROUPID}
             - PUID=${USERID}
             - 'HEALTHCHECK_MOUNTS=/data'
-            - 'HEALTHCHECK_PATHS=/data'
+            - 'HEALTHCHECK_PATHS=/data/mountcheck'
             #- RCLONE_LOG_FILE=/config/rclone_media_mount_1.log
             - RCLONE_LOG_LEVEL=INFO
             - 'RCLONE_REMOTE_PATH=secure_media:'
@@ -170,7 +170,7 @@ services:
             - PGID=${GROUPID}
             - PUID=${USERID}
             - 'HEALTHCHECK_MOUNTS=/data'
-            - 'HEALTHCHECK_PATHS=/data /data/mountcheck'
+            - 'HEALTHCHECK_PATHS=/data/mountcheck'
             #- RCLONE_LOG_FILE=/config/rclone_plexdrive_mount.log
             - RCLONE_LOG_LEVEL=INFO
             - 'RCLONE_REMOTE_PATH=plexdrive_crypt:'
@@ -229,7 +229,7 @@ services:
             - PUID=${USERID}
             - PGID=${GROUPID}
             - 'HEALTHCHECK_MOUNTS=/data'
-            - 'HEALTHCHECK_PATHS=/data'
+            - 'HEALTHCHECK_PATHS=/data/mountcheck /data/Media/movies /data/Media/movies-4k /data/Media/tv /data/Media/tv-4k'
         volumes:
             - '${DOCKER_ROOT}/mnt/mergerfs/streamer/media:/data:rshared'
             - '${DOCKER_ROOT}/mnt/rclone:/mnt/rclone:slave'
