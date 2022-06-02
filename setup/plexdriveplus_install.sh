@@ -23,9 +23,7 @@ ADMIN_GROUPID=$(id -g)
 USERID=$ADMIN_USERID
 GROUPID=$ADMIN_GROUPID
 
-SUDO=
-# SUDO=sudo
-# [[ $USER = "root" ]] && (echo "running as root user. wont use sudo " && SUDO=sudo)
+[[ $USER = "root" ]] && echo "running as root user. wont use sudo" || SUDO=sudo
 
 # define text display colours
 
@@ -143,7 +141,7 @@ if [ -d "${DOCKER_ROOT}/plex-streamer/custom-cont-init.d/" ]; then
     else
         echo "failed to remove existing dir: ${DOCKER_ROOT}/plex-streamer/custom-cont-init.d/"
         echo "trying again with sudo. If this fails too library linking might not work"
-        sudo rm -r "${DOCKER_ROOT}/plex-streamer/custom-cont-init.d/"
+        $SUDO rm -r "${DOCKER_ROOT}/plex-streamer/custom-cont-init.d/"
     fi
 fi
 tar xvzf "${DOCKER_ROOT}/plexdriveplus.tar.gz" --strip=1 -C "${DOCKER_ROOT}"
