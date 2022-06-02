@@ -409,8 +409,11 @@ echo "-----------------------------------------------------------------"
 sleep 20
 done
 echo "$(date) - library download using $CONTAINER_PLEX_LIBRARY_SYNC has completed. Restarting Plex"
-# Restore from latest backup. Current DB often corrupted in sync
-bash  "$DOCKER_ROOT/scripts/plex/restore-library-backup.sh" "$DOCKER_ROOT/plex-scanner/Library"
+
+if [[ "$MASTER_LIB_DOWNLOAD" = "yes" ]] || ! ([[ $management_mode = "2" ]] || [[ $management_mode = "3" ]]); then
+    # Restore from latest backup. Current DB often corrupted in sync
+    bash  "$DOCKER_ROOT/scripts/plex/restore-library-backup.sh" "$DOCKER_ROOT/plex-scanner/Library"
+fi
 
 
 # copy streamer plex db copied for cloud to scanner if required by selected library managemeent mode
