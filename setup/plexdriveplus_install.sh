@@ -397,7 +397,7 @@ CONTAINER_PLEX_STREAMER=$(docker container ls --format {{.Names}} | grep plex_st
 docker stop "$CONTAINER_PLEX_STREAMER"
 
 CONTAINER_PLEX_LIBRARY_SYNC=$(docker container ls --format {{.Names}} | grep rclone_library_sync)
-while [[ $(docker ps | grep "$CONTAINER_PLEX_LIBRARY_SYNC") ]]
+while [[ $(docker ps | grep "$CONTAINER_PLEX_LIBRARY_SYNC") ]] && ! [ -z "$CONTAINER_PLEX_LIBRARY_SYNC" ]
 do
 echo "$(date) - waiting for library download using $CONTAINER_PLEX_LIBRARY_SYNC to complete"
 echo "------------------------- progress ------------------------------"
