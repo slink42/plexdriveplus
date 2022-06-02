@@ -377,7 +377,7 @@ LOGGING_COMPOSE_FILE="$DOCKER_ROOT/setup/docker-compose-logging.yml"
 if [[ $management_mode = "2" ]] || [[ $management_mode = "3" ]]; then
         # load plex claim ID to PLEX_CLAIM_ID variable .env file
     read -i 'Do you want to initalise library database useing copy from cloud? Type "yes" to download> ' -e MASTER_LIB_DOWNLOAD
-    if [ "$MASTER_LIB_DOWNLOAD" -eq "yes" ]; then
+    if [[ "$MASTER_LIB_DOWNLOAD" = "yes" ]]; then
         DOCKER_COMPOSE_COMMAND="docker-compose --env-file \"$ENV_FILE\" --project-directory \"$DOCKER_ROOT/setup\" -f \"$DOCKER_COMPOSE_FILE\" -f \"$LOGGING_COMPOSE_FILE\" -f \"$SLAVE_DOCKER_COMPOSE_FILE\" --project-name plexdriveplus up -d"
         echo "initialising docker containers with command: $DOCKER_COMPOSE_COMMAND"
         bash -c "$DOCKER_COMPOSE_COMMAND"
