@@ -56,7 +56,7 @@ C_PURPLE="\033[38;5;129m"
 
 # add current user to docker security group
 # [[ $(groups root | grep docker) ]] || $SUDO groupadd docker
-if ! [[ $(groups | grep docker) ]]; then
+if ! [[ $(groups | grep docker) ]] && ! [[ $(groups | grep root) ]]; then
     echo "Adding current user to docker management group: docker"
     $SUDO usermod -aG docker $ADMIN_USERNAME
     read -p  "Please log out of and then back in to allow user addition to docker managememt group to apply"
@@ -375,9 +375,13 @@ SLAVE_DOCKER_COMPOSE_FILE="$DOCKER_ROOT/setup/docker-compose-lib-slave.yml"
 LOGGING_COMPOSE_FILE="$DOCKER_ROOT/setup/docker-compose-logging.yml"
 
 if [[ $management_mode = "2" ]] || [[ $management_mode = "3" ]]; then
-    DOCKER_COMPOSE_COMMAND="docker-compose --env-file \"$ENV_FILE\" --project-directory \"$DOCKER_ROOT/setup\" -f \"$DOCKER_COMPOSE_FILE\" -f \"$LOGGING_COMPOSE_FILE\" -f \"$SLAVE_DOCKER_COMPOSE_FILE\" --project-name plexdriveplus up -d"
-    echo "initialising docker containers with command: $DOCKER_COMPOSE_COMMAND"
-    bash -c "$DOCKER_COMPOSE_COMMAND"
+        # load plex claim ID to PLEX_CLAIM_ID variable .env file
+    read -i 'Do you want to initalise library database useing copy from cloud? Type "yes" to download> ' -e MASTER_LIB_DOWNLOAD
+    if [ "$MASTER_LIB_DOWNLOAD" -eq "yes"]; then
+        DOCKER_COMPOSE_COMMAND="docker-compose --env-file \"$ENV_FILE\" --project-directory \"$DOCKER_ROOT/setup\" -f \"$DOCKER_COMPOSE_FILE\" -f \"$LOGGING_COMPOSE_FILE\" -f \"$SLAVE_DOCKER_COMPOSE_FILE\" --project-name plexdriveplus up -d"
+        echo "initialising docker containers with command: $DOCKER_COMPOSE_COMMAND"
+        bash -c "$DOCKER_COMPOSE_COMMAND"
+    fi
 else
     DOCKER_COMPOSE_COMMAND="docker-compose --env-file \"$ENV_FILE\" --project-directory \"$DOCKER_ROOT/setup\" -f \"$DOCKER_COMPOSE_FILE\" -f \"$LOGGING_COMPOSE_FILE\" $DOCKER_COMPOSE_FILE_LIB_MANGER --project-name plexdriveplus up -d --remove-orphans"
     echo "starting docker containers with command: $DOCKER_COMPOSE_COMMAND"
@@ -404,7 +408,6 @@ done
 echo "$(date) - library download using $CONTAINER_PLEX_LIBRARY_SYNC has completed. Restarting Plex"
 # Restore from latest backup. Current DB often corrupted in sync
 bash  "$DOCKER_ROOT/scripts/plex/restore-library-backup.sh" "$DOCKER_ROOT/plex-scanner/Library"
-
 
 
 # copy streamer plex db copied for cloud to scanner if required by selected library managemeent mode
