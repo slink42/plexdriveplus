@@ -301,7 +301,7 @@ ENV_FILE="$DOCKER_ROOT/config/.env"
 [[ $(cat $ENV_FILE | grep RCLONE_PASSWORD) ]] || echo "RCLONE_PASSWORD=rclone" >> "$ENV_FILE"
 
 # Remove user and group id if provided in env file and running as root
-if [ "$USERID" -eq "0" ]; then
+if ! [ "$USERID" -eq "0" ]; then
     sed -i '/USERID/'d "$ENV_FILE"
     sed -i '/GROUPID/'d "$ENV_FILE"
 fi
@@ -317,6 +317,8 @@ fi
 echo "starting containers with docker-compose"
 sed -i '/DOCKER_ROOT/'d "$ENV_FILE"
 echo "DOCKER_ROOT=$DOCKER_ROOT" >> "$ENV_FILE"
+
+# Create paths mounted by docker beforehand to ensure they are owned by current user rather than root
 mkdir -p "${DOCKER_ROOT}/mnt/mergerfs/streamer/media"
 mkdir -p "${DOCKER_ROOT}/mnt/mergerfs/scanner/media"
 mkdir -p "${DOCKER_ROOT}/plex-scanner/Library/Application Support/Plex Media Server/Plug-in Support/"
