@@ -24,7 +24,7 @@ fi
 
 for CHECK_PATH in $HEALTHCHECK_PATHS; 
 do
-if ! [ "$(ls -A $CHECK_PATH)" ]; then
+if ! [ "$(ls -AU $CHECK_PATH | head -n 5)" ]; then
 echo "unhealthy - check path empty: $CHECK_PATH"
 exit 1
 fi
