@@ -324,7 +324,8 @@ mkdir -p "${DOCKER_ROOT}/mnt/rclone/plexdrive_secure_media/Media/movies-4k/"
 mkdir -p "${DOCKER_ROOT}/mnt/rclone/plexdrive_secure_media/Media/tv-4k/"
 
 mkdir -p "${DOCKER_ROOT}/plex-streamer/custom-cont-init.d"
-chown -R root:root "${DOCKER_ROOT}/plex-streamer/custom-cont-init.d" # needs to be owned by root to run / for security
+echo "Chainging dir ownership to root:root for {DOCKER_ROOT}/plex-streamer/custom-cont-init.d. Required by rclone container security checks"
+$SUDO chown -R root:root "${DOCKER_ROOT}/plex-streamer/custom-cont-init.d" # needs to be owned by root to run / for security
 mkdir -p "${DOCKER_ROOT}/plex-streamer/transcode"
 mkdir -p "${DOCKER_ROOT}/scripts/"
 
@@ -410,7 +411,7 @@ if [[ $management_mode = "2" ]] || [[ $management_mode = "3" ]]; then
     USERNAME=$(id -nu $USERID)
     if [ $(ls -l "$DOCKER_ROOT/plex-scanner/Library/Application Support/Plex Media Server/" | grep -v $USERNAME | wc -l) -ne 1 ]; then
         echo "setting library file ownership to $USERID:$GROUPID for $DOCKER_ROOT/plex-scanner/Library"
-        chown -R $USERID:$GROUPID "$DOCKER_ROOT/plex-scanner/Library"
+        $SUDO chown -R $USERID:$GROUPID "$DOCKER_ROOT/plex-scanner/Library"
     fi
 
     echo "copying streamer plex config from streamer to scanner"
@@ -458,7 +459,7 @@ if ! [[ -z "$LIB_IMAGE_DOWNLOAD" ]]; then
     # Fix Library File Ownership
     if [ "$ADMIN_USERID" -ne "$USERID" ]; then
         echo "setting library file ownership to $USERID:$GROUPID for $DOCKER_ROOT/plex-scanner/Library"
-        chown -R $USERID:$GROUPID "$DOCKER_ROOT/plex-scanner/Library"
+        $SUDO -R $USERID:$GROUPID "$DOCKER_ROOT/plex-scanner/Library"
     fi
     
     # Restart plex streamer
