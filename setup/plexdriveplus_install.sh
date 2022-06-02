@@ -227,6 +227,7 @@ fusermount -uz "$DOCKER_ROOT/mnt/plexdrive/secure_media" 2>/dev/null
 fusermount -uz "$DOCKER_ROOT/mnt/plexdrive/cloud" 2>/dev/null # need to use mergerfs in plexdrive container as workaround, otherwise mount doesn't get exposed to host properly
 fusermount -uz "$DOCKER_ROOT/mnt/plexdrive/local" 2>/dev/null
 fusermount -uz "$DOCKER_ROOT/mnt/rclone/plexdrive_secure_media" 2>/dev/null
+fusermount -uz "$DOCKER_ROOT/mnt/rclone/plexdrive_secure_media" 2>/dev/null
 # mergerfs
 fusermount -uz "$DOCKER_ROOT/mnt/mergerfs/secure_media" 2>/dev/null
 fusermount -uz "$DOCKER_ROOT/mnt/mergerfs/streamer" 2>/dev/null
@@ -378,12 +379,14 @@ if [[ $management_mode = "2" ]] || [[ $management_mode = "3" ]]; then
         # load plex claim ID to PLEX_CLAIM_ID variable .env file
     read -i 'Do you want to initalise library database useing copy from cloud? Type "yes" to download> ' -e MASTER_LIB_DOWNLOAD
     if [[ "$MASTER_LIB_DOWNLOAD" = "yes" ]]; then
-        DOCKER_COMPOSE_COMMAND="docker-compose --env-file \"$ENV_FILE\" --project-directory \"$DOCKER_ROOT/setup\" -f \"$DOCKER_COMPOSE_FILE\" -f \"$LOGGING_COMPOSE_FILE\" -f \"$SLAVE_DOCKER_COMPOSE_FILE\" --project-name plexdriveplus up -d"
+        DOCKER_COMPOSE_COMMAND="docker-compose --env-file \"$ENV_FILE\" --project-directory \"$DOCKER_ROOT/setup\" -f \"$DOCKER_COMPOSE_FILE\" -f \"$LOGGING_COMPOSE_FILE\" -f \"$SLAVE_DOCKER_COMPOSE_FILE\" --project-name plexdriveplus up -d --force-recreate"
         echo "initialising docker containers with command: $DOCKER_COMPOSE_COMMAND"
         bash -c "$DOCKER_COMPOSE_COMMAND"
+    else
+         echo "library download skipped"
     fi
 else
-    DOCKER_COMPOSE_COMMAND="docker-compose --env-file \"$ENV_FILE\" --project-directory \"$DOCKER_ROOT/setup\" -f \"$DOCKER_COMPOSE_FILE\" -f \"$LOGGING_COMPOSE_FILE\" $DOCKER_COMPOSE_FILE_LIB_MANGER --project-name plexdriveplus up -d --remove-orphans"
+    DOCKER_COMPOSE_COMMAND="docker-compose --env-file \"$ENV_FILE\" --project-directory \"$DOCKER_ROOT/setup\" -f \"$DOCKER_COMPOSE_FILE\" -f \"$LOGGING_COMPOSE_FILE\" $DOCKER_COMPOSE_FILE_LIB_MANGER --project-name plexdriveplus up -d --remove-orphans --force-recreate"
     echo "starting docker containers with command: $DOCKER_COMPOSE_COMMAND"
     bash -c "$DOCKER_COMPOSE_COMMAND"
 fi
@@ -436,7 +439,7 @@ if [[ $management_mode = "2" ]] || [[ $management_mode = "3" ]]; then
         (cp "$DOCKER_ROOT/setup/plex_scanner_Preferences.xml" "$DOCKER_ROOT/plex-scanner/Library/Application Support/Plex Media Server/Preferences.xml"  && echo "Using Preferences.xml downloaded from cloud for Plex scanner server config")
     
     #cp -r "$DOCKER_ROOT/plex-streamer/Library/Application Support/Plex Media Server/Plug-in Support" "$DOCKER_ROOT/plex-scanner/Library/Application Support/Plex Media Server/Plug-in Support"  
-    DOCKER_COMPOSE_COMMAND="docker-compose --env-file \"$ENV_FILE\" --project-directory \"$DOCKER_ROOT/setup\" -f \"$DOCKER_COMPOSE_FILE\" -f \"$LOGGING_COMPOSE_FILE\"  $DOCKER_COMPOSE_FILE_LIB_MANGER  --project-name plexdriveplus up -d --remove-orphans"
+    DOCKER_COMPOSE_COMMAND="docker-compose --env-file \"$ENV_FILE\" --project-directory \"$DOCKER_ROOT/setup\" -f \"$DOCKER_COMPOSE_FILE\" -f \"$LOGGING_COMPOSE_FILE\"  $DOCKER_COMPOSE_FILE_LIB_MANGER  --project-name plexdriveplus up -d --remove-orphans --force-recreate"
     echo "starting docker containers with command: $DOCKER_COMPOSE_COMMAND"
     bash -c "$DOCKER_COMPOSE_COMMAND"
 
