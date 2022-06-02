@@ -20,8 +20,16 @@ ADMIN_USERNAME=$USER
 ADMIN_USERID=$(id -u)
 ADMIN_GROUPID=$(id -g)
 
-USERID=$ADMIN_USERID
-GROUPID=$ADMIN_GROUPID
+# Run docker apps as user 99 and group 100 if installer running as root
+if [ "$ADMIN_USERID" -eq "0" ]; then
+    USERID=99
+    GROUPID=100
+else
+    USERID=$ADMIN_USERID
+    GROUPID=$ADMIN_GROUPID
+fi
+
+
 
 [[ $USER = "root" ]] && echo "running as root user. wont use sudo" || SUDO=sudo
 
@@ -301,7 +309,7 @@ ENV_FILE="$DOCKER_ROOT/config/.env"
 [[ $(cat $ENV_FILE | grep RCLONE_PASSWORD) ]] || echo "RCLONE_PASSWORD=rclone" >> "$ENV_FILE"
 
 # Remove user and group id if provided in env file and running as root
-if ! [ "$USERID" -eq "0" ]; then
+if ! [ "$ADMIN_USERID" -eq "0" ]; then
     sed -i '/USERID/'d "$ENV_FILE"
     sed -i '/GROUPID/'d "$ENV_FILE"
 fi
