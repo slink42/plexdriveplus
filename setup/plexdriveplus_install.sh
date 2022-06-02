@@ -48,7 +48,12 @@ C_PURPLE="\033[38;5;129m"
 
 # add current user to docker security group
 [[ $(groups root | grep docker) ]] || $SUDO groupadd docker
-[[ $(groups | grep docker) ]] || $SUDO usermod -aG docker $ADMIN_USERNAME
+if ! [[ $(groups | grep docker) ]]; then
+    echo "Adding current user to docker management group: docker"
+    $SUDO usermod -aG docker $ADMIN_USERNAME
+    read -p  "Please log out of and then back in to allow user addition to docker managememt group to apply"
+    exit 1
+fi
 
 # Install and/or start portainer
 PORTAINER_CONTAINER=$(docker container ls -f ancestor=portainer/portainer-ce --format "{{.ID}}")
