@@ -391,28 +391,33 @@ else
     bash -c "$DOCKER_COMPOSE_COMMAND"
 fi
 
-sleep 10 # get plex container time to run claim script before stopping it 
 
-### Plex container setup
-# Stop plex while library downloads
-echo "stopping plex instance(s) for plex library download"
-CONTAINER_PLEX_STREAMER=$(docker container ls --format {{.Names}} | grep plex_streamer)
-docker stop "$CONTAINER_PLEX_STREAMER"
-
-CONTAINER_PLEX_LIBRARY_SYNC=$(docker container ls --format {{.Names}} | grep rclone_library_sync)
-while [[ $(docker ps | grep "$CONTAINER_PLEX_LIBRARY_SYNC") ]] && ! [ -z "$CONTAINER_PLEX_LIBRARY_SYNC" ]
-do
-echo "$(date) - waiting for library download using $CONTAINER_PLEX_LIBRARY_SYNC to complete"
-echo "------------------------- progress ------------------------------"
-docker logs --tail 7 "$CONTAINER_PLEX_LIBRARY_SYNC"
-echo "-----------------------------------------------------------------"
-sleep 20
-done
-echo "$(date) - library download using $CONTAINER_PLEX_LIBRARY_SYNC has completed. Restarting Plex"
 
 if [[ "$MASTER_LIB_DOWNLOAD" = "yes" ]] || ! ([[ $management_mode = "2" ]] || [[ $management_mode = "3" ]]); then
+    
+    sleep 10 # get plex container time to run claim script before stopping it 
+
+    ### Plex container setup
+    # Stop plex while library downloads
+    echo "stopping plex instance(s) for plex library download"
+    CONTAINER_PLEX_STREAMER=$(docker container ls --format {{.Names}} | grep plex_streamer)
+    docker stop "$CONTAINER_PLEX_STREAMER"
+
+    CONTAINER_PLEX_LIBRARY_SYNC=$(docker container ls --format {{.Names}} | grep rclone_library_sync)
+    while [[ $(docker ps | grep "$CONTAINER_PLEX_LIBRARY_SYNC") ]] && ! [ -z "$CONTAINER_PLEX_LIBRARY_SYNC" ]
+    do
+    echo "$(date) - waiting for library download using $CONTAINER_PLEX_LIBRARY_SYNC to complete"
+    echo "------------------------- progress ------------------------------"
+    docker logs --tail 7 "$CONTAINER_PLEX_LIBRARY_SYNC"
+    echo "-----------------------------------------------------------------"
+    sleep 20
+    done
+    echo "$(date) - library download using $CONTAINER_PLEX_LIBRARY_SYNC has completed. Restarting Plex"
+
     # Restore from latest backup. Current DB often corrupted in sync
     bash  "$DOCKER_ROOT/scripts/plex/restore-library-backup.sh" "$DOCKER_ROOT/plex-scanner/Library"
+
+    docker start "$CONTAINER_PLEX_STREAMER"
 fi
 
 
@@ -449,13 +454,11 @@ if [[ $management_mode = "2" ]] || [[ $management_mode = "3" ]]; then
     echo "open plex scanner in browser to continue configuration there: https://127.0.0.1:34400/web"
 fi
 
-docker start "$CONTAINER_PLEX_STREAMER"
 
 # Open plex in browser
 echo "please open portainer in web browser to set admin user and password for docker management web gui: https://127.0.0.1:9999"
 ( [ $(xdg-open --version) ] && xdg-open https://127.0.0.1:32400/web && echo "opening plex in browser" && exit 0 ) 2>/dev/null
 echo "open plex in browser to continue configuration there: https://127.0.0.1:32400/web"
-
 
 # copy library images / metadata backup from master
 if ! [[ -z "$LIB_IMAGE_DOWNLOAD" ]]; then
@@ -473,6 +476,7 @@ if ! [[ -z "$LIB_IMAGE_DOWNLOAD" ]]; then
         rclone/rclone \
         copy secure_backup:plex-scanner/backups /plex-scanner/backups --progress
     fi
+    
     PLEX_IMAGE_BACKUP_TAR="$DOCKER_ROOT/plex-scanner/backups/meta/library_files.tar.gz"
     [[ -f "$PLEX_IMAGE_BACKUP_TAR" ]] || echo "error: backup file not found - $PLEX_IMAGE_BACKUPS"
     tar -xzf "$PLEX_IMAGE_BACKUP_TAR" -C "$DOCKER_ROOT/plex-scanner" --checkpoint=.5000
@@ -484,6 +488,7 @@ if ! [[ -z "$LIB_IMAGE_DOWNLOAD" ]]; then
     fi
     
     # Restart plex streamer
+    CONTAINER_PLEX_STREAMER=$(docker container ls --format {{.Names}} | grep plex_streamer)
     docker restart "$CONTAINER_PLEX_STREAMER"
 fi
 echo
