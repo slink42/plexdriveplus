@@ -46,3 +46,29 @@ services:
             - /var/run/docker.sock:/var/run/docker.sock
         networks:
             - internal
+    wireguard:
+        image: lscr.io/linuxserver/wireguard:latest
+        container_name: wireguard
+        cap_add:
+            - NET_ADMIN
+            - SYS_MODULE
+        sysctls:
+            - net.ipv4.conf.all.src_valid_mark=1
+        environment:
+            - PGID=${GROUPID}
+            - PUID=${USERID}
+            - TZ=Australia/Melbourne    
+            - SERVERURL=${WIREGUARD_SERVERURL} #optional
+            - SERVERPORT=${WIREGUARD_SERVERPORT} #optional
+            - PEERS=${WIREGUARD_PEERS} #optional
+            - PEERDNS=auto #optional
+            - INTERNAL_SUBNET=${WIREGUARD_INTERNAL_SUBNET} #optional 10.13.13.0
+            - ALLOWEDIPS=${WIREGUARD_ALLOWEDIPS} #optional 0.0.0.0/0
+            - LOG_CONFS=true #optional
+        volumes:
+            - ${DOCKER_ROOT}/wireguard:/config
+        restart: unless-stopped
+        networks:
+            - internal
+        ports:
+            - ${WIREGUARD_SERVERPORT}:51820/udp
