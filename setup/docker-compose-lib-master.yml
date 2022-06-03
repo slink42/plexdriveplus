@@ -48,7 +48,6 @@ services:
             - internal
     wireguard:
         image: lscr.io/linuxserver/wireguard:latest
-        container_name: wireguard
         cap_add:
             - NET_ADMIN
             - SYS_MODULE
