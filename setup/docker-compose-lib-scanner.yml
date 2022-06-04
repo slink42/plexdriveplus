@@ -207,7 +207,6 @@ services:
                 condition: service_healthy
     plex-meta-manager:
         image: lscr.io/linuxserver/plex-meta-manager:latest
-        container_name: plex-meta-manager
         environment:
             - TZ=Australia/Melbourne
             - PLEX_UID=${USERID}   
