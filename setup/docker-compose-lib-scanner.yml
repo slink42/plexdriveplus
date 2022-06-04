@@ -139,7 +139,7 @@ services:
             - -o
             - uid=${USERID} # set file owner
             - /mnt/rclone/scanner_secure_media=RO:/mnt/rclone/scanner_secure_media2=RO:/mnt/rclone/scanner_secure_media3=RO # source paths
-            - /data # mergerfs mounts
+            - /data/media # mergerfs mounts
         restart: always
         labels:
             - "autoheal=true"
@@ -147,10 +147,10 @@ services:
             - TZ=Australia/Melbourne
             - PUID=${USERID}
             - PGID=${GROUPID}
-            - 'HEALTHCHECK_MOUNTS=/data'
-            - 'HEALTHCHECK_PATHS=/data/mountcheck /data/Media/movies /data/Media/movies-4k /data/Media/tv /data/Media/tv-4k'
+            - 'HEALTHCHECK_MOUNTS=/data/media'
+            - 'HEALTHCHECK_PATHS=/data/media/mountcheck /data/media/Media/movies /data/media/Media/movies-4k /data/media/Media/tv /data/media/Media/tv-4k'
         volumes:
-            - '${DOCKER_ROOT}/mnt/mergerfs/scanner/media:/data:rshared'
+            - '${DOCKER_ROOT}/mnt/mergerfs/scanner:/data:rshared'
             - '${DOCKER_ROOT}/mnt/rclone:/mnt/rclone:rshared'
             - '${DOCKER_ROOT}/scripts/:/scripts:ro'
         networks:
