@@ -204,23 +204,8 @@ services:
             plexdrive:
                 condition: service_healthy
     streamer_mergerfs:
-        command: # -f # foreground operation
-            - -o
-            - allow_other # allow access to other users
-            - -o
-            - auto_cache # enable caching based on modification times
-            - -o
-            - auto_unmount # auto unmount on process termination
-            - -o
-            - direct_io # use direct I/O
-            - -o
-            - gid=${GROUPID} # set file group
-            - -o
-            - sync_read # perform reads synchronously
-            - -o
-            - uid=${USERID} # set file owner
-            - /mnt/plexdrive/secure_media/=RO:/mnt/rclone/secure_media=RO:/mnt/rclone/secure_media2=RO:/mnt/rclone/secure_media3=RO # source paths
-            - /data/media # mergerfs mounts
+        entrypoint: /bin/bash
+        command: /scripts/mergerfs/start.sh
         restart: always
         labels:
             - "autoheal=true"
@@ -228,6 +213,9 @@ services:
             - TZ=Australia/Melbourne
             - PUID=${USERID}
             - PGID=${GROUPID}
+            - MFS_USER_OPTS="async_read=false,use_ino,allow_other,func.getattr=newest,category.action=all,category.create=ff,cache.files=partial,dropcacheonclose=true"
+            - SOURCE_PATHS="/mnt/plexdrive/secure_media/=RO:/mnt/rclone/secure_media=RO:/mnt/rclone/secure_media2=RO:/mnt/rclone/secure_media3=RO"
+            - DEST_PATH="/data/media"
             - 'HEALTHCHECK_MOUNTS=/data/media'
             - 'HEALTHCHECK_PATHS=/data/media/mountcheck /data/media/Media/movies /data/media/Media/movies-4k /data/media/Media/tv /data/media/Media/tv-4k'
         volumes:
@@ -286,7 +274,7 @@ services:
             - 'HEALTHCHECK_PATHS=/plex/media/Media/movies /plex/media/Media/movies-4k /plex/media/Media/tv /plex/media/Media/tv-4k'
         volumes:
             - '${DOCKER_ROOT}/plex-streamer/transcode:/transcode:rw'
-            - '${DOCKER_ROOT}/mnt/mergerfs/streamer:/plex:rshared'
+            - '${DOCKER_ROOT}/mnt/mergerfs/streamer:/plex:rslave'
             - '${DOCKER_ROOT}/plex-scanner/:/mnt/plex-scanner:rw'
             - '${DOCKER_ROOT}/plex-streamer/:/config:rw'
             - '${DOCKER_ROOT}/scripts/:/scripts:ro'

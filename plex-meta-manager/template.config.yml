@@ -10,6 +10,17 @@ libraries:                                      # This is called out once within
       - remove_overlays: false                  # Set this to true to remove all overlays
       - file: config/Overlays.yml               # This is a local file on the system
       - git: PMM/overlays/imdb_top_250          # This is a file within the https://github.com/meisnate12/Plex-Meta-Manager-Configs Repository
+  Movies 4K:                                       # Each library must match the Plex library name
+    metadata_path:
+      - file: config/Movies.yml                 # This is a local file on the system
+      - file: config/Charts.yml                 # This is a local file on the system
+      # - folder: config/Movies/                  # This is a local directory on the system
+      # - git: PMM/chart/basic                    # This is a file within the https://github.com/meisnate12/Plex-Meta-Manager-Configs Repository
+      # - git: PMM/chart/imdb                     # This is a file within the https://github.com/meisnate12/Plex-Meta-Manager-Configs Repository
+    overlay_path:
+      - remove_overlays: false                  # Set this to true to remove all overlays
+      - file: config/Overlays.yml               # This is a local file on the system
+      - git: PMM/overlays/imdb_top_250          # This is a file within the https://github.com/meisnate12/Plex-Meta-Manager-Configs Repository
   TV Shows:                           
     metadata_path:
       - file: config/TVShows.yml
@@ -18,7 +29,11 @@ libraries:                                      # This is called out once within
       - git: PMM/chart/imdb                     # This is a file within the https://github.com/meisnate12/Plex-Meta-Manager-Configs Repository
       - file: config/AnimeCharts.yml
       - git: PMM/chart/anilist                  # This is a file within the https://github.com/meisnate12/Plex-Meta-Manager-Configs Repository
-  TV Shows:                           
+    overlay_path:
+      - remove_overlays: false                  # Set this to true to remove all overlays
+      - file: config/Overlays.yml               # This is a local file on the system
+      # - git: PMM/overlays/imdb_top_250          # This is a file within the https://github.com/meisnate12/Plex-Meta-Manager-Configs Repository
+  TV Shows 4K:                           
     metadata_path:
       - file: config/TVShows.yml
       # - folder: config/TV Shows/
@@ -37,7 +52,7 @@ libraries:                                      # This is called out once within
   #   metadata_path:
   #     - file: config/Music.yml
 plex:
-  url: http://plex.bing.bang  # change me
+  url: http://plex_scanner:32400  # change me
   token: SOME_TOKEN  # change me
   timeout: 60
   clean_bundles: false
