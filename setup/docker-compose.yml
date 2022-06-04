@@ -204,7 +204,7 @@ services:
             plexdrive:
                 condition: service_healthy
     streamer_mergerfs:
-        entrypoint: /bin/bash
+        entrypoint: /bin/sh
         command: /scripts/mergerfs/start.sh
         restart: always
         labels:

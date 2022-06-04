@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 [ -z $MFS_USER_OPTS ] && MFS_USER_OPTS="async_read=false,use_ino,allow_other,func.getattr=newest,category.action=all,category.create=ff,cache.files=partial,dropcacheonclose=true"
 [ -z $SOURCE_PATHS ] && SOURCE_PATHS="/mnt/plexdrive/secure_media/=RO:/mnt/rclone/secure_media=RO:/mnt/rclone/secure_media2=RO:/mnt/rclone/secure_media3=RO"
