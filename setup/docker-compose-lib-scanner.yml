@@ -221,3 +221,5 @@ services:
         volumes:
             - '${DOCKER_ROOT}/plex-meta-manager:/config'
         restart: unless-stopped
+        networks:
+            - internal
