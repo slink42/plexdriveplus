@@ -5,9 +5,9 @@
 [ -z $MFS_BRANCHES ] && MFS_BRANCHES="/mnt/plexdrive/secure_media/=RO:/mnt/rclone/secure_media=RO:/mnt/rclone/secure_media2=RO:/mnt/rclone/secure_media3=RO"
 [ -z $MFS_DEST ] && MFS_DEST="/data/media"
 
-mfs_user_opts="$MFS_USER_OPTS"
-mfs_branches="$MFS_BRANCHES"
-mfs_dest="$MFS_DEST"
+mfs_user_opts=$MFS_USER_OPTS
+mfs_branches=$MFS_BRANCHES
+mfs_dest=$MFS_DEST
 mfs_basic_opts="uid=${PUID:-911},gid=${PGID:-911},umask=022,allow_other"
 
 #  - -o
