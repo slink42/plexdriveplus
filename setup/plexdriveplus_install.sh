@@ -63,10 +63,6 @@ if ! [[ $(groups | grep docker) ]] && ! [[ $(groups | grep root) ]]; then
     exit 1
 fi
 
-# Install and/or start portainer
-PORTAINER_CONTAINER=$(docker container ls -f ancestor=portainer/portainer-ce --format "{{.ID}}")
-[ -z $PORTAINER_CONTAINER ] && $SUDO docker run -d -p 8000:8000 -p 9000:9000 --name=portainer --restart=always -v /var/run/docker.sock:/var/run/docker.sock -v portainer_data:/data portainer/portainer-ce || docker start "$PORTAINER_CONTAINER"
-
 ## prepare envrionment
 
 read -p 'Please select library management mode: 
@@ -354,6 +350,10 @@ else
     cp "$PLEX_PREF_MASTER" "$DOCKER_ROOT/plex-streamer/Library/Application Support/Plex Media Server/Preferences.xml"
 fi
 
+
+
+
+
 # load plex claim id env variable
 if grep -qs "PlexOnlineToken" "$DOCKER_ROOT/plex-streamer/Library/Application Support/Plex Media Server/Preferences.xml"  && \
 ( !([[ $management_mode = "2" ]] || [[ $management_mode = "3" ]]) || grep -qs "PlexOnlineToken" "$DOCKER_ROOT/plex-scanner/Library/Application Support/Plex Media Server/Preferences.xml" ) ; then
@@ -385,6 +385,10 @@ if [[ $management_mode = "2" ]] || [[ $management_mode = "3" ]]; then
     else
          echo "library download skipped"
     fi
+    
+    # inialise plex-meta-manager config
+    [ -f "${DOCKER_ROOT}/plex-meta-manager/config.yml" ] || cp  "${DOCKER_ROOT}/plex-meta-manager/template.config.yml"  "${DOCKER_ROOT}/plex-meta-manager/config.yml"
+
 else
     DOCKER_COMPOSE_COMMAND="docker-compose --env-file \"$ENV_FILE\" --project-directory \"$DOCKER_ROOT/setup\" -f \"$DOCKER_COMPOSE_FILE\" -f \"$LOGGING_COMPOSE_FILE\" $DOCKER_COMPOSE_FILE_LIB_MANGER --project-name plexdriveplus up -d --remove-orphans --force-recreate"
     echo "starting docker containers with command: $DOCKER_COMPOSE_COMMAND"
