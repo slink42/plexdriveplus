@@ -1,8 +1,13 @@
 #!/bin/sh
 
 [ -z $MFS_USER_OPTS ] && MFS_USER_OPTS="async_read=false,use_ino,allow_other,func.getattr=newest,category.action=all,category.create=ff,cache.files=partial,dropcacheonclose=true"
-[ -z $SOURCE_PATHS ] && SOURCE_PATHS="/mnt/plexdrive/secure_media/=RO:/mnt/rclone/secure_media=RO:/mnt/rclone/secure_media2=RO:/mnt/rclone/secure_media3=RO"
-[ -z $DEST_PATH ] && DEST_PATH="/data/media"
+[ -z $MFS_BRANCHES ] && MFS_BRANCHES="/mnt/plexdrive/secure_media/=RO:/mnt/rclone/secure_media=RO:/mnt/rclone/secure_media2=RO:/mnt/rclone/secure_media3=RO"
+[ -z $MFS_DEST ] && MFS_DEST="/data/media"
+
+IFS=" " read -r -a mfs_user_opts <<< "$MFS_USER_OPTS"
+IFS=" " read -r -a mfs_branches <<< "$MFS_BRANCHES"
+IFS=" " read -r -a mfs_dest <<< "$MFS_DEST"
+mfs_basic_opts="uid=${PUID:-911},gid=${PGID:-911},umask=022,allow_other"
 
 #  - -o
 #             - allow_other # allow access to other users
@@ -23,7 +28,9 @@
 
 # make sure old path is unmounted
 echo "unmounting destination path with command: fusermount -uz $DEST_PATH"
-fusermount -uz "$DEST_PATH"
+fusermount -uz "${mfs_dest}"
 # start mergerfs mount
-echo "starting mergerfs mount with command: mergerfs -f -o $MFS_USER_OPTS $SOURCE_PATHS $DEST_PATH"
-mergerfs -f -o "$MFS_USER_OPTS" "$SOURCE_PATHS" "$DEST_PATH"
+
+mount_command="mergerfs ${mfs_branches} ${mfs_dest} -o ${mfs_basic_opts} -o ${mfs_user_opts}"
+echo "*** pooling => $mount_command"
+exec $mount_command
