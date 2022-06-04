@@ -22,6 +22,8 @@
 #             - /data/media # mergerfs mounts
 
 # make sure old path is unmounted
+echo "unmounting destination path with command: fusermount -uz $DEST_PATH"
 fusermount -uz "$DEST_PATH"
-# start mergerfss mount
+# start mergerfs mount
+echo "starting mergerfs mount with command: mergerfs -f -o $MFS_USER_OPTS $SOURCE_PATHS $DEST_PATH"
 mergerfs -f -o "$MFS_USER_OPTS" "$SOURCE_PATHS" "$DEST_PATH"
