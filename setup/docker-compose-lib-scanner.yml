@@ -190,7 +190,7 @@ services:
             - 'HEALTHCHECK_MOUNTS=/plex/media'
             - 'HEALTHCHECK_PATHS=/plex/media/Media/movies /plex/media/Media/movies-4k /plex/media/Media/tv /plex/media/Media/tv-4k'
         volumes:
-            - '${DOCKER_ROOT}/mnt/mergerfs/scanner:/plex:rshared' # should contain subfolder: media
+            - '${DOCKER_ROOT}/mnt/mergerfs/scanner:/plex:rslave' # should contain subfolder: media
             - '${DOCKER_ROOT}/plex-scanner/:/config:rw'
             - '${DOCKER_ROOT}/scripts/:/scripts:ro'
         ports:

@@ -6,7 +6,6 @@ services:
         restart: always
         labels:
             - "autoheal=true"
-        hostname: rclone_media1
         environment:
             - TZ=Australia/Melbourne
             - PGID=${GROUPID}
@@ -47,7 +46,6 @@ services:
         restart: always
         labels:
             - "autoheal=true"
-        hostname: rclone_media2
         environment:
             - TZ=Australia/Melbourne
             - PGID=${GROUPID}
@@ -88,7 +86,6 @@ services:
         restart: always
         labels:
             - "autoheal=true"
-        hostname: rclone_media3
         environment:
             - TZ=Australia/Melbourne
             - PGID=${GROUPID}
