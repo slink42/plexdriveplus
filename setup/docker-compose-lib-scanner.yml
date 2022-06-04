@@ -123,23 +123,8 @@ services:
             retries: 1
             start_period: 5s
     scanner_mergerfs:
-        command: # -f # foreground operation
-            - -o
-            - allow_other # allow access to other users
-            - -o
-            - auto_cache # enable caching based on modification times
-            - -o
-            - auto_unmount # auto unmount on process termination
-            - -o
-            - direct_io # use direct I/O
-            - -o
-            - gid=${GROUPID} # set file group
-            - -o
-            - sync_read # perform reads synchronously
-            - -o
-            - uid=${USERID} # set file owner
-            - /mnt/rclone/scanner_secure_media=RO:/mnt/rclone/scanner_secure_media2=RO:/mnt/rclone/scanner_secure_media3=RO # source paths
-            - /data/media # mergerfs mounts
+        entrypoint: /bin/sh
+        command: /scripts/mergerfs/start.sh
         restart: always
         labels:
             - "autoheal=true"
@@ -147,6 +132,9 @@ services:
             - TZ=Australia/Melbourne
             - PUID=${USERID}
             - PGID=${GROUPID}
+            - MFS_USER_OPTS="allow_other,auto_cache,auto_unmount,direct_io,gid=${GROUPID},sync_read,uid=${USERID}"
+            - MFS_BRANCHES="/mnt/rclone/scanner_secure_media=RO:/mnt/rclone/scanner_secure_media2=RO:/mnt/rclone/scanner_secure_media3=RO"
+            - MFS_DEST="/data/media"
             - 'HEALTHCHECK_MOUNTS=/data/media'
             - 'HEALTHCHECK_PATHS=/data/media/mountcheck /data/media/Media/movies /data/media/Media/movies-4k /data/media/Media/tv /data/media/Media/tv-4k'
         volumes:
