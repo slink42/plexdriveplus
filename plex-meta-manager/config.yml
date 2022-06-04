@@ -1,0 +1,83 @@
+libraries:                                      # This is called out once within the config.yml file                                       
+  Movies:                                       # Each library must match the Plex library name
+    metadata_path:
+      - file: config/Movies.yml                 # This is a local file on the system
+      - file: config/Charts.yml                 # This is a local file on the system
+      # - folder: config/Movies/                  # This is a local directory on the system
+      # - git: PMM/chart/basic                    # This is a file within the https://github.com/meisnate12/Plex-Meta-Manager-Configs Repository
+      # - git: PMM/chart/imdb                     # This is a file within the https://github.com/meisnate12/Plex-Meta-Manager-Configs Repository
+    overlay_path:
+      - remove_overlays: false                  # Set this to true to remove all overlays
+      - file: config/Overlays.yml               # This is a local file on the system
+      - git: PMM/overlays/imdb_top_250          # This is a file within the https://github.com/meisnate12/Plex-Meta-Manager-Configs Repository
+  TV Shows:                           
+    metadata_path:
+      - file: config/TVShows.yml
+      # - folder: config/TV Shows/
+      - git: PMM/chart/basic                    # This is a file within the https://github.com/meisnate12/Plex-Meta-Manager-Configs Repository
+      - git: PMM/chart/imdb                     # This is a file within the https://github.com/meisnate12/Plex-Meta-Manager-Configs Repository
+      - file: config/AnimeCharts.yml
+      - git: PMM/chart/anilist                  # This is a file within the https://github.com/meisnate12/Plex-Meta-Manager-Configs Repository
+  TV Shows:                           
+    metadata_path:
+      - file: config/TVShows.yml
+      # - folder: config/TV Shows/
+      - git: PMM/chart/basic                    # This is a file within the https://github.com/meisnate12/Plex-Meta-Manager-Configs Repository
+      - git: PMM/chart/imdb                     # This is a file within the https://github.com/meisnate12/Plex-Meta-Manager-Configs Repository
+      - file: config/AnimeCharts.yml
+      - git: PMM/chart/anilist                  # This is a file within the https://github.com/meisnate12/Plex-Meta-Manager-Configs Repository
+    overlay_path:
+      - remove_overlays: false                  # Set this to true to remove all overlays
+      - file: config/Overlays.yml               # This is a local file on the system
+      # - git: PMM/overlays/imdb_top_250          # This is a file within the https://github.com/meisnate12/Plex-Meta-Manager-Configs Repository
+  Anime:
+    metadata_path:
+      - file: config/AnimeCharts.yml
+  # Music:
+  #   metadata_path:
+  #     - file: config/Music.yml
+plex:
+  url: http://plex.bing.bang  # change me
+  token: SOME_TOKEN  # change me
+  timeout: 60
+  clean_bundles: false
+  empty_trash: false
+  optimize: false
+settings:
+  cache: true
+  cache_expiration: 60
+  asset_directory:
+  asset_folders: true
+  asset_depth: 0
+  create_asset_folders: false
+  prioritize_assets: false
+  dimensional_asset_rename: false
+  download_url_assets: false
+  show_missing_season_assets: false
+  show_missing_episode_assets: false
+  show_asset_not_needed: true
+  sync_mode: append
+  default_collection_order:
+  minimum_items: 1
+  item_refresh_delay: 0
+  delete_below_minimum: false
+  delete_not_scheduled: false
+  run_again_delay: 0
+  missing_only_released: false
+  only_filter_missing: false
+  show_unmanaged: true
+  show_filtered: false
+  show_options: false
+  show_missing: true
+  show_missing_assets: true
+  save_report: false
+  tvdb_language: default
+  ignore_ids:
+  ignore_imdb_ids:
+  playlist_sync_to_users: all
+  playlist_report: true
+  verify_ssl: true
+  custom_repo:
+  check_nightly: false
+tmdb:
+  apikey:

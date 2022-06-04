@@ -205,3 +205,20 @@ services:
         depends_on:
             scanner_mergerfs:
                 condition: service_healthy
+    plex-meta-manager:
+        image: lscr.io/linuxserver/plex-meta-manager:latest
+        container_name: plex-meta-manager
+        environment:
+            - TZ=Australia/Melbourne
+            - PLEX_UID=${USERID}   
+            - PLEX_GID=${GROUPID}
+            - PMM_CONFIG=/config/config.yml #optional
+            - PMM_TIME=03:00 #optional
+            - PMM_RUN=True #optional
+            - PMM_TEST=False #optional
+            - PMM_NO_MISSING=False #optional
+            - PMM_DELETE_COLLECTIONS=False #optional
+            - UMASK=022
+        volumes:
+            - '${DOCKER_ROOT}/plex-meta-manager:/config'
+        restart: unless-stopped
