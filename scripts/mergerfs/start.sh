@@ -1,5 +1,5 @@
 #!/bin/sh
-sleep 5000
+
 # [ -z $MFS_USER_OPTS ] && MFS_USER_OPTS="async_read=false,use_ino,allow_other,func.getattr=newest,category.action=all,category.create=ff,cache.files=partial,dropcacheonclose=true"
 [ -z $MFS_USER_OPTS ] && MFS_USER_OPTS="allow_other,auto_cache,auto_unmount,direct_io,gid=${GROUPID},sync_read,uid=${USERID}"
 [ -z $MFS_BRANCHES ] && MFS_BRANCHES="/mnt/plexdrive/secure_media/=RO:/mnt/rclone/secure_media=RO:/mnt/rclone/secure_media2=RO:/mnt/rclone/secure_media3=RO"
@@ -34,4 +34,7 @@ fusermount -uz "${mfs_dest}"
 
 mount_command="mergerfs ${mfs_branches} ${mfs_dest} -o ${mfs_basic_opts} -o ${mfs_user_opts}"
 echo "*** pooling => $mount_command"
-exec $mount_command
+# exec $mount_command
+mergerfs ${mfs_branches} ${mfs_dest} -o ${mfs_basic_opts} -o ${mfs_user_opts}
+echo "** mount stopped ***"
+sleep 5000
