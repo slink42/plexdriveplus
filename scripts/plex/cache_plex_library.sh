@@ -27,7 +27,7 @@ if [[ -z $OPTIMISE_LIBRARY ]]; then
     exit
 fi
 
-[[ $($SQLITE3 --version)]] || echo -e "${C_DODGERBLUE1}Installing sqlite3 for use in library maintenance${NO_FORMAT}!" && apt install sqlite3
+[[ $($SQLITE3 --version) ]] || (echo -e "${C_DODGERBLUE1}Installing sqlite3 for use in library maintenance${NO_FORMAT}!" && apt install sqlite3)
 
 #######################################################################################################################################################
 
@@ -35,76 +35,84 @@ vmtouch /fake/path || (echo "installing vmtouch" && apt-get update -y && apt-get
 
 #######################################################################################################################################################
 
-echo -e "${C_PURPLE}Starting Maintenance${NO_FORMAT}"
+if [ "$OPTIMISE_LIBRARY" = "FULL" ]; then
 
-#systemctl stop plexmediaserver &&
+    echo -e "${C_PURPLE}Starting Maintenance${NO_FORMAT}"
 
-rm $BACKUPDIR/*
-rm $SQLDUMP
+    #systemctl stop plexmediaserver &&
 
-cp -f "$PLEX_DATABASE" "$BACKUPDIR/com.plexapp.plugins.library.db"
-cp -f "$PLEX_DATABASE_BLOBS" "$BACKUPDIR/com.plexapp.plugins.library.blobs.db"
-#cp -f "$PLEX_DATABASE_TRAKT" "$BACKUPDIR/com.plexapp.plugins.trakttv.db"
+    rm $BACKUPDIR/*
+    rm $SQLDUMP
 
-cp -f "$PLEX_DATABASE" "$TMP_PLEX_DATABASE"
-cp -f "$PLEX_DATABASE_BLOBS" "$TMP_PLEX_DATABASE_BLOBS"
-#cp -f "$PLEX_DATABASE_TRAKT" "$TMP_PLEX_DATABASE_TRAKT"
+    cp -f "$PLEX_DATABASE" "$BACKUPDIR/com.plexapp.plugins.library.db"
+    cp -f "$PLEX_DATABASE_BLOBS" "$BACKUPDIR/com.plexapp.plugins.library.blobs.db"
+    #cp -f "$PLEX_DATABASE_TRAKT" "$BACKUPDIR/com.plexapp.plugins.trakttv.db"
 
-sleep 5
+    cp -f "$PLEX_DATABASE" "$TMP_PLEX_DATABASE"
+    cp -f "$PLEX_DATABASE_BLOBS" "$TMP_PLEX_DATABASE_BLOBS"
+    #cp -f "$PLEX_DATABASE_TRAKT" "$TMP_PLEX_DATABASE_TRAKT"
 
-$SQLITE3 "$TMP_PLEX_DATABASE" "PRAGMA optimize"
-$SQLITE3 "$TMP_PLEX_DATABASE" "DROP index 'index_title_sort_naturalsort'"
-$SQLITE3 "$TMP_PLEX_DATABASE" "DELETE from schema_migrations where version='20180501000000'"
-$SQLITE3 "$TMP_PLEX_DATABASE" vacuum
-$SQLITE3 "$TMP_PLEX_DATABASE" .dump > "$SQLDUMP"
-rm "$TMP_PLEX_DATABASE"
-$SQLITE3 "$TMP_PLEX_DATABASE" < "$SQLDUMP"
-$SQLITE3 -header -line "$TMP_PLEX_DATABASE" "PRAGMA default_cache_size = 1000000"
-$SQLITE3 "$TMP_PLEX_DATABASE" "PRAGMA optimize"
-$SQLITE3 "$TMP_PLEX_DATABASE" "PRAGMA integrity_check"
-rm "$SQLDUMP"
+    sleep 5
 
-$SQLITE3 "$TMP_PLEX_DATABASE_BLOBS" "PRAGMA optimize"
-$SQLITE3 "$TMP_PLEX_DATABASE_BLOBS" vacuum
-$SQLITE3 "$TMP_PLEX_DATABASE_BLOBS" .dump > "$SQLDUMP"
-rm "$TMP_PLEX_DATABASE_BLOBS"
-$SQLITE3 "$TMP_PLEX_DATABASE_BLOBS" < "$SQLDUMP"
-$SQLITE3 "$TMP_PLEX_DATABASE_BLOBS" "PRAGMA optimize"
-$SQLITE3 "$TMP_PLEX_DATABASE" "PRAGMA integrity_check"
-rm "$SQLDUMP"
+    $SQLITE3 "$TMP_PLEX_DATABASE" "PRAGMA optimize"
+    $SQLITE3 "$TMP_PLEX_DATABASE" "DROP index 'index_title_sort_naturalsort'"
+    $SQLITE3 "$TMP_PLEX_DATABASE" "DELETE from schema_migrations where version='20180501000000'"
+    $SQLITE3 "$TMP_PLEX_DATABASE" vacuum
+    $SQLITE3 "$TMP_PLEX_DATABASE" .dump > "$SQLDUMP"
+    rm "$TMP_PLEX_DATABASE"
+    $SQLITE3 "$TMP_PLEX_DATABASE" < "$SQLDUMP"
+    $SQLITE3 -header -line "$TMP_PLEX_DATABASE" "PRAGMA default_cache_size = 1000000"
+    $SQLITE3 "$TMP_PLEX_DATABASE" "PRAGMA optimize"
+    $SQLITE3 "$TMP_PLEX_DATABASE" "PRAGMA integrity_check"
+    rm "$SQLDUMP"
 
-#$SQLITE3 "$TMP_PLEX_DATABASE_TRAKT" "PRAGMA optimize"
-#$SQLITE3 "$TMP_PLEX_DATABASE_TRAKT" vacuum
-#$SQLITE3 "$TMP_PLEX_DATABASE_TRAKT" .dump > "$SQLDUMP"
-#rm "$TMP_PLEX_DATABASE_TRAKT"
-#$SQLITE3 "$TMP_PLEX_DATABASE_TRAKT" < "$SQLDUMP"
-#$SQLITE3 "$TMP_PLEX_DATABASE_TRAKT" "PRAGMA optimize"
-#$SQLITE3 "$TMP_PLEX_DATABASE" "PRAGMA integrity_check"
-#rm "$SQLDUMP"
+    $SQLITE3 "$TMP_PLEX_DATABASE_BLOBS" "PRAGMA optimize"
+    $SQLITE3 "$TMP_PLEX_DATABASE_BLOBS" vacuum
+    $SQLITE3 "$TMP_PLEX_DATABASE_BLOBS" .dump > "$SQLDUMP"
+    rm "$TMP_PLEX_DATABASE_BLOBS"
+    $SQLITE3 "$TMP_PLEX_DATABASE_BLOBS" < "$SQLDUMP"
+    $SQLITE3 "$TMP_PLEX_DATABASE_BLOBS" "PRAGMA optimize"
+    $SQLITE3 "$TMP_PLEX_DATABASE" "PRAGMA integrity_check"
+    rm "$SQLDUMP"
 
-sleep 5
+    #$SQLITE3 "$TMP_PLEX_DATABASE_TRAKT" "PRAGMA optimize"
+    #$SQLITE3 "$TMP_PLEX_DATABASE_TRAKT" vacuum
+    #$SQLITE3 "$TMP_PLEX_DATABASE_TRAKT" .dump > "$SQLDUMP"
+    #rm "$TMP_PLEX_DATABASE_TRAKT"
+    #$SQLITE3 "$TMP_PLEX_DATABASE_TRAKT" < "$SQLDUMP"
+    #$SQLITE3 "$TMP_PLEX_DATABASE_TRAKT" "PRAGMA optimize"
+    #$SQLITE3 "$TMP_PLEX_DATABASE" "PRAGMA integrity_check"
+    #rm "$SQLDUMP"
 
-cp -f "$TMP_PLEX_DATABASE" "$PLEX_DATABASE"
-cp -f "$TMP_PLEX_DATABASE_BLOBS" "$PLEX_DATABASE_BLOBS"
-#cp -f "$TMP_PLEX_DATABASE_TRAKT" "$PLEX_DATABASE_TRAKT"
-chown -R plex:plex "/config/Library/Application Support/Plex Media Server/Plug-in Support/Databases/"
+    sleep 5
 
-rm -f "$TMP_PLEX_DATABASE"
-rm -f "$TMP_PLEX_DATABASE_BLOBS"
-#rm -f "$TMP_PLEX_DATABASE_TRAKT"
+    cp -f "$TMP_PLEX_DATABASE" "$PLEX_DATABASE"
+    cp -f "$TMP_PLEX_DATABASE_BLOBS" "$PLEX_DATABASE_BLOBS"
+    #cp -f "$TMP_PLEX_DATABASE_TRAKT" "$PLEX_DATABASE_TRAKT"
+    chown -R plex:plex "/config/Library/Application Support/Plex Media Server/Plug-in Support/Databases/"
 
-rm -rf "/config/Library/Application Support/Plex Media Server/Codecs/"*
+    rm -f "$TMP_PLEX_DATABASE"
+    rm -f "$TMP_PLEX_DATABASE_BLOBS"
+    #rm -f "$TMP_PLEX_DATABASE_TRAKT"
 
-#fstrim -av
+    rm -rf "/config/Library/Application Support/Plex Media Server/Codecs/"*
 
-/usr/bin/kill -9 $(pgrep -f "vmtouch -dfhl /config/Library/Application Support/Plex Media Server/Cache/PhotoTranscoder")
-/usr/bin/kill -9 $(pgrep -f "vmtouch -dfhl /config/Library/Application Support/Plex Media Server/Media/localhost")
-#/usr/bin/kill -9 $(pgrep -f "vmtouch -dfhl /mnt/.cache/rclone/google-cache.db")
+    #fstrim -av
+fi
+
+echo "Setting Vmotuch to retain plex db in memory"
+
+VMTOUCH_PID=$(pgrep -f "vmtouch -dfhl")
+for PID in $VMTOUCH_PID; do
+    /usr/bin/kill -9 $PID
+done
 
 #echo 1 > /proc/sys/vm/drop_caches && swapoff -a && swapon -a
 
-/usr/local/bin/vmtouch -dfhl "/config/Library/Application Support/Plex Media Server/Cache/PhotoTranscoder/"
-/usr/local/bin/vmtouch -dfhl "/config/Library/Application Support/Plex Media Server/Media/localhost/"
+vmtouch -dfhl "/config/Library/Application Support/Plex Media Server/Cache/PhotoTranscoder/"
+vmtouch -dfhl "/config/Library/Application Support/Plex Media Server/Media/localhost/"
+vmtouch -dfhl "$PLEX_DATABASE"
+vmtouch -dfhl "$PLEX_DATABASE_BLOBS"
 #/usr/local/bin/vmtouch -dfhl "/mnt/.cache/rclone/google-cache.db"
 
 
