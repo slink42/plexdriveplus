@@ -1,9 +1,9 @@
 #!/bin/sh
 
 # [ -z $MFS_USER_OPTS ] && MFS_USER_OPTS="async_read=false,use_ino,allow_other,func.getattr=newest,category.action=all,category.create=ff,cache.files=partial,dropcacheonclose=true"
-[ -z $MFS_USER_OPTS ] && MFS_USER_OPTS="allow_other,auto_cache,auto_unmount,direct_io,gid=${GROUPID},sync_read,uid=${USERID}"
-[ -z $MFS_BRANCHES ] && MFS_BRANCHES="/mnt/plexdrive/secure_media/=RO:/mnt/rclone/secure_media=RO:/mnt/rclone/secure_media2=RO:/mnt/rclone/secure_media3=RO"
-[ -z $MFS_DEST ] && MFS_DEST="/data/media"
+[ -z $MFS_USER_OPTS ] && MFS_USER_OPTS=allow_other,auto_cache,auto_unmount,direct_io,sync_read,uid=${USERID},gid=${GROUPID}
+[ -z $MFS_BRANCHES ] && MFS_BRANCHES=/mnt/plexdrive/secure_media/=RO:/mnt/rclone/secure_media=RO:/mnt/rclone/secure_media2=RO:/mnt/rclone/secure_media3=RO
+[ -z $MFS_DEST ] && MFS_DEST=/data/media
 
 mfs_user_opts=$MFS_USER_OPTS
 mfs_branches=$MFS_BRANCHES
