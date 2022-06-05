@@ -287,9 +287,9 @@ services:
             timeout: 60s
             retries: 3
             start_period: 30s
-        depends_on:
-            streamer_mergerfs:
-                condition: service_healthy
+        # depends_on:
+        #     streamer_mergerfs:
+        #         condition: service_healthy
     autoheal:
         # container_name: pdp-autoheal
         restart: always
