@@ -15,7 +15,7 @@ bash /scripts/plex/restore-library-backup.sh
 bash /scripts/plex/fix-library-permissions.sh
 
 # Optimise plex database and load to memory
-# bash /scripts/plex/cache_plex_library.sh
+bash /scripts/plex/cache_plex_library.sh
 
 
 echo

@@ -108,10 +108,13 @@ for PID in $VMTOUCH_PID; do
 done
 
 #echo 1 > /proc/sys/vm/drop_caches && swapoff -a && swapon -a
-
+echo "vmtouch -dfhl /config/Library/Application Support/Plex Media Server/Cache/PhotoTranscoder/"
 vmtouch -dfhl "/config/Library/Application Support/Plex Media Server/Cache/PhotoTranscoder/"
+echo "vmtouch -dfhl /config/Library/Application Support/Plex Media Server/Media/localhost/"
 vmtouch -dfhl "/config/Library/Application Support/Plex Media Server/Media/localhost/"
+echo "vmtouch -dfhl $PLEX_DATABASE"
 vmtouch -dfhl "$PLEX_DATABASE"
+echo "vmtouch -dfhl $PLEX_DATABASE_BLOBS"
 vmtouch -dfhl "$PLEX_DATABASE_BLOBS"
 #/usr/local/bin/vmtouch -dfhl "/mnt/.cache/rclone/google-cache.db"
 
