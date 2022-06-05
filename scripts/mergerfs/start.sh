@@ -32,9 +32,9 @@ echo "unmounting destination path with command: fusermount -uz $DEST_PATH"
 fusermount -uz "${mfs_dest}"
 # start mergerfs mount
 
-mount_command="mergerfs ${mfs_branches} ${mfs_dest} -o ${mfs_basic_opts} -o ${mfs_user_opts}"
+mount_command="mergerfs -f ${mfs_branches} ${mfs_dest} -o ${mfs_basic_opts} -o ${mfs_user_opts}"
 echo "*** pooling => $mount_command"
-# exec $mount_command
-mergerfs ${mfs_branches} ${mfs_dest} -o ${mfs_basic_opts} -o ${mfs_user_opts}
+exec $mount_command
+#mergerfs -f ${mfs_branches} ${mfs_dest} -o ${mfs_basic_opts} -o ${mfs_user_opts}
 echo "** mount stopped ***"
 sleep 5000

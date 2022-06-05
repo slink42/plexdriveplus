@@ -132,9 +132,9 @@ services:
             - TZ=Australia/Melbourne
             - PUID=${USERID}
             - PGID=${GROUPID}
-            - MFS_USER_OPTS="allow_other,auto_cache,auto_unmount,direct_io,gid=${GROUPID},sync_read,uid=${USERID}"
-            - MFS_BRANCHES="/mnt/rclone/scanner_secure_media=RO:/mnt/rclone/scanner_secure_media2=RO:/mnt/rclone/scanner_secure_media3=RO"
-            - MFS_DEST="/data/media"
+            - MFS_USER_OPTS=allow_other,auto_cache,auto_unmount,direct_io,gid=${GROUPID},sync_read,uid=${USERID}
+            - MFS_BRANCHES=/mnt/rclone/scanner_secure_media=RO:/mnt/rclone/scanner_secure_media2=RO:/mnt/rclone/scanner_secure_media3=RO
+            - MFS_DEST=/data/media
             - 'HEALTHCHECK_MOUNTS=/data/media'
             - 'HEALTHCHECK_PATHS=/data/media/mountcheck /data/media/Media/movies /data/media/Media/movies-4k /data/media/Media/tv /data/media/Media/tv-4k'
         volumes:
