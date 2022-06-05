@@ -48,8 +48,7 @@ services:
         networks:
             - bridge
             - internal
-        hostname:
-            - heimdall
+        hostname: heimdall
         restart: unless-stopped
     nginx:
         image: lscr.io/linuxserver/nginx:latest
@@ -67,8 +66,7 @@ services:
         networks:
             - bridge
             - internal
-        hostname:
-            - nginx
+        hostname: nginx
         restart: unless-stopped
 #   rclone:
 #     image: docker.io/rclone/rclone:1.50
