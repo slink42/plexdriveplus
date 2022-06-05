@@ -31,11 +31,10 @@ mfs_basic_opts="uid=${PUID:-911},gid=${PGID:-911},umask=022,allow_other"
 
 unmount_command="fusermount -uz ${mfs_dest}"
 echo "unmounting destination path with command: $unmount_command"
-exec $unmount_command
-
+# exec $unmount_command
+fusermount -uz ${mfs_dest}
 
 # start mergerfs mount
-
 mount_command="mergerfs -f ${mfs_branches} ${mfs_dest} -o ${mfs_basic_opts} -o ${mfs_user_opts}"
 echo "*** pooling => $mount_command"
 exec $mount_command
