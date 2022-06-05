@@ -155,8 +155,8 @@ services:
         image: hotio/mergerfs
         healthcheck:
             test: ["CMD-SHELL", "sh /scripts/healthcheck"]
-            interval: 30s
-            timeout: 25s
+            interval: 60s
+            timeout: 55s
             retries: 3
             start_period: 10s
     plex_scanner:
@@ -176,7 +176,7 @@ services:
             - PUID=${USERID}   
             - PGID=${GROUPID}
             - 'HEALTHCHECK_MOUNTS=/plex/media'
-            - 'HEALTHCHECK_PATHS=/plex/media/Media/movies /plex/media/Media/movies-4k /plex/media/Media/tv /plex/media/Media/tv-4k'
+            - 'HEALTHCHECK_PATHS=/plex/media/mountcheck'
         volumes:
             - '${DOCKER_ROOT}/mnt/mergerfs/scanner:/plex:rslave' # should contain subfolder: media
             - '${DOCKER_ROOT}/plex-scanner/:/config:rw'
