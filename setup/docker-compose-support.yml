@@ -1,6 +1,6 @@
 version: '3.3'
 networks:
-    backbone:
+    support:
         driver: bridge
 services:
     wireguard:
@@ -19,7 +19,7 @@ services:
             - ${DOCKER_ROOT}/wireguard:/config
         restart: always
         networks:
-            - backbone
+            - support
     portainer_agent:
         image: portainer/agent:latest
         network_mode: service:wireguard

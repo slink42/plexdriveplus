@@ -1,20 +1,19 @@
 version: '3.3'
-networks:
-    internal:
 services:
     pushgateway:
         image: docker.io/prom/pushgateway
-        ports:
-            - "9091:9091"
         networks:
             - internal
+        hostname: pushgateway
         restart: unless-stopped
     prometheus:
         image: docker.io/prom/prometheus
         ports:
             - "9090:9090"
         networks:
+            - bridge
             - internal
+        hostname: prometheus
         volumes:
             - ${DOCKER_ROOT}/prometheus:/etc/prometheus
         restart: unless-stopped
@@ -31,10 +30,9 @@ services:
             LOG_LEVEL: debug
             SCRAPE_BASICAUTH_USERNAME: ${RCLONE_USER}
             SCRAPE_BASICAUTH_PASSWORD: ${RCLONE_PASSWORD}
-        ports:
-            - "8080:8080"
         networks:
             - internal
+        hostname: exporter
         restart: unless-stopped
     heimdall:
         image: lscr.io/linuxserver/heimdall:latest
@@ -48,7 +46,10 @@ services:
             - 8889:80
             - 4444:443
         networks:
+            - bridge
             - internal
+        hostname:
+            - heimdall
         restart: unless-stopped
     nginx:
         image: lscr.io/linuxserver/nginx:latest
@@ -63,6 +64,11 @@ services:
         ports:
             - 4443:443
             - 8888:80 #optional
+        networks:
+            - bridge
+            - internal
+        hostname:
+            - nginx
         restart: unless-stopped
 #   rclone:
 #     image: docker.io/rclone/rclone:1.50

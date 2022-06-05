@@ -1,6 +1,9 @@
 version: '3.3'
 networks:
     internal:
+        internal: true
+    bridge:
+        driver: bridge
 services:
     rclone_media1:
         restart: always
@@ -23,6 +26,7 @@ services:
             - '${DOCKER_ROOT}/scripts/:/scripts:ro'
             - '${DOCKER_ROOT}/mnt/rclone/secure_media:/data:rshared'
         networks:
+            - bridge
             - internal
         ports:
             - "15571:5574"
@@ -63,6 +67,7 @@ services:
             - '${DOCKER_ROOT}/scripts/:/scripts:ro'
             - '${DOCKER_ROOT}/mnt/rclone/secure_media2:/data:rshared'
         networks:
+            - bridge
             - internal
         ports:
             - "15572:5574"
@@ -103,6 +108,7 @@ services:
             - '${DOCKER_ROOT}/scripts/:/scripts:ro'
             - '${DOCKER_ROOT}/mnt/rclone/secure_media3:/data:rshared'
         networks:
+            - bridge
             - internal
         ports:
             - "15573:5574"
@@ -144,6 +150,7 @@ services:
             - '${DOCKER_ROOT}/mnt/plexdrive/cloud:/cloud:rshared'
             # - '${DOCKER_ROOT}/mnt/plexdrive/local:/local:rshared'
         networks:
+            - bridge
             - internal
         logging:
             options:
@@ -181,6 +188,7 @@ services:
             - '${DOCKER_ROOT}/mnt/plexdrive/secure_media/:/mnt/plexdrive'
             - '${DOCKER_ROOT}/mnt/rclone/plexdrive_secure_media:/data:rshared'
         networks:
+            - bridge
             - internal
         ports:
             - "15574:5574"
@@ -244,8 +252,9 @@ services:
             start_period: 10s
     plex_streamer:
         network_mode: host
-        # networks:
-        #     - internal
+        networks:
+            - bridge
+            - internal
         restart: unless-stopped
         labels:
             - "autoheal=true"

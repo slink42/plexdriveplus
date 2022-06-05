@@ -1,6 +1,7 @@
 version: '3.3'
 networks:
-    internal:
+    support:
+        driver: bridge
 services:
     rclone_library_sync:
         # container_name: pdp-rclone-library-download
@@ -29,6 +30,7 @@ services:
             - '${DOCKER_ROOT}/plexdrive/cache/:/master_data/plexdrive/cache:rw'
             - '${DOCKER_ROOT}/plex-scanner/backups/:/master_data/plex-scanner/backups:rw'
         networks:
+            - bridge
             - internal
         logging:
             options:
@@ -69,7 +71,7 @@ services:
             - ${DOCKER_ROOT}/wireguard:/config
         restart: unless-stopped
         networks:
-            - internal
+            - support
         ports:
             - ${WIREGUARD_SERVERPORT}:51820/udp
     portainer_agent:
@@ -78,6 +80,8 @@ services:
         volumes:
             - /var/run/docker.sock:/var/run/docker.sock
             - /var/lib/docker/volumes:/var/lib/docker/volumes
+        networks:
+            - internal
     portainer_potal:
         image: portainer/portainer-ce
         command: -H tcp://portainer_agent:9001 --tlsskipverify
@@ -87,6 +91,13 @@ services:
         volumes:
             - portainer_data:/data
         networks:
+            - support
+            - internal
+    bash:
+        image: bash
+        hostname: bash
+        networks:
+            - support
             - internal
 
 volumes:

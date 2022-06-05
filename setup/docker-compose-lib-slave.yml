@@ -1,6 +1,4 @@
 version: '3.3'
-networks:
-    internal:
 services:
     rclone_library_sync:
         # container_name: pdp-rclone-library-download
@@ -32,6 +30,7 @@ services:
         volumes:
             - '${DOCKER_ROOT}/plex-scanner/Library/Application Support/Plex Media Server/Plug-in Support/:/config/Library/Application Support/Plex Media Server/Plug-in Support/:rw'
         networks:
+            - bridge
             - internal
         user: "${USERID}:${GROUPID}"
         logging:
