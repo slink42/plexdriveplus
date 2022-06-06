@@ -258,7 +258,7 @@ services:
             start_period: 10s
     plex_streamer:
         network_mode: ${HOST_NETWORK_MODE}
-        networks: ${HOST_NETWORK}
+        networks: {${HOST_NETWORK}}
         restart: unless-stopped
         labels:
             - "autoheal=true"
