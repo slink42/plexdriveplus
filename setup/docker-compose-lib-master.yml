@@ -2,9 +2,6 @@ version: '3.3'
 networks:
     support:
         driver: bridge
-        config:
-            - subnet: 172.128.5.0/24
-            - ip-range: 172.128.5.0/24
 services:
     rclone_library_sync:
         # container_name: pdp-rclone-library-download
