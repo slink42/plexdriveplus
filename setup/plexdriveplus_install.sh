@@ -351,9 +351,6 @@ else
 fi
 
 
-
-
-
 # load plex claim id env variable
 if grep -qs "PlexOnlineToken" "$DOCKER_ROOT/plex-streamer/Library/Application Support/Plex Media Server/Preferences.xml"  && \
 ( !([[ $management_mode = "2" ]] || [[ $management_mode = "3" ]]) || grep -qs "PlexOnlineToken" "$DOCKER_ROOT/plex-scanner/Library/Application Support/Plex Media Server/Preferences.xml" ) ; then
@@ -368,6 +365,28 @@ fi
 # write PLEX_CLAIM_ID value to .env file
 sed -i '/PLEX_CLAIM/'d "$ENV_FILE"
 echo "PLEX_CLAIM=$PLEX_CLAIM_ID" >> "$ENV_FILE"
+
+# check for host network compatibility. HOST_NETWORK env var used in docker compose 
+HOST_NETWORK = "bridge"
+if [[ "$OSTYPE" == "linux-gnu"* ]]; then
+        # ...
+        HOST_NETWORK = "host"
+elif [[ "$OSTYPE" == "darwin"* ]]; then
+        # Mac OSX
+elif [[ "$OSTYPE" == "cygwin" ]]; then
+        # POSIX compatibility layer and Linux environment emulation for Windows
+elif [[ "$OSTYPE" == "msys" ]]; then
+        # Lightweight shell and GNU utilities compiled for Windows (part of MinGW)
+elif [[ "$OSTYPE" == "win32" ]]; then
+        # I'm not sure this can happen.
+elif [[ "$OSTYPE" == "freebsd"* ]]; then
+        # ...
+        HOST_NETWORK = "host"
+else
+        # Unknown.
+fi
+sed -i '/HOST_NETWORK/'d "$ENV_FILE"
+echo "HOST_NETWORK=$HOST_NETWORK" >> "$ENV_FILE"
 
 
 # start docker containers
