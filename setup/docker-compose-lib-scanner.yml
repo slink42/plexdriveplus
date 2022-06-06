@@ -161,7 +161,6 @@ services:
             retries: 3
             start_period: 10s
     plex_scanner:
-        # container_name: pdp-plex-scanner
         networks:
             - bridge
             - internal
