@@ -367,10 +367,10 @@ sed -i '/PLEX_CLAIM/'d "$ENV_FILE"
 echo "PLEX_CLAIM=$PLEX_CLAIM_ID" >> "$ENV_FILE"
 
 # check for host network compatibility. HOST_NETWORK env var used in docker compose 
-HOST_NETWORK = "bridge"
+HOST_NETWORK=bridge
 if [[ "$OSTYPE" == "linux-gnu"* ]]; then
         # ...
-        HOST_NETWORK = "host"
+        HOST_NETWORK=host
 elif [[ "$OSTYPE" == "darwin"* ]]; then
         # Mac OSX
 elif [[ "$OSTYPE" == "cygwin" ]]; then
@@ -381,7 +381,7 @@ elif [[ "$OSTYPE" == "win32" ]]; then
         # I'm not sure this can happen.
 elif [[ "$OSTYPE" == "freebsd"* ]]; then
         # ...
-        HOST_NETWORK = "host"
+        HOST_NETWORK=host
 else
         # Unknown.
 fi
