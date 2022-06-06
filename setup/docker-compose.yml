@@ -25,6 +25,7 @@ services:
             - '${DOCKER_ROOT}/rclone/:/config:rw'
             - '${DOCKER_ROOT}/scripts/:/scripts:ro'
             - '${DOCKER_ROOT}/mnt/rclone/secure_media:/data:rshared'
+            - empty_volume:/local
         networks:
             - bridge
             - internal
@@ -66,6 +67,7 @@ services:
             - '${DOCKER_ROOT}/rclone/:/config:rw'
             - '${DOCKER_ROOT}/scripts/:/scripts:ro'
             - '${DOCKER_ROOT}/mnt/rclone/secure_media2:/data:rshared'
+            - empty_volume:/local
         networks:
             - bridge
             - internal
@@ -107,6 +109,7 @@ services:
             - '${DOCKER_ROOT}/rclone/:/config:rw'
             - '${DOCKER_ROOT}/scripts/:/scripts:ro'
             - '${DOCKER_ROOT}/mnt/rclone/secure_media3:/data:rshared'
+            - empty_volume:/local
         networks:
             - bridge
             - internal
@@ -146,9 +149,8 @@ services:
             - '${DOCKER_ROOT}/scripts/:/scripts:ro'
             - '${DOCKER_ROOT}/plexdrive/cache:/cache:rw'
             - '${DOCKER_ROOT}/mnt/plexdrive/secure_media:/data:rshared'
-            - '${DOCKER_ROOT}/mnt/plexdrive/local:/local:rshared'
             - '${DOCKER_ROOT}/mnt/plexdrive/cloud:/cloud:rshared'
-            # - '${DOCKER_ROOT}/mnt/plexdrive/local:/local:rshared'
+            - empty_volume:/local
         networks:
             - bridge
             - internal
@@ -187,6 +189,7 @@ services:
             - '${DOCKER_ROOT}/scripts/:/scripts:ro'
             - '${DOCKER_ROOT}/mnt/plexdrive/secure_media/:/mnt/plexdrive'
             - '${DOCKER_ROOT}/mnt/rclone/plexdrive_secure_media:/data:rshared'
+            - empty_volume:/local
         networks:
             - bridge
             - internal
@@ -312,3 +315,6 @@ services:
             - /var/run/docker.sock:/var/run/docker.sock
         networks:
             - internal
+
+volumes:
+    empty_volume:
