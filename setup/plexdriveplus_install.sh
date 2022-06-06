@@ -366,31 +366,42 @@ fi
 sed -i '/PLEX_CLAIM/'d "$ENV_FILE"
 echo "PLEX_CLAIM=$PLEX_CLAIM_ID" >> "$ENV_FILE"
 
+
+
 # check for host network compatibility. HOST_NETWORK env var used in docker compose
 if [[ "$OSTYPE" == "linux-gnu"* ]]; then
         # ...
-        HOST_NETWORK=hostnet
+        HOST_NETWORK=""
+        HOST_NETWORK_MODE="host"
 elif [[ "$OSTYPE" == "darwin"* ]]; then
         # Mac OSX
-        HOST_NETWORK=bridge
+        HOST_NETWORK="bridge"
+        HOST_NETWORK_MODE="bridge"
 elif [[ "$OSTYPE" == "cygwin" ]]; then
         # POSIX compatibility layer and Linux environment emulation for Windows
-        HOST_NETWORK=bridge
+        HOST_NETWORK="bridge"
+        HOST_NETWORK_MODE="bridge"
 elif [[ "$OSTYPE" == "msys" ]]; then
         # Lightweight shell and GNU utilities compiled for Windows (part of MinGW)
-        HOST_NETWORK=bridge
+        HOST_NETWORK="bridge"
+        HOST_NETWORK_MODE="bridge"
 elif [[ "$OSTYPE" == "win32" ]]; then
         # I'm not sure this can happen.
-        HOST_NETWORK=bridge
+        HOST_NETWORK="bridge"
+        HOST_NETWORK_MODE="bridge"
 elif [[ "$OSTYPE" == "freebsd"* ]]; then
         # ...
-        HOST_NETWORK=hostnet
+        HOST_NETWORK=""
+        HOST_NETWORK_MODE="host"
 else
         # Unknown.
-        HOST_NETWORK=bridge
+        HOST_NETWORK="bridge"
+        HOST_NETWORK_MODE="bridge"
 fi
 sed -i '/HOST_NETWORK/'d "$ENV_FILE"
 echo "HOST_NETWORK=$HOST_NETWORK" >> "$ENV_FILE"
+sed -i '/HOST_NETWORK_MODE/'d "$ENV_FILE"
+echo "HOST_NETWORK_MODE=$HOST_NETWORK" >> "$ENV_FILE"
 
 
 # start docker containers
