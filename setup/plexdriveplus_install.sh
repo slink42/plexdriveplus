@@ -369,7 +369,7 @@ echo "PLEX_CLAIM=$PLEX_CLAIM_ID" >> "$ENV_FILE"
 # check for host network compatibility. HOST_NETWORK env var used in docker compose
 if [[ "$OSTYPE" == "linux-gnu"* ]]; then
         # ...
-        HOST_NETWORK=host
+        HOST_NETWORK=hostnet
 elif [[ "$OSTYPE" == "darwin"* ]]; then
         # Mac OSX
         HOST_NETWORK=bridge
@@ -384,7 +384,7 @@ elif [[ "$OSTYPE" == "win32" ]]; then
         HOST_NETWORK=bridge
 elif [[ "$OSTYPE" == "freebsd"* ]]; then
         # ...
-        HOST_NETWORK=host
+        HOST_NETWORK=hostnet
 else
         # Unknown.
         HOST_NETWORK=bridge

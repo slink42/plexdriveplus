@@ -258,7 +258,7 @@ services:
             start_period: 10s
     plex_streamer:
         networks:
-            - hostnet
+            hostnet: {}
         restart: unless-stopped
         labels:
             - "autoheal=true"
