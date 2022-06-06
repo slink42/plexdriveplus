@@ -4,7 +4,8 @@ networks:
         internal: true
     bridge:
         driver: bridge
-    host:
+    hostnet:
+        external: true
         name: host
 services:
     rclone_media1:
@@ -257,7 +258,7 @@ services:
             start_period: 10s
     plex_streamer:
         networks:
-            - bridge
+            - hostnet
         restart: unless-stopped
         labels:
             - "autoheal=true"
