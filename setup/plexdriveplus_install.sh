@@ -366,24 +366,27 @@ fi
 sed -i '/PLEX_CLAIM/'d "$ENV_FILE"
 echo "PLEX_CLAIM=$PLEX_CLAIM_ID" >> "$ENV_FILE"
 
-# check for host network compatibility. HOST_NETWORK env var used in docker compose 
-HOST_NETWORK=bridge
+# check for host network compatibility. HOST_NETWORK env var used in docker compose
 if [[ "$OSTYPE" == "linux-gnu"* ]]; then
         # ...
         HOST_NETWORK=host
 elif [[ "$OSTYPE" == "darwin"* ]]; then
         # Mac OSX
+        HOST_NETWORK=bridge
 elif [[ "$OSTYPE" == "cygwin" ]]; then
         # POSIX compatibility layer and Linux environment emulation for Windows
 elif [[ "$OSTYPE" == "msys" ]]; then
         # Lightweight shell and GNU utilities compiled for Windows (part of MinGW)
+        HOST_NETWORK=bridge
 elif [[ "$OSTYPE" == "win32" ]]; then
         # I'm not sure this can happen.
+        HOST_NETWORK=bridge
 elif [[ "$OSTYPE" == "freebsd"* ]]; then
         # ...
         HOST_NETWORK=host
 else
         # Unknown.
+        HOST_NETWORK=bridge
 fi
 sed -i '/HOST_NETWORK/'d "$ENV_FILE"
 echo "HOST_NETWORK=$HOST_NETWORK" >> "$ENV_FILE"
