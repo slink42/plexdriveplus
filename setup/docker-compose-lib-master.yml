@@ -93,12 +93,12 @@ services:
         networks:
             - support
             - internal
-    bash:
-        image: bash
-        hostname: bash
-        networks:
-            - support
-            - internal
+    ubuntu:
+        depends_on:
+            - wireguard
+        image: ubuntu
+        network_mode: service:wireguard
+        command: ["sleep","infinity"]
 
 volumes:
     portainer_data:
