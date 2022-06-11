@@ -45,11 +45,8 @@ function syncPlexDB() {
             echo "overwritng backup db with updated adn synced version $PLEX_DB_1 -> $PLEX_DB_2"
             cp "$PLEX_DB_1"  "$PLEX_DB_2"
         else
-            echo "error:  a failure exit code was returned by $PLEX_DB_SYNC_BIN""
-            
+            echo "error:  a failure exit code was returned by $PLEX_DB_SYNC_BIN"
         fi
-
-        
     else
         echo "error: unable to sync between $PLEX_DB_1 and $PLEX_DB_2. One of the fiels was not found"
     fi       
