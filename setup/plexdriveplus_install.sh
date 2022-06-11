@@ -155,7 +155,7 @@ if [ -d "${DOCKER_ROOT}/plex-streamer/custom-cont-init.d/" ]; then
         $SUDO rm -r "${DOCKER_ROOT}/plex-streamer/custom-cont-init.d/"
     fi
 fi
-tar xvzf "${DOCKER_ROOT}/plexdriveplus.tar.gz" --strip=1 -C "${DOCKER_ROOT}"
+tar xvzf "${DOCKER_ROOT}/plexdriveplus.tar.gz" --overwrite --strip=1 -C "${DOCKER_ROOT}"
 
 ### Rclone & Plexdrive setup
 
