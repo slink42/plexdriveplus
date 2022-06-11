@@ -1,7 +1,7 @@
 #!/bin/bash
 
 echo 
-echo "starting copy and sync of pelx master library to local working library path"
+echo "starting copy and sync of plex master library to local working library path"
 echo 
 
 if [ -z "$SCANNER_LIBRARY_PATH" ]; then SCANNER_LIBRARY_PATH=/mnt/plex-scanner/Library/Application\ Support/Plex\ Media\ Server; else echo "SCANNER_LIBRARY_PATH: $SCANNER_LIBRARY_PATH"; fi
