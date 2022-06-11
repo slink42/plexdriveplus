@@ -31,16 +31,19 @@ function syncPlexDB() {
     then
         PLEX_DB_SYNC_BIN=/scripts/plex/plex_db_sync.sh
         [ -f "$PLEX_DB_SYNC_BIN" ] || (wget https://raw.githubusercontent.com/Fmstrat/plex-db-sync/master/plex-db-sync -O "$PLEX_DB_SYNC_BIN")
+        [[ $(sqlite3 --version) ]] || (echo -e "${C_DODGERBLUE1}Installing sqlite3 for use in library maintenance${NO_FORMAT}!" && apt-get update && apt install sqlite3 -y)
+        [[ $(sshfs --version) ]] || (echo -e "${C_DODGERBLUE1}Installing sshfs for use in library maintenance${NO_FORMAT}!" && apt-get update && apt install sshfs -y)
 
         echo "making backup of backup db $PLEX_DB_2 -> $PLEX_DB_2-old2"
         cp "$PLEX_DB_2"  "$PLEX_DB_2-old2"
 
         echo "starting plex library db sync between live db: $PLEX_DB_1 and db backup: $PLEX_DB_2"
-        if [ $("$PLEX_DB_SYNC_BIN" --plex-db-1 "$PLEX_DB_1" --plex-db-2 "$PLEX_DB_2" \
+        "$PLEX_DB_SYNC_BIN" --plex-db-1 "$PLEX_DB_1" --plex-db-2 "$PLEX_DB_2" \
             --plex-start-1 "echo 'starts automaticly'" \
 	        --plex-stop-1 "echo 'running prior to plex startup, expected to already be stopped.'" \
       	    --plex-start-2 "echo 'library backup, nothing to start'" \
-	        --plex-stop-2 "echo 'library backup, nothing to stop.'") ]
+	        --plex-stop-2 "echo 'library backup, nothing to stop.'"
+        if [ -z "$SYNC_FAILURE" ]
         then
             echo "overwritng backup db with updated adn synced version $PLEX_DB_1 -> $PLEX_DB_2"
             cp "$PLEX_DB_1"  "$PLEX_DB_2"
