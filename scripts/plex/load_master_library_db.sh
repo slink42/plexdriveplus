@@ -14,15 +14,18 @@ MEDIA_MOUNT_CONTAINER_PATH="/config/Library/Application Support/Plex Media Serve
 MEDIA_MOUNT_CONTAINER_PATH_BACKUP="/config/Library/Application Support/Plex Media Server/Plug-in Support/Databases_Backup"
 RAM_DISK_PLEX_DATABASE_PATH="$RAM_DISK_PATH/Plug-in Support/Databases"
 
-mkdir -p  "$LIBRARY_MASTER_BACKUP_PATH"
-mkdir -p  "$MEDIA_MOUNT_CONTAINER_PATH"
-mkdir -p  "$MEDIA_MOUNT_CONTAINER_PATH_BACKUP"
-mkdir -p  "$RAM_DISK_PLEX_DATABASE_PATH"
+mkdir -p "$LIBRARY_MASTER_BACKUP_PATH"
+mkdir -p "$MEDIA_MOUNT_CONTAINER_PATH"
+chown -R -h abc:users "$MEDIA_MOUNT_CONTAINER_PATH"
+mkdir -p "$MEDIA_MOUNT_CONTAINER_PATH_BACKUP"
+chown -R -h abc:users "$MEDIA_MOUNT_CONTAINER_PATH_BACKUP"
+mkdir -p "$RAM_DISK_PLEX_DATABASE_PATH"
+chown -R -h abc:users "$RAM_DISK_PLEX_DATABASE_PATH"
 
 [ -z "$LOAD_LIBRARY_DB_TO_MEMORY" ] && LOAD_LIBRARY_DB_TO_MEMORY="NO"
 LIBRARY_FILES=( com.plexapp.plugins.library.db com.plexapp.plugins.library.blobs.db )
 
-mkdir -p  /config/Library/Application\ Support/Plex\ Media\ Server/
+mkdir -p /config/Library/Application\ Support/Plex\ Media\ Server/
 
 function syncPlexDB() {
     PLEX_DB_1=${1}
@@ -71,8 +74,8 @@ do
 
             echo "linking $LIBRARY_FILE_TARGET_PATH to $MEDIA_MOUNT_CONTAINER_PATH/$LIBRARY_FILE"
             ln --force -s "$LIBRARY_FILE_TARGET_PATH" "$MEDIA_MOUNT_CONTAINER_PATH/$LIBRARY_FILE"
-
-             # set plex user symlink as owner
+            
+            # set plex user symlink as owner
             chown -h abc:users "$MEDIA_MOUNT_CONTAINER_PATH/$LIBRARY_FILE"
         else
         
