@@ -5,7 +5,7 @@ echo "starting linkage plex library mount paths to library path"
 if [ -z "$SCANNER_LIBRARY_PATH" ]; then SCANNER_LIBRARY_PATH=/mnt/plex-scanner/Library/Application\ Support/Plex\ Media\ Server; else echo "SCANNER_LIBRARY_PATH: $SCANNER_LIBRARY_PATH"; fi
 if [ -z "$STREAMER_LIBRARY_PATH" ]; then STREAMER_LIBRARY_PATH=/mnt/plex-streamer/Library/Application\ Support/Plex\ Media\ Server; else echo "STREAMER_LIBRARY_PATH: $STREAMER_LIBRARY_PATH"; fi
 
-SCANNER_LIBRARY_FOLDERS=( Metadata Media "Plug-in Support" )
+SCANNER_LIBRARY_FOLDERS=( Metadata Media )
 
 mkdir -p  /config/Library/Application\ Support/Plex\ Media\ Server/
 
