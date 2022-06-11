@@ -286,7 +286,7 @@ services:
             - PUID=${USERID}
             - PGID=${GROUPID}
             # - OPTIMISE_LIBRARY=NO_DB_CLEAN # Any value is fine here.
-            - LOAD_LIBRARY_DB_TO_MEMORY=YES
+            #- LOAD_LIBRARY_DB_TO_MEMORY=YES
             - 'HEALTHCHECK_MOUNTS=/plex/media'
             - 'HEALTHCHECK_PATHS=/plex/media/mountcheck'
         volumes:
