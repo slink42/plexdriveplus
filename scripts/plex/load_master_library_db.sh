@@ -71,7 +71,7 @@ do
 
             echo "linking $LIBRARY_FILE_TARGET_PATH to $MEDIA_MOUNT_CONTAINER_PATH/$LIBRARY_FILE"
             ln --force -s "$LIBRARY_FILE_TARGET_PATH" "$MEDIA_MOUNT_CONTAINER_PATH/$LIBRARY_FILE"
-            
+
              # set plex user symlink as owner
             chown -h abc:users "$MEDIA_MOUNT_CONTAINER_PATH/$LIBRARY_FILE"
         else
@@ -82,11 +82,11 @@ do
             if [ -f "$LIBRARY_FILE_TARGET_PATH" ]
             then
                 echo "making backup of $LIBRARY_FILE_TARGET_PATH to $BACKUP_LIBRARY_FILE_TARGET_PATH"
-                cp "$LIBRARY_FILE_TARGET_PATH"  "$BACKUP_LIBRARY_FILE_TARGET_PATH"
+                cp -f "$LIBRARY_FILE_TARGET_PATH"  "$BACKUP_LIBRARY_FILE_TARGET_PATH"
             fi
 
             echo "copying $MASTER_BACKUP_LIBRARY_FILE_PATH to $LIBRARY_FILE_TARGET_PATH"
-            cp "$MASTER_BACKUP_LIBRARY_FILE_PATH"  "$LIBRARY_FILE_TARGET_PATH"
+            cp -f "$MASTER_BACKUP_LIBRARY_FILE_PATH"  "$LIBRARY_FILE_TARGET_PATH"
         fi
 
         # set plex user symlink as owner
