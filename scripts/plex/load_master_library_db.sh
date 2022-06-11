@@ -45,13 +45,13 @@ function syncPlexDB() {
 	        --plex-stop-2 "echo 'library backup, nothing to stop.'"
         if [ -z "$SYNC_FAILURE" ]
         then
-            echo "overwritng backup db with updated adn synced version $PLEX_DB_1 -> $PLEX_DB_2"
+            echo "overwritng backup db with updated and synced version $PLEX_DB_1 -> $PLEX_DB_2"
             cp "$PLEX_DB_1"  "$PLEX_DB_2"
         else
             echo "error:  a failure exit code was returned by $PLEX_DB_SYNC_BIN"
         fi
     else
-        echo "error: unable to sync between $PLEX_DB_1 and $PLEX_DB_2. One of the fiels was not found"
+        echo "error: unable to sync between $PLEX_DB_1 and $PLEX_DB_2. One of the files was not found"
     fi       
 }
 
@@ -67,7 +67,7 @@ do
             LIBRARY_FILE_TARGET_PATH="$RAM_DISK_PLEX_DATABASE_PATH/$LIBRARY_FILE"
 
             echo "copying $MASTER_BACKUP_LIBRARY_FILE_PATH to $LIBRARY_FILE_TARGET_PATH"
-            cp "$MASTER_BACKUP_LIBRARY_FILE_PATH"  "$LIBRARY_FILE_TARGET_PATH"
+            cp --remove-destination "$MASTER_BACKUP_LIBRARY_FILE_PATH"  "$LIBRARY_FILE_TARGET_PATH"
 
             echo "linking $LIBRARY_FILE_TARGET_PATH to $MEDIA_MOUNT_CONTAINER_PATH/$LIBRARY_FILE"
             ln --force -s "$LIBRARY_FILE_TARGET_PATH" "$MEDIA_MOUNT_CONTAINER_PATH/$LIBRARY_FILE"
@@ -82,11 +82,11 @@ do
             if [ -f "$LIBRARY_FILE_TARGET_PATH" ]
             then
                 echo "making backup of $LIBRARY_FILE_TARGET_PATH to $BACKUP_LIBRARY_FILE_TARGET_PATH"
-                cp -f "$LIBRARY_FILE_TARGET_PATH"  "$BACKUP_LIBRARY_FILE_TARGET_PATH"
+                cp --remove-destination "$LIBRARY_FILE_TARGET_PATH"  "$BACKUP_LIBRARY_FILE_TARGET_PATH"
             fi
 
             echo "copying $MASTER_BACKUP_LIBRARY_FILE_PATH to $LIBRARY_FILE_TARGET_PATH"
-            cp -f "$MASTER_BACKUP_LIBRARY_FILE_PATH"  "$LIBRARY_FILE_TARGET_PATH"
+            cp --remove-destination "$MASTER_BACKUP_LIBRARY_FILE_PATH"  "$LIBRARY_FILE_TARGET_PATH"
         fi
 
         # set plex user symlink as owner

@@ -37,14 +37,12 @@ if [ -d "$PLEX_DATABASE_PATH" ]; then
     if ( [[ $LIBRARY_DB_CORRUPT = "TRUE" ]] && echo "Library DB corrupt, restoring from latest backup.") || ! [[ -z $FORCE_LIBRARY_RESTORE ]]; then
         if [[ -f "$BACKUP_BLOB_FILE" ]]; then
             echo "Loaded plex library db from backup: $BACKUP_FILE"
-            rm "${LIBRARY_FILE}"
-            cp "$BACKUP_FILE" "$LIBRARY_FILE"
+            cp --remove-destination "$BACKUP_FILE" "$LIBRARY_FILE"
             rm "${LIBRARY_FILE}-shm"
             rm "${LIBRARY_FILE}-wal"
 
             echo "Loaded plex library blobs from backup: $BACKUP_BLOB_FILE"
-            rm "${LIBRARY_BLOB_FILE}"
-            cp "$BACKUP_BLOB_FILE" "$LIBRARY_BLOB_FILE"
+            cp --remove-destination "$BACKUP_BLOB_FILE" "$LIBRARY_BLOB_FILE"
             rm "${LIBRARY_BLOB_FILE}-shm"
             rm "${LIBRARY_BLOB_FILE}-wal"
         else
