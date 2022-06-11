@@ -65,7 +65,7 @@ do
             cp "$MASTER_BACKUP_LIBRARY_FILE_PATH"  "$LIBRARY_FILE_TARGET_PATH"
 
             echo "linking $LIBRARY_FILE_TARGET_PATH to $MEDIA_MOUNT_CONTAINER_PATH/$LIBRARY_FILE"
-            ln --force "$LIBRARY_FILE_TARGET_PATH" "$MEDIA_MOUNT_CONTAINER_PATH/$LIBRARY_FILE"
+            ln --force -s "$LIBRARY_FILE_TARGET_PATH" "$MEDIA_MOUNT_CONTAINER_PATH/$LIBRARY_FILE"
         else
         
             echo "setting default library path for working copy of $LIBRARY_FILE"

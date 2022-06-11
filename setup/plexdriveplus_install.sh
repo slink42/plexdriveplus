@@ -6,6 +6,9 @@ echo
 # set version to download a specific release of slink42/plexdriveplus, otherwise current master branch will be used
 PDP_VERSION=
 
+# set branch to download a specific branch, otherwise current master branch will be used
+PDP_BRANCH=feature_user-watch-history
+
 # set to any value to force script to use config files from cloud overwriting any local copies that exist
 USE_CLOUD_CONFIG=
 
@@ -141,7 +144,8 @@ fi
 mkdir -p "$DOCKER_ROOT/rclone"
 
 # Download docker-compose and other setup file
-[[ -z "$PDP_VERSION" ]] && PDP_URL="https://github.com/slink42/plexdriveplus/archive/master.tar.gz" || PDP_URL="https://github.com/slink42/plexdriveplus/archive/refs/tags/${PDP_VERSION}.tar.gz"
+[ -z "$PDP_BRANCH" ]] && PDP_BRANCH=master
+[[ -z "$PDP_VERSION" ]] && PDP_URL="https://github.com/slink42/plexdriveplus/archive/$PDP_BRANCH.tar.gz" || PDP_URL="https://github.com/slink42/plexdriveplus/archive/refs/tags/${PDP_VERSION}.tar.gz"
 # remove existing custom-cont-init.d scripts if they exist to ensure only scripts downloaded remain for running at plex startup
 wget --no-check-certificate --content-disposition ${PDP_URL} -O "${DOCKER_ROOT}/plexdriveplus.tar.gz"
 if [ -d "${DOCKER_ROOT}/plex-streamer/custom-cont-init.d/" ]; then
