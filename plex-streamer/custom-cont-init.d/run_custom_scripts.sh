@@ -14,9 +14,8 @@ bash /scripts/plex/restore-library-backup.sh
 # Ensure library files synced from cloud are accesible by plex
 bash /scripts/plex/fix-library-permissions.sh
 
-# Optimise plex database and load to memory
-bash /scripts/plex/cache_plex_library.sh
-
+# Load latest version of library database from master backups
+bash /scripts/plex/load_master_library_db.sh
 
 echo
 echo "$(date) - Plex custom startup scripts finished"
