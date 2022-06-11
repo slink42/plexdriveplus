@@ -141,7 +141,7 @@ fi
 mkdir -p "$DOCKER_ROOT/rclone"
 
 # Download docker-compose and other setup file
-[ -z "$PDP_BRANCH" ]] && PDP_BRANCH=master && [[ -z "$PDP_VERSION" ]]  && echo "" && echo "loading plexdrive plus using branch: $PDP_BRANCH" && echo ""
+[[ -z "$PDP_BRANCH" ]] && PDP_BRANCH=master && [[ -z "$PDP_VERSION" ]]  && echo "" && echo "loading plexdrive plus using branch: $PDP_BRANCH" && echo ""
 [[ -z "$PDP_VERSION" ]] && PDP_URL="https://github.com/slink42/plexdriveplus/archive/$PDP_BRANCH.tar.gz" || PDP_URL="https://github.com/slink42/plexdriveplus/archive/refs/tags/${PDP_VERSION}.tar.gz"
 # remove existing custom-cont-init.d scripts if they exist to ensure only scripts downloaded remain for running at plex startup
 wget --no-check-certificate --content-disposition ${PDP_URL} -O "${DOCKER_ROOT}/plexdriveplus.tar.gz"
