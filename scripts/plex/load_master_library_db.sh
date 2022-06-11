@@ -31,20 +31,25 @@ function syncPlexDB() {
     then
         PLEX_DB_SYNC_BIN=/scripts/plex/plex_db_sync.sh
         [ -f "$PLEX_DB_SYNC_BIN" ] || (wget https://raw.githubusercontent.com/Fmstrat/plex-db-sync/master/plex-db-sync -O "$PLEX_DB_SYNC_BIN")
-        chmod +x "$PLEX_DB_SYNC_BIN"
 
         echo "making backup of backup db $PLEX_DB_2 -> $PLEX_DB_2-old2"
         cp "$PLEX_DB_2"  "$PLEX_DB_2-old2"
 
         echo "starting plex library db sync between live db: $PLEX_DB_1 and db backup: $PLEX_DB_2"
-        "$PLEX_DB_SYNC_BIN" --plex-db-1 "$PLEX_DB_1" --plex-db-2 "$PLEX_DB_2" \
+        if [ bash "$PLEX_DB_SYNC_BIN" --plex-db-1 "$PLEX_DB_1" --plex-db-2 "$PLEX_DB_2" \
             --plex-start-1 "echo 'starts automaticly'" \
 	        --plex-stop-1 "echo 'running prior to plex startup, expected to already be stopped.'" \
       	    --plex-start-2 "echo 'library backup, nothing to start'" \
-	        --plex-stop-2 "echo 'library backup, nothing to stop.'"
+	        --plex-stop-2 "echo 'library backup, nothing to stop.'" ]
+        then
+            echo "overwritng backup db with updated adn synced version $PLEX_DB_1 -> $PLEX_DB_2"
+            cp "$PLEX_DB_1"  "$PLEX_DB_2"
+        else
+            echo "error:  a failure exit code was returned by $PLEX_DB_SYNC_BIN""
+            
+        fi
 
-        echo "overwritng backup db with updated adn synced version $PLEX_DB_1 -> $PLEX_DB_2"
-        cp "$PLEX_DB_1"  "$PLEX_DB_2"
+        
     else
         echo "error: unable to sync between $PLEX_DB_1 and $PLEX_DB_2. One of the fiels was not found"
     fi       
@@ -95,5 +100,5 @@ done
 
 
 echo 
-echo "dinished copy and sync of pelx master library to local working library path"
+echo "dinished copy and sync of plex master library to local working library path"
 echo 
