@@ -339,6 +339,7 @@ echo "Chainging dir ownership to root:root for {DOCKER_ROOT}/plex-streamer/custo
 $SUDO chown -R root:root "${DOCKER_ROOT}/plex-streamer/custom-cont-init.d" # needs to be owned by root to run / for security
 mkdir -p "${DOCKER_ROOT}/plex-streamer/transcode"
 mkdir -p "${DOCKER_ROOT}/scripts/"
+chmod -R +x "${DOCKER_ROOT}/scripts/"
 
 # copy generic Plex Preferences.xml
 mkdir -p "$DOCKER_ROOT/plex-streamer/Library/Application Support/Plex Media Server/"

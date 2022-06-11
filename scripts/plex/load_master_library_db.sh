@@ -36,7 +36,7 @@ function syncPlexDB() {
         cp "$PLEX_DB_2"  "$PLEX_DB_2-old2"
 
         echo "starting plex library db sync between live db: $PLEX_DB_1 and db backup: $PLEX_DB_2"
-        if [ bash "$PLEX_DB_SYNC_BIN" --plex-db-1 "$PLEX_DB_1" --plex-db-2 "$PLEX_DB_2" \
+        if [ "$PLEX_DB_SYNC_BIN" --plex-db-1 "$PLEX_DB_1" --plex-db-2 "$PLEX_DB_2" \
             --plex-start-1 "echo 'starts automaticly'" \
 	        --plex-stop-1 "echo 'running prior to plex startup, expected to already be stopped.'" \
       	    --plex-start-2 "echo 'library backup, nothing to start'" \
