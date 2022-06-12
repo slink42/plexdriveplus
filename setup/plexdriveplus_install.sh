@@ -27,6 +27,30 @@ fi
 }
 
 
+function prepareVolumeMountPath() {
+    MOUNT_PATH=$1
+    MOUNT_TYPE=$2
+    mkdir -p "$MOUNT_PATH"
+    if ! [[ $(ls $MOUNT_PATH) ]]
+    then
+        echo "warning:inital attempt to prepare $MOUNT_PATH failed. Tring again after forcing any existing moutns to the path to disconnect"
+        $SUDO fusermount -uz "$MOUNT_PATH" 2>/dev/null
+        mkdir -p "$MOUNT_PATH"
+        if ! [[ $(ls $MOUNT_PATH) ]]
+        then
+            echo "error: attempts to prepare $MOUNT_PATH for used as a volumn bind point failed. Manual intervention required"
+            exit 1
+        fi
+    fi
+
+    if [ "$MOUNT_TYPE" = 'executable_dir' ]
+    then
+        echo "setting contents of $MOUNT_PATH as execuatable and owner by root user"
+        chmod -R +x "${MOUNT_PATH}"
+        $SUDO chown -R root:root "${MOUNT_PATH}" # needs to be owned by root for security
+    fi
+}
+
 # ENV_FILE=install.env
 INSTALL_ENV_FILE=install.env
 [[ -z "$1" ]] || INSTALL_ENV_FILE=$1
@@ -222,45 +246,27 @@ if [[ $management_mode = "2" ]] || [[ $management_mode = "3" ]]; then
 
 
     # make sure paths aren't mounted
-    fusermount -uz "$DOCKER_ROOT/mnt/rclone/scanner_secure_media" 2>/dev/null
-    fusermount -uz "$DOCKER_ROOT/mnt/rclone/scanner_secure_media2" 2>/dev/null
-    fusermount -uz "$DOCKER_ROOT/mnt/rclone/scanner_secure_media3" 2>/dev/null
-    fusermount -uz "$DOCKER_ROOT/mnt/mergerfs/scanner_secure_media" 2>/dev/null
-
-    mkdir -p "$DOCKER_ROOT/mnt/rclone/scanner_secure_media"
-    mkdir -p "$DOCKER_ROOT/mnt/rclone/scanner_secure_media2"
-    mkdir -p "$DOCKER_ROOT/mnt/rclone/scanner_secure_media3"
-    mkdir -p "$DOCKER_ROOT/mnt/mergerfs/scanner_secure_media"
+    prepareVolumeMountPath "$DOCKER_ROOT/mnt/rclone/scanner_secure_media"
+    prepareVolumeMountPath "$DOCKER_ROOT/mnt/rclone/scanner_secure_media2"
+    prepareVolumeMountPath "$DOCKER_ROOT/mnt/rclone/scanner_secure_media3"
+    prepareVolumeMountPath "$DOCKER_ROOT/mnt/mergerfs/scanner_secure_media"
 fi
 
 ## make sure scanner rclone paths aren't mounted
 # rclone
-fusermount -uz "$DOCKER_ROOT/mnt/rclone/secure_media" 2>/dev/null
-fusermount -uz "$DOCKER_ROOT/mnt/rclone/secure_media2" 2>/dev/null
-fusermount -uz "$DOCKER_ROOT/mnt/rclone/secure_media3" 2>/dev/null
+prepareVolumeMountPath "$DOCKER_ROOT/mnt/rclone/secure_media"
+prepareVolumeMountPath "$DOCKER_ROOT/mnt/rclone/secure_media2"
+prepareVolumeMountPath "$DOCKER_ROOT/mnt/rclone/secure_media3"
 # plexdrive & it rclone crypt
-fusermount -uz "$DOCKER_ROOT/mnt/plexdrive/secure_media" 2>/dev/null
-fusermount -uz "$DOCKER_ROOT/mnt/plexdrive/cloud" 2>/dev/null # need to use mergerfs in plexdrive container as workaround, otherwise mount doesn't get exposed to host properly
-fusermount -uz "$DOCKER_ROOT/mnt/plexdrive/local" 2>/dev/null
-fusermount -uz "$DOCKER_ROOT/mnt/rclone/plexdrive_secure_media" 2>/dev/null
-fusermount -uz "$DOCKER_ROOT/mnt/rclone/plexdrive_secure_media" 2>/dev/null
+prepareVolumeMountPath "$DOCKER_ROOT/mnt/plexdrive/secure_media"
+prepareVolumeMountPath "$DOCKER_ROOT/mnt/plexdrive/cloud" # need to use mergerfs in plexdrive container as workaround, otherwise mount doesn't get exposed to host properly
+prepareVolumeMountPath "$DOCKER_ROOT/mnt/plexdrive/local"
+prepareVolumeMountPath "$DOCKER_ROOT/mnt/rclone/plexdrive_secure_media"
+prepareVolumeMountPath "$DOCKER_ROOT/mnt/rclone/plexdrive_secure_media"
 # mergerfs
-fusermount -uz "$DOCKER_ROOT/mnt/mergerfs/secure_media" 2>/dev/null
-fusermount -uz "$DOCKER_ROOT/mnt/mergerfs/streamer" 2>/dev/null
-fusermount -uz "${DOCKER_ROOT}/mnt/mergerfs/streamer"
-
-# rclone
-mkdir -p "$DOCKER_ROOT/mnt/rclone/secure_media"
-mkdir -p "$DOCKER_ROOT/mnt/rclone/secure_media2"
-mkdir -p "$DOCKER_ROOT/mnt/rclone/secure_media3"
-# plexdrive & it rclone crypt
-mkdir -p "$DOCKER_ROOT/mnt/plexdrive/secure_media"
-mkdir -p "$DOCKER_ROOT/mnt/plexdrive/cloud"
-mkdir -p "$DOCKER_ROOT/mnt/plexdrive/local"
-mkdir -p "$DOCKER_ROOT/mnt/rclone/plexdrive_secure_media"
-# mergerfs
-mkdir -p "$DOCKER_ROOT/mnt/mergerfs/secure_media"
-mkdir -p "${DOCKER_ROOT}/mnt/mergerfs/streamer"
+prepareVolumeMountPath "$DOCKER_ROOT/mnt/mergerfs/secure_media"
+prepareVolumeMountPath "$DOCKER_ROOT/mnt/mergerfs/streamer"
+prepareVolumeMountPath "${DOCKER_ROOT}/mnt/mergerfs/streamer"
 
 ## copy gdrive mount tokens to plexdrive
 echo "copying rclone token to plexdrive"
@@ -344,23 +350,20 @@ sed -i '/DOCKER_ROOT/'d "$ENV_FILE"
 echo "DOCKER_ROOT=$DOCKER_ROOT" >> "$ENV_FILE"
 
 # Create paths mounted by docker beforehand to ensure they are owned by current user rather than root
-mkdir -p "${DOCKER_ROOT}/mnt/mergerfs/streamer/media"
-mkdir -p "${DOCKER_ROOT}/mnt/mergerfs/scanner/media"
-mkdir -p "${DOCKER_ROOT}/plex-scanner/Library/Application Support/Plex Media Server/Plug-in Support/"
-mkdir -p "${DOCKER_ROOT}/plex-scanner/Library/Application Support/Plex Media Server/Metadata/"
-mkdir -p "${DOCKER_ROOT}/plex-scanner/Library/Application Support/Plex Media Server/Media/"
-mkdir -p "${DOCKER_ROOT}/mnt/rclone/plexdrive_secure_media/Media/movies-4k/"
-mkdir -p "${DOCKER_ROOT}/mnt/rclone/plexdrive_secure_media/Media/tv-4k/"
+prepareVolumeMountPath "${DOCKER_ROOT}/mnt/mergerfs/streamer/media"
+prepareVolumeMountPath "${DOCKER_ROOT}/mnt/mergerfs/scanner/media"
+prepareVolumeMountPath "${DOCKER_ROOT}/plex-scanner/Library/Application Support/Plex Media Server/Plug-in Support/"
+prepareVolumeMountPath "${DOCKER_ROOT}/plex-scanner/Library/Application Support/Plex Media Server/Metadata/"
+prepareVolumeMountPath "${DOCKER_ROOT}/plex-scanner/Library/Application Support/Plex Media Server/Media/"
+prepareVolumeMountPath "${DOCKER_ROOT}/mnt/rclone/plexdrive_secure_media/Media/movies-4k/"
+prepareVolumeMountPath "${DOCKER_ROOT}/mnt/rclone/plexdrive_secure_media/Media/tv-4k/"
 
-mkdir -p "${DOCKER_ROOT}/plex-streamer/custom-cont-init.d"
-echo "Chainging dir ownership to root:root for {DOCKER_ROOT}/plex-streamer/custom-cont-init.d. Required by rclone container security checks"
-$SUDO chown -R root:root "${DOCKER_ROOT}/plex-streamer/custom-cont-init.d" # needs to be owned by root to run / for security
-mkdir -p "${DOCKER_ROOT}/plex-streamer/transcode"
-mkdir -p "${DOCKER_ROOT}/scripts/"
-chmod -R +x "${DOCKER_ROOT}/scripts/"
+prepareVolumeMountPath "${DOCKER_ROOT}/plex-streamer/custom-cont-init.d" executable_dir
+prepareVolumeMountPath "${DOCKER_ROOT}/plex-streamer/transcode"
+prepareVolumeMountPath "${DOCKER_ROOT}/scripts/" executable_dir
 
 # copy generic Plex Preferences.xml
-mkdir -p "$DOCKER_ROOT/plex-streamer/Library/Application Support/Plex Media Server/"
+prepareVolumeMountPath "$DOCKER_ROOT/plex-streamer/Library/Application Support/Plex Media Server/"
 PLEX_PREF_MASTER="$DOCKER_ROOT/setup/plex_streamer_Preferences.xml" 
 [ -f "$PLEX_PREF_MASTER" ] || PLEX_PREF_MASTER="$DOCKER_ROOT/setup/Preferences.xml"
 if [[ -z "$USE_CLOUD_CONFIG" ]] && [ -f "$DOCKER_ROOT/plex-streamer/Library/Application Support/Plex Media Server/Preferences.xml" ]; then
