@@ -61,7 +61,7 @@ function prepareVolumeMountPath() {
     if [ "$MOUNT_TYPE" = 'executable_dir' ]
     then
         echo "setting contents of $MOUNT_PATH as executable and owned by root user"
-        chmod -R +x "${MOUNT_PATH}"
+        $SUDO chmod -R +x "${MOUNT_PATH}"
         $SUDO chown -R root:root "${MOUNT_PATH}" # needs to be owned by root for security
     fi
 }
