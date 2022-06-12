@@ -9,21 +9,28 @@ PDP_VERSION=
 # set to any value to force script to use config files from cloud overwriting any local copies that exist
 USE_CLOUD_CONFIG=
 
-function configPlexRamDisk() {
-if [ $(cat /proc/meminfo | grep MemTotal  | tr -dc '[0-9]') -ge 8388608 ]
-then
-    FN_ENV_FILE=$1
-    echo "8 GB Ram or more, set plex library to load to ramdisk"
-    
-    sed -i '/LOAD_LIBRARY_DB_TO_MEMORY/'d "$FN_ENV_FILE"
-    echo "LOAD_LIBRARY_DB_TO_MEMORY=YES" >> "$FN_ENV_FILE"
-else
-    echo "Less than 8 GB Ram, setting plex library to load to normal disk"
-    
-    sed -i '/LOAD_LIBRARY_DB_TO_MEMORY/'d "$FN_ENV_FILE"
-    echo "LOAD_LIBRARY_DB_TO_MEMORY=NO" >> "$FN_ENV_FILE"
 
-fi
+function updateEnvFile() {
+    env_file=$1
+    var=$2
+    value=$3
+    echo "adding $var=$value to $env_file"
+    
+    sed -i '/$var/'d "$env_file"
+    echo "$var=$value" >> "$env_file"
+}
+
+function configPlexRamDisk() {
+    if [ $(cat /proc/meminfo | grep MemTotal  | tr -dc '[0-9]') -ge 8388608 ]
+    then
+        env_file=$1
+        echo "8 GB Ram or more, set plex library to load to ramdisk"
+        updateEnvFile "$env_file" "LOAD_LIBRARY_DB_TO_MEMORY" "YES"
+    else
+        echo "Less than 8 GB Ram, setting plex library to load to normal disk"
+        
+        updateEnvFile "$env_file" "LOAD_LIBRARY_DB_TO_MEMORY" "NO"
+    fi
 }
 
 
