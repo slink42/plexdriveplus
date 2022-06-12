@@ -49,7 +49,7 @@ services:
             - bridge
             - internal
         hostname: heimdall
-        restart: unless-stopped
+        restart: always
     nginx:
         image: lscr.io/linuxserver/nginx:latest
         cap_add:
@@ -67,7 +67,7 @@ services:
             - bridge
             - internal
         hostname: nginx
-        restart: unless-stopped
+        restart: always
 #   rclone:
 #     image: docker.io/rclone/rclone:1.50
 #     stdin_open: true

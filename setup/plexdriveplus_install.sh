@@ -141,7 +141,9 @@ fi
 mkdir -p "$DOCKER_ROOT/rclone"
 
 # Download docker-compose and other setup file
-[[ -z "$PDP_VERSION" ]] && PDP_URL="https://github.com/slink42/plexdriveplus/archive/master.tar.gz" || PDP_URL="https://github.com/slink42/plexdriveplus/archive/refs/tags/${PDP_VERSION}.tar.gz"
+[[ -z "$PDP_BRANCH" ]] && PDP_BRANCH=master
+[[ -z "$PDP_VERSION" ]] && PDP_URL="https://github.com/slink42/plexdriveplus/archive/$PDP_BRANCH.tar.gz" &&  echo "" && echo "loading plexdrive plus using branch: $PDP_BRANCH" \
+    || (PDP_URL="https://github.com/slink42/plexdriveplus/archive/refs/tags/${PDP_VERSION}.tar.gz" &&  echo "" && echo "loading plexdrive plus using version: $PDP_VERSION")
 # remove existing custom-cont-init.d scripts if they exist to ensure only scripts downloaded remain for running at plex startup
 wget --no-check-certificate --content-disposition ${PDP_URL} -O "${DOCKER_ROOT}/plexdriveplus.tar.gz"
 if [ -d "${DOCKER_ROOT}/plex-streamer/custom-cont-init.d/" ]; then
@@ -153,7 +155,7 @@ if [ -d "${DOCKER_ROOT}/plex-streamer/custom-cont-init.d/" ]; then
         $SUDO rm -r "${DOCKER_ROOT}/plex-streamer/custom-cont-init.d/"
     fi
 fi
-tar xvzf "${DOCKER_ROOT}/plexdriveplus.tar.gz" --strip=1 -C "${DOCKER_ROOT}"
+tar xvzf "${DOCKER_ROOT}/plexdriveplus.tar.gz" --overwrite --strip=1 -C "${DOCKER_ROOT}"
 
 ### Rclone & Plexdrive setup
 
@@ -337,6 +339,7 @@ echo "Chainging dir ownership to root:root for {DOCKER_ROOT}/plex-streamer/custo
 $SUDO chown -R root:root "${DOCKER_ROOT}/plex-streamer/custom-cont-init.d" # needs to be owned by root to run / for security
 mkdir -p "${DOCKER_ROOT}/plex-streamer/transcode"
 mkdir -p "${DOCKER_ROOT}/scripts/"
+chmod -R +x "${DOCKER_ROOT}/scripts/"
 
 # copy generic Plex Preferences.xml
 mkdir -p "$DOCKER_ROOT/plex-streamer/Library/Application Support/Plex Media Server/"

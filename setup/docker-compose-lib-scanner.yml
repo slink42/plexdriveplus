@@ -164,7 +164,7 @@ services:
         networks:
             - bridge
             - internal
-        restart: unless-stopped
+        restart: always
         labels:
             - "autoheal=true"
         environment:
@@ -209,7 +209,7 @@ services:
             - UMASK=022
         volumes:
             - '${DOCKER_ROOT}/plex-meta-manager:/config'
-        restart: unless-stopped
+        restart: always
         networks:
             - bridge
             - internal

@@ -261,7 +261,7 @@ services:
         # networks:
         #     - bridge
         #     - internal
-        restart: unless-stopped
+        restart: always
         labels:
             - "autoheal=true"
         environment:
@@ -285,7 +285,7 @@ services:
             - UDP_PORT_32414=32414
             - PUID=${USERID}
             - PGID=${GROUPID}
-            - OPTIMISE_LIBRARY=NO_DB_CLEAN # Any value is fine here.
+            - LOAD_LIBRARY_DB_TO_MEMORY=YES
             - 'HEALTHCHECK_MOUNTS=/plex/media'
             - 'HEALTHCHECK_PATHS=/plex/media/mountcheck'
         volumes:
@@ -294,6 +294,8 @@ services:
             - '${DOCKER_ROOT}/plex-scanner/:/mnt/plex-scanner:rw'
             - '${DOCKER_ROOT}/plex-streamer/:/config:rw'
             - '${DOCKER_ROOT}/scripts/:/scripts:ro'
+        tmpfs:
+            - /ram_disk
         ports:
             - "32400:32400"
         image: linuxserver/plex

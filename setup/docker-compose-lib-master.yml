@@ -69,12 +69,13 @@ services:
             - LOG_CONFS=true #optional
         volumes:
             - ${DOCKER_ROOT}/wireguard:/config
-        restart: unless-stopped
+        restart: always
         networks:
             - support
         ports:
             - ${WIREGUARD_SERVERPORT}:51820/udp
     portainer_agent:
+        restart: always
         image: portainer/agent
         hostname: portainer_agent
         volumes:
@@ -83,6 +84,7 @@ services:
         networks:
             - internal
     portainer_portal:
+        restart: always
         image: portainer/portainer-ce
         command: -H tcp://portainer_agent:9001 --tlsskipverify
         hostname: portainer_portal
