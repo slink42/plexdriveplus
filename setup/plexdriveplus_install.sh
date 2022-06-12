@@ -21,7 +21,7 @@ function updateEnvFile() {
         sed -i '/$var/'d "$env_file"
     fi
 
-    if ! [ "$mode" = "check" ] || ! [[ $(cat $ENV_FILE | grep USERID) ]]
+    if ! [ "$mode" = "check" ] || ! [[ $(cat $env_file | grep $var) ]]
     then
         echo "$var=$value" >> "$env_file"
     fi
