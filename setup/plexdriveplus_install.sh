@@ -31,12 +31,12 @@ function prepareVolumeMountPath() {
     MOUNT_PATH=$1
     MOUNT_TYPE=$2
     mkdir -p "$MOUNT_PATH"
-    if ! [[ $(ls $MOUNT_PATH) ]]
+    if ! [[ $(ls -la $MOUNT_PATH) ]]
     then
         echo "warning:inital attempt to prepare $MOUNT_PATH failed. Tring again after forcing any existing moutns to the path to disconnect"
         $SUDO fusermount -uz "$MOUNT_PATH" 2>/dev/null
         mkdir -p "$MOUNT_PATH"
-        if ! [[ $(ls $MOUNT_PATH) ]]
+        if ! [[ $(ls -la $MOUNT_PATH) ]]
         then
             echo "error: attempts to prepare $MOUNT_PATH for used as a volumn bind point failed. Manual intervention required"
             exit 1
@@ -342,7 +342,7 @@ fi
 [[ $(cat $ENV_FILE | grep GROUPID) ]] || echo "GROUPID=$GROUPID" >> "$ENV_FILE"
 
 # Select if Plex should load DB to RAM or disk
-configPlexRamDisk $ENV_FILE
+configPlexRamDisk "$ENV_FILE"
 
 ## Start with updated rclone config
 echo "starting containers with docker-compose"
