@@ -14,19 +14,27 @@ function updateEnvFile() {
     env_file=$1
     var=$2
     value=$3
+    mode=$4
     echo "adding $var=$value to $env_file"
-    
-    sed -i '/$var/'d "$env_file"
-    echo "$var=$value" >> "$env_file"
+    if [ "$mode" = "force" ] 
+    then
+        sed -i '/$var/'d "$env_file"
+    fi
+
+    if ! [ "$mode" = "check" ] || ! [[ $(cat $ENV_FILE | grep USERID) ]]
+    then
+        echo "$var=$value" >> "$env_file"
+    fi
 }
 
 function configPlexRamDisk() {
+    env_file=$1
     if [ $(cat /proc/meminfo | grep MemTotal  | tr -dc '[0-9]') -ge 8388608 ]
     then
-        env_file=$1
         echo "8 GB Ram or more, set plex library to load to ramdisk"
-        updateEnvFile "$env_file" "LOAD_LIBRARY_DB_TO_MEMORY" "YES"
+        updateEnvFile "$env_file" "LOAD_LIBRARY_DB_TO_MEMORY" "YES" force
     else
+        echo "Memory size: $(cat /proc/meminfo | grep MemTotal  | tr -dc '[0-9]')KB"
         echo "Less than 8 GB Ram, setting plex library to load to normal disk"
         
         updateEnvFile "$env_file" "LOAD_LIBRARY_DB_TO_MEMORY" "NO"
@@ -345,8 +353,8 @@ if ! [ "$ADMIN_USERID" -eq "0" ]; then
 fi
 
 # Set user and group id if not already provided in env file
-[[ $(cat $ENV_FILE | grep USERID) ]] || echo "USERID=$USERID" >> "$ENV_FILE"
-[[ $(cat $ENV_FILE | grep GROUPID) ]] || echo "GROUPID=$GROUPID" >> "$ENV_FILE"
+updateEnvFile "$ENV_FILE" "USERID" "$USERID" check
+updateEnvFile "$ENV_FILE" "GROUPID" "$GROUPID" check
 
 # Select if Plex should load DB to RAM or disk
 configPlexRamDisk "$ENV_FILE"
