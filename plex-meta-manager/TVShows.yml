@@ -1,0 +1,48 @@
+######################################################
+#                More Show Collections                   #
+######################################################
+templates:
+
+  Trakt:
+    sort_title: +04_<<collection_name>>
+    sync_mode: sync
+    url_background: https://img5.goodfon.com/original/1920x1080/1/61/fon-netflix-logo-raduga-tsvet-fon-background-skachat-oboi-sk.jpg
+    collection_order: custom
+
+  TraktMulti:
+    sort_title: +04_<<collection_name>>
+    sync_mode: sync
+    url_background: https://img5.goodfon.com/original/1920x1080/1/61/fon-netflix-logo-raduga-tsvet-fon-background-skachat-oboi-sk.jpg
+    collection_order: release    
+
+collections:
+  Best TV of 2021 (Rotten Tomatoes):
+    template: { name: TraktMulti} 
+    url_background: https://topstories247.com/wp-content/uploads/2020/12/Happy-New-Year-2021-background-Image.png
+    trakt_list_details: 
+      - https://trakt.tv/users/danqbudz/lists/rotten-tomatoes-the-best-tv-of-2021
+  Best TV of 2020 (Rotten Tomatoes):
+    template: { name: TraktMulti} 
+    url_background: http://www.100hdwallpapers.com/wallpapers/3840x2160/2020_happy_new_year_4k-hd_wallpapers.jpg
+    trakt_list_details: 
+      - https://trakt.tv/users/danqbudz/lists/rotten-tomatoes-the-best-tv-of-2020
+  Apple TV+:
+    template: { name: TraktMulti} 
+    url_background: https://entertainment.inquirer.net/files/2020/04/apple_introduce.58d60192240.original.jpg
+    trakt_list_details: 
+      - https://trakt.tv/users/danqbudz/lists/apple-tv
+  Netflix:
+    template: { name: TraktMulti} 
+    url_background: https://i0.wp.com/nerdophiles.files.wordpress.com/2013/11/netflix-logo.png
+    trakt_list_details: 
+      - https://trakt.tv/users/danqbudz/lists/netflix
+  Paramount+:
+    template: { name: TraktMulti} 
+    url_background: https://static1.makeuseofimages.com/wordpress/wp-content/uploads/2021/03/paramount-plus-everything-you-need-to-know.jpg
+    trakt_list_details: 
+      - https://trakt.tv/users/danqbudz/lists/paramount
+  HBO Max:
+    template: { name: TraktMulti} 
+    url_background: https://d.newsweek.com/en/full/1583353/hbo-max.jpg
+    trakt_list_details: 
+      - https://trakt.tv/users/danqbudz/lists/hbo-max
