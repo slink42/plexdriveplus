@@ -9,6 +9,24 @@ PDP_VERSION=
 # set to any value to force script to use config files from cloud overwriting any local copies that exist
 USE_CLOUD_CONFIG=
 
+function configPlexRamDisk() {
+if [ $(cat /proc/meminfo | grep MemTotal  | tr -dc '[0-9]') -ge 8388608 ]
+then
+    FN_ENV_FILE=$1
+    echo "8 GB Ram or more, set plex library to load to ramdisk"
+    
+    sed -i '/LOAD_LIBRARY_DB_TO_MEMORY/'d "$FN_ENV_FILE"
+    echo "LOAD_LIBRARY_DB_TO_MEMORY=YES" >> "$FN_ENV_FILE"
+else
+    echo "Less than 8 GB Ram, setting plex library to load to normal disk"
+    
+    sed -i '/LOAD_LIBRARY_DB_TO_MEMORY/'d "$FN_ENV_FILE"
+    echo "LOAD_LIBRARY_DB_TO_MEMORY=NO" >> "$FN_ENV_FILE"
+
+fi
+}
+
+
 # ENV_FILE=install.env
 INSTALL_ENV_FILE=install.env
 [[ -z "$1" ]] || INSTALL_ENV_FILE=$1
@@ -317,8 +335,8 @@ fi
 [[ $(cat $ENV_FILE | grep USERID) ]] || echo "USERID=$USERID" >> "$ENV_FILE"
 [[ $(cat $ENV_FILE | grep GROUPID) ]] || echo "GROUPID=$GROUPID" >> "$ENV_FILE"
 
-
-
+# Select if Plex should load DB to RAM or disk
+configPlexRamDisk $ENV_FILE
 
 ## Start with updated rclone config
 echo "starting containers with docker-compose"
