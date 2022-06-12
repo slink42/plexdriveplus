@@ -29,13 +29,13 @@ function updateEnvFile() {
 
 function configPlexRamDisk() {
     env_file=$1
-    if [ $(cat /proc/meminfo | grep MemTotal  | tr -dc '[0-9]') -ge 8388608 ]
+    if [ $(cat /proc/meminfo | grep MemTotal  | tr -dc '[0-9]') -ge 7340032 ]
     then
-        echo "8 GB Ram or more, set plex library to load to ramdisk"
+        echo "7 GB Ram or more, set plex library to load to ramdisk"
         updateEnvFile "$env_file" "LOAD_LIBRARY_DB_TO_MEMORY" "YES" force
     else
         echo "Memory size: $(cat /proc/meminfo | grep MemTotal  | tr -dc '[0-9]')KB"
-        echo "Less than 8 GB Ram, setting plex library to load to normal disk"
+        echo "Less than 7 GB Ram, setting plex library to load to normal disk"
         
         updateEnvFile "$env_file" "LOAD_LIBRARY_DB_TO_MEMORY" "NO"
     fi
