@@ -25,7 +25,7 @@ function openURL() {
     then
         # Open web_url in browser
         echo "opening $web_url in browser"
-        xdg-open $web_url
+        xdg-open "$web_url"
     else
         echo "unable to open browser automaticly, please open $web_url in browser"
     fi
