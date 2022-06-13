@@ -85,7 +85,8 @@ function installDocker() {
     if ! [[ $(docker-compose --version) ]]
     then
         echo "installing docker-compose"
-        $SUDO curl -SL https://github.com/docker/compose/releases/download/v2.5.0/docker-compose-linux-x86_64 -o /usr/local/bin/docker-compose
+        curl -SL https://github.com/docker/compose/releases/download/v2.5.0/docker-compose-linux-x86_64 -o /tmp/docker-compose
+        $SUDO mv  /tmp/docker-compose /usr/local/bin/docker-compose
         $SUDO chmod +x /usr/local/bin/docker-compose
     fi
 
