@@ -94,7 +94,7 @@ function installDocker() {
     fi
 
     # if docker isn't running set it to turn on at boot
-    if ! [[ $(docker --version) ]]
+    if ! [[ $(docker ps) ]]
     then
         echo "Starting docker service and setting to run on boot"
         $SUDO systemctl enable docker.service
