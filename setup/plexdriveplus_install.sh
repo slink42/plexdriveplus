@@ -18,6 +18,18 @@ function logMessage() {
     echo "$message"
 }
 
+function openURL() {
+    web_url=$1
+
+    if [[ $(xdg-open --version 2>/dev/null) ]]
+        # Open web_url in browser
+        echo "opening $web_url in browser"
+        xdg-open $web_url
+    else
+        echo "unable to open browser automaticly, please open $web_url in browser"
+    fi
+}
+
 function updateEnvFile() {
     env_file=$1
     var=$2
@@ -436,15 +448,16 @@ if grep -qs "PlexOnlineToken" "$DOCKER_ROOT/plex-streamer/Library/Application Su
     echo "Plex servers already claimed"
     PLEX_CLAIM_ID="claim-xxxxxxxxxxxxxxx"
 else
-    # load plex claim ID to PLEX_CLAIM_ID variable .env file
-read -i 'claim-xxxxxxxxxxxxxxx' -p 'If you are running this headless, please enter you plex claim id generated from https://www.plex.tv/claim/. If you dont know what this means just press enter:
+
+    echo "opening plex claim in browser"
+    openURL "https://www.plex.tv/claim/"
+        # load plex claim ID to PLEX_CLAIM_ID variable .env file
+    read -i 'claim-xxxxxxxxxxxxxxx' -p 'If you are running this headless, please enter you plex claim id generated from https://www.plex.tv/claim/. If you dont know what this means just press enter:
 plex claim id> ' -e PLEX_CLAIM_ID
     echo "Using PLEX_CLAIM: $PLEX_CLAIM_ID"
 fi
 # write PLEX_CLAIM_ID value to .env file
-sed -i '/PLEX_CLAIM/'d "$ENV_FILE"
-echo "PLEX_CLAIM=$PLEX_CLAIM_ID" >> "$ENV_FILE"
-
+updateEnvFile "$ENV_FILE" "PLEX_CLAIM" "$PLEX_CLAIM_ID" force
 
 
 # check for host network compatibility. HOST_NETWORK env var used in docker compose
@@ -572,14 +585,12 @@ if [[ $management_mode = "2" ]] || [[ $management_mode = "3" ]]; then
 fi
 
 
-if [[ $(xdg-open --version 2>/dev/null) ]]
-    # Open plex in browser
-    echo "opening plex in browser"
-    xdg-open https://127.0.0.1:32400/web
-    # Open plex in browser
-    echo "opening heimdall in browser"
-    xdg-open https://127.0.0.1:8889
-fi
+# Open plex in browser
+echo "opening plex in browser"
+openURL "https://127.0.0.1:32400/web"
+# Open heimdall in browser
+echo "opening heimdall in browser"
+openURL https://127.0.0.1:8889
 
 echo "open plex in browser to continue configuration there: https://127.0.0.1:32400/web"
 echo "open heimdall in browser to view web portals for use in monitoring/administration: https://127.0.0.1:8889"
