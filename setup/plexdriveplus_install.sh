@@ -10,6 +10,14 @@ PDP_VERSION=
 USE_CLOUD_CONFIG=
 
 
+function logMessage() {
+    message=$1
+    log_level=$2
+    [ -z "$log_level" ] && log_level=-d
+
+    echo "$message"
+}
+
 function updateEnvFile() {
     env_file=$1
     var=$2
@@ -66,6 +74,35 @@ function prepareVolumeMountPath() {
     fi
 }
 
+
+function installDocker() {
+    docker_user=$1
+    
+    # install docker if not present
+    [[ $(docker --version) ]] || (echo "installing docker" &&  curl -fsSL https://get.docker.com | $SUDO bash &&  $SUDO systemctl start docker)
+
+    # install docker-compose not found
+    [[ $(docker-compose --version) ]] || (echo "installing docker-compose" &&  curl -SL https://github.com/docker/compose/releases/download/v2.5.0/docker-compose-linux-x86_64 -o /usr/local/bin/docker-compose && chmod +x /usr/local/bin/docker-compose)
+
+    # add current user to docker security group
+    # [[ $(groups root | grep docker) ]] || $SUDO groupadd docker
+    if ! [[ $(groups | grep docker) ]] && ! [[ $(groups | grep root) ]]; then
+        echo "Adding current user to docker management group: docker"
+        $SUDO usermod -aG docker $docker_user
+        read -p  "Please log out of and then back in to allow user addition to docker managememt group to apply"
+        exit 1
+    fi
+
+    # if docker isn't running set it to turn on at boot
+    if ! [[ $(docker --version) ]]
+    then
+        echo "Starting docker service and setting to run on boot"
+        $SUDO systemctl enable docker.service
+        $SUDO systemctl enable containerd.service
+        $SUDO systemctl start docker
+    fi
+    
+}
 # ENV_FILE=install.env
 INSTALL_ENV_FILE=install.env
 [[ -z "$1" ]] || INSTALL_ENV_FILE=$1
@@ -105,11 +142,8 @@ C_PURPLE="\033[38;5;129m"
 # install rclone if not present
 [[ $(rclone --version) ]] || (echo "installing rclone" &&  curl -fsSL https://rclone.org/install.sh | $SUDO bash)
 
-# install docker if not present
-[[ $(docker --version) ]] || (echo "installing docker" &&  curl -fsSL https://get.docker.com | $SUDO bash &&  $SUDO systemctl start docker)
-
-# install docker-compose not found
-[[ $(docker-compose --version) ]] || (echo "installing docker-compose" &&  curl -SL https://github.com/docker/compose/releases/download/v2.5.0/docker-compose-linux-x86_64 -o /usr/local/bin/docker-compose && chmod +x /usr/local/bin/docker-compose)
+# install docker if not present and setup to run as deamon on boot
+installDocker "$ADMIN_USERID"
 
 # add current user to docker security group
 # [[ $(groups root | grep docker) ]] || $SUDO groupadd docker
