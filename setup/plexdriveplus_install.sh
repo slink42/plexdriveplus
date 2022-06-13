@@ -572,10 +572,17 @@ if [[ $management_mode = "2" ]] || [[ $management_mode = "3" ]]; then
 fi
 
 
-# Open plex in browser
-echo "please open portainer in web browser to set admin user and password for docker management web gui: https://127.0.0.1:9999"
-( [ $(xdg-open --version) ] && xdg-open https://127.0.0.1:32400/web && echo "opening plex in browser" && exit 0 ) 2>/dev/null
+if [[ $(xdg-open --version 2>/dev/null) ]]
+    # Open plex in browser
+    echo "opening plex in browser"
+    xdg-open https://127.0.0.1:32400/web
+    # Open plex in browser
+    echo "opening heimdall in browser"
+    xdg-open https://127.0.0.1:8889
+fi
+
 echo "open plex in browser to continue configuration there: https://127.0.0.1:32400/web"
+echo "open heimdall in browser to view web portals for use in monitoring/administration: https://127.0.0.1:8889"
 
 # copy library images / metadata backup from master
 if ! [[ -z "$LIB_IMAGE_DOWNLOAD" ]]; then
