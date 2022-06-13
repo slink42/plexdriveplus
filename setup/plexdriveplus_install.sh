@@ -22,6 +22,7 @@ function openURL() {
     web_url=$1
 
     if [[ $(xdg-open --version 2>/dev/null) ]]
+    then
         # Open web_url in browser
         echo "opening $web_url in browser"
         xdg-open $web_url
