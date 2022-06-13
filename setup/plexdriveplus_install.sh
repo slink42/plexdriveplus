@@ -82,7 +82,12 @@ function installDocker() {
     [[ $(docker --version) ]] || (echo "installing docker" &&  curl -fsSL https://get.docker.com | $SUDO bash &&  $SUDO systemctl start docker)
 
     # install docker-compose not found
-    [[ $(docker-compose --version) ]] || (echo "installing docker-compose" &&  curl -SL https://github.com/docker/compose/releases/download/v2.5.0/docker-compose-linux-x86_64 -o /usr/local/bin/docker-compose && chmod +x /usr/local/bin/docker-compose)
+    if ! [[ $(docker-compose --version) ]]
+    then
+        echo "installing docker-compose"
+        $SUDO curl -SL https://github.com/docker/compose/releases/download/v2.5.0/docker-compose-linux-x86_64 -o /usr/local/bin/docker-compose
+        $SUDO chmod +x /usr/local/bin/docker-compose
+    fi
 
     # add current user to docker security group
     # [[ $(groups root | grep docker) ]] || $SUDO groupadd docker
