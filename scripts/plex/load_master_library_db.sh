@@ -12,7 +12,7 @@ if [ -z "$RAM_DISK_PATH" ]; then RAM_DISK_PATH=/ram_disk; else echo "RAM_DISK_PA
 LIBRARY_MASTER_BACKUP_PATH="$SCANNER_LIBRARY_PATH/Plug-in Support/Databases"
 PLEX_LIBRARY_PATH="/config/Library/Application Support/Plex Media Server"
 PLEX_LIBRARY_DATABASE_PATH="$PLEX_LIBRARY_PATH/Plug-in Support/Databases"
-PLEX_LIBRARY_DATABASE_BACKUP_PATH="/config/Library/Application Support/Plex Media Server/Plug-in Support/Databases_Backup"
+PLEX_LIBRARY_DATABASE_BACKUP_PATH="$PLEX_LIBRARY_PATH/Plug-in Support/Databases_Backup"
 RAM_DISK_PLEX_DATABASE_PATH="$RAM_DISK_PATH/Plug-in Support/Databases"
 
 mkdir -p "$LIBRARY_MASTER_BACKUP_PATH"
