@@ -2,6 +2,6 @@
 
 [ -f /usr/sbin/cron ] || ( echo "**** installing cron ****" & apt-get update & apt-get install cron -y)
 
-[ -f /config/crontab ] && ( echo "**** copying crontab from /config/crontab ****" & cp /config/crontab /etc/crontabs ) || ( echo "**** error: crontab not found in expected source location /config/crontab ****" )
+[ -f /config/crontab ] && ( echo "**** setting up crontab using /config/crontab ****" & cp /config/crontab /etc/crontabs & cat /etc/crontabs) || ( echo "**** warning: no crontab not found at expected source location /config/crontab ****" )
 
-/usr/sbin/cron -f -S -l 0 -c /etc/crontabs
+/usr/sbin/cron -f -l 0 /etc/crontabs
