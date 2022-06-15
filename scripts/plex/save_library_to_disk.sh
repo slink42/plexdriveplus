@@ -1,5 +1,5 @@
- 
- if  [ "$LOAD_LIBRARY_DB_TO_MEMORY" = "YES" ]
+#!/bin/bash
+if  [ "$LOAD_LIBRARY_DB_TO_MEMORY" = "YES" ]
 then
     # Keep in sync with paths used in load_master_library_db.sh
     if [ -z "$RAM_DISK_PATH" ]; then RAM_DISK_PATH=/ram_disk; else echo "RAM_DISK_PATH: $RAM_DISK_PATH"; fi
