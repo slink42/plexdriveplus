@@ -9,7 +9,7 @@ tar -cvpzf /config/backups/meta/library_files_updated.tar.gz "./Application Supp
 if [ $(gzip -t /config/backups/meta/library_files_updated.tar.gz) ]
 then
     echo "tar gzip compression tested ok, overwriting old version"
-    # mv /config/backups/meta/library_files_updated.tar.gz /config/backups/meta/library_files.tar.gz
+    mv /config/backups/meta/library_files_updated.tar.gz /config/backups/meta/library_files.tar.gz
 else
     echo "error tar gzip compression failed when tested, removing instead of overwriting old version"
     rm /config/backups/meta/library_files_updated.tar.gz
