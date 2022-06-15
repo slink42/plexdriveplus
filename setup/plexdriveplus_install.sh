@@ -36,14 +36,15 @@ function updateEnvFile() {
     var=$2
     value=$3
     mode=$4
-    echo "adding $var=$value to $env_file"
     if [ "$mode" = "force" ] 
     then
+        echo "removing any existing value for $var from $env_file"
         sed -i '/$var/'d "$env_file"
     fi
 
     if ! [ "$mode" = "check" ] || ! [[ $(cat $env_file | grep $var) ]]
     then
+        echo "adding $var=$value to $env_file"
         echo "$var=$value" >> "$env_file"
     fi
 }
