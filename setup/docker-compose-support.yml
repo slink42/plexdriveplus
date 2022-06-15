@@ -32,8 +32,7 @@ services:
     portainer_portal:
         restart: always
         image: portainer/portainer-ce
-        command: -H tcp://portainer_agent:9001 --tlsskipverify
-        hostname: portainer_portal
+        command: -H tcp://127.0.0.1:9001 --tlsskipverify
         volumes:
             - portainer_data:/data
         depends_on:
