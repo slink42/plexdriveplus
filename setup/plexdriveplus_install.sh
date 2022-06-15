@@ -589,10 +589,10 @@ fi
 
 # Open plex in browser
 echo "opening plex in browser"
-openURL "https://127.0.0.1:32400/web"
+openURL "http://127.0.0.1:32400/web"
 # Open heimdall in browser
 echo "opening heimdall in browser"
-openURL https://127.0.0.1:8889
+openURL http://127.0.0.1:8889
 
 echo "open plex in browser to continue configuration there: https://127.0.0.1:32400/web"
 echo "open heimdall in browser to view web portals for use in monitoring/administration: https://127.0.0.1:8889"
