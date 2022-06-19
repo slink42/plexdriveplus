@@ -187,15 +187,15 @@ library management mode> ' -e management_mode
 case $management_mode in
         "1"|"")
                 echo "Slave Library Mode Selected"
-                DOCKER_COMPOSE_FILE_LIB_MANGER="-f \"$DOCKER_ROOT/setup/docker-compose-lib-slave.yml/\" -f \"$DOCKER_ROOT/setup/docker-compose-support.yml/\""
+                DOCKER_COMPOSE_FILE_LIB_MANGER="-f \"$DOCKER_ROOT/setup/docker-compose-lib-slave.yml\" -f \"$DOCKER_ROOT/setup/docker-compose-support.yml\""
                 ;;
         "2")
                 echo "Master Library Mode Selected"
-                DOCKER_COMPOSE_FILE_LIB_MANGER="-f \"$DOCKER_ROOT/setup/docker-compose-lib-scanner.yml/\" -f \"$DOCKER_ROOT/setup/docker-compose-lib-master.yml/\""
+                DOCKER_COMPOSE_FILE_LIB_MANGER="-f \"$DOCKER_ROOT/setup/docker-compose-lib-scanner.yml\" -f \"$DOCKER_ROOT/setup/docker-compose-lib-master.yml\""
                 ;;
         "3")
                 echo "Solo Library Mode Selected"
-                DOCKER_COMPOSE_FILE_LIB_MANGER="-f \"$DOCKER_ROOT/setup/docker-compose-lib-scanner.yml/\""
+                DOCKER_COMPOSE_FILE_LIB_MANGER="-f \"$DOCKER_ROOT/setup/docker-compose-lib-scanner.yml\""
                 ;;
         "4")
                 echo "KISS Library Mode Selected"
@@ -203,7 +203,7 @@ case $management_mode in
                 ;;
         "5")
                 echo "Slave Library Mode Selected"
-                DOCKER_COMPOSE_FILE_LIB_MANGER="-f \"$DOCKER_ROOT/setup/docker-compose-lib-slave.yml/\""
+                DOCKER_COMPOSE_FILE_LIB_MANGER="-f \"$DOCKER_ROOT/setup/docker-compose-lib-slave.yml\""
                 ;;
         *)
                 echo "Invalid selection, exiting"
