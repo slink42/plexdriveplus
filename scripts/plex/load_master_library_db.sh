@@ -100,7 +100,7 @@ do
 
         if [ "$LIBRARY_FILE" = "com.plexapp.plugins.library.db" ]
         then
-            syncPlexDB "$BACKUP_LIBRARY_FILE_TARGET_PATH" "$LIBRARY_FILE_TARGET_PATH"
+            syncPlexDB "$BACKUP_LIBRARY_FILE_TARGET_PATH" "$LIBRARY_FILE_TARGET_PATH" --tmp-folder "/ram_disk/plex-db-sync"
         fi
     else
         echo "error: master copy of library file not found: copying $RAM_DISK_PATH to ram disk path $RAM_DISK_PATH"        
