@@ -64,9 +64,9 @@ function syncPlexDB() {
 for  LIBRARY_FILE in "${LIBRARY_FILES[@]}"
 do
     MASTER_BACKUP_LIBRARY_FILE_PATH=$(find "$LIBRARY_MASTER_BACKUP_PATH" -name $LIBRARY_FILE-20[0-9][0-9]-[0-9][0-9]-[0-9][0-9] | sort | tail -n 1)
+    BACKUP_LIBRARY_FILE_TARGET_PATH="$PLEX_LIBRARY_DATABASE_BACKUP_PATH/$LIBRARY_FILE"
     if [ -f "$MASTER_BACKUP_LIBRARY_FILE_PATH" ]
     then
-        BACKUP_LIBRARY_FILE_TARGET_PATH="$PLEX_LIBRARY_DATABASE_BACKUP_PATH/$LIBRARY_FILE"
         if  [ "$LOAD_LIBRARY_DB_TO_MEMORY" = "YES" ]
         then
             echo "setting ram disk as path for working copy of $LIBRARY_FILE"
@@ -100,10 +100,14 @@ do
 
         if [ "$LIBRARY_FILE" = "com.plexapp.plugins.library.db" ]
         then
-            syncPlexDB "$BACKUP_LIBRARY_FILE_TARGET_PATH" "$LIBRARY_FILE_TARGET_PATH" --tmp-folder "/ram_disk/plex-db-sync"
+            syncPlexDB "$BACKUP_LIBRARY_FILE_TARGET_PATH" "$LIBRARY_FILE_TARGET_PATH" --tmp-folder "$RAM_DISK_PATH/plex-db-sync"
         fi
     else
-        echo "error: master copy of library file not found: copying $RAM_DISK_PATH to ram disk path $RAM_DISK_PATH"        
+        if  [ "$LOAD_LIBRARY_DB_TO_MEMORY" = "YES" ]
+        then
+            echo "error: master copy of library file not found: copying $BACKUP_LIBRARY_FILE_TARGET_PATH to ram disk path $RAM_DISK_PATH"
+            cp "$BACKUP_LIBRARY_FILE_TARGET_PATH" "$RAM_DISK_PATH"
+        fi
     fi
 done
 
