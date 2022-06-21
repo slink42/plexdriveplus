@@ -41,6 +41,8 @@ function syncPlexDB() {
         echo "making backup of backup db $PLEX_DB_2 -> $PLEX_DB_2-old2"
         cp "$PLEX_DB_2"  "$PLEX_DB_2-old2"
 
+        [ -d /tmp/plex-db-sync ] && rm -r /tmp/plex-db-sync
+
         echo "starting plex library db sync between live db: $PLEX_DB_1 and db backup: $PLEX_DB_2"
         "$PLEX_DB_SYNC_BIN" --plex-db-1 "$PLEX_DB_1" --plex-db-2 "$PLEX_DB_2" \
             --plex-start-1 "echo 'starts automaticly'" \
@@ -98,7 +100,7 @@ do
 
         if [ "$LIBRARY_FILE" = "com.plexapp.plugins.library.db" ]
         then
-            syncPlexDB "$LIBRARY_FILE_TARGET_PATH" "$BACKUP_LIBRARY_FILE_TARGET_PATH"
+            syncPlexDB "$BACKUP_LIBRARY_FILE_TARGET_PATH" "$LIBRARY_FILE_TARGET_PATH"
         fi
     else
         echo "error: master copy of library file not found: copying $RAM_DISK_PATH to ram disk path $RAM_DISK_PATH"        
