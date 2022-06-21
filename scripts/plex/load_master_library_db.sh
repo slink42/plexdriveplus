@@ -105,7 +105,6 @@ do
     fi
 done
 
-
 echo 
-echo "dinished copy and sync of plex master library to local working library path"
+echo "finished copy and sync of plex master library to local working library path"
 echo 

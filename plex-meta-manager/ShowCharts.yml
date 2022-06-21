@@ -20,16 +20,16 @@ collections:
     summary: Shows Popular on Plex
   Trending:
     template: { name: Chart, num: 2 }
-    trakt_trending: 10
-    tmdb_trending_daily: 10
-    tmdb_trending_weekly: 10
+    trakt_trending: 25
+    tmdb_trending_daily: 25
+    tmdb_trending_weekly: 25
     summary: Shows Trending across the internet
   Popular:
     template: { name: Chart, num: 3 }
-    tmdb_popular: 40
+    tmdb_popular: 60
     imdb_list:
       url: https://www.imdb.com/search/title/?title_type=tv_series,tv_miniseries
-      limit: 40
+      limit: 60
     summary: Popular Shows across the internet
   Top Rated:
     template: { name: Chart, num: 4 }
