@@ -29,6 +29,7 @@ services:
             - '${DOCKER_ROOT}/config/:/master_data/config:rw'
             - '${DOCKER_ROOT}/plexdrive/cache/:/master_data/plexdrive/cache:rw'
             - '${DOCKER_ROOT}/plex-scanner/backups/:/master_data/plex-scanner/backups:rw'
+            - '${DOCKER_ROOT}/wireguard/peers/:/master_data/wg:rw'
         networks:
             - bridge
             - internal

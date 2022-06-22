@@ -461,6 +461,8 @@ fi
 # write PLEX_CLAIM_ID value to .env file
 updateEnvFile "$ENV_FILE" "PLEX_CLAIM" "$PLEX_CLAIM_ID" force
 
+# download wireguard config if management_mode selected
+[[ $management_mode = "1" ]] && "${DOCKER_ROOT}/scripts/wireguard/download_client_config.sh"
 
 # check for host network compatibility. HOST_NETWORK env var used in docker compose
 if [[ "$OSTYPE" == "linux-gnu"* ]]; then

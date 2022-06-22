@@ -15,7 +15,35 @@ then
   export $(cat $INSTALL_ENV_FILE | xargs)
 fi
 
-PEER_NAME=$(rclone lsf secure_backup_rw:wireguard/peers --config "$DOCKER_ROOT/rclone/rclone.conf" | head -n 1)
+PEER_LIST=$(rclone lsf secure_backup_rw:wg --config "$DOCKER_ROOT/rclone/rclone.conf")
+
+
+REPLY=nothing
+while ! [[ -z $REPLY ]]
+do
+  PEER_NUM=0
+  echo "Select from the following peer config files:"
+  for PEER in $PEER_LIST;
+  do 
+    PEER_NUM=$((PEER_NUM+1)); 
+    echo "Peer $PEER_NUM: $PEER"; 
+  done
+
+  read -p 'Name of wireguard conf to load: ';
+  PEER_NUM=0
+  echo "Select from the following peer config files:"
+  for PEER in $PEER_LIST;
+  do 
+    PEER_NUM=$((PEER_NUM+1)); 
+    if [ "$REPLY" = $PEER ]
+    then
+      echo "Wireguard peer config selected - $PEER_NUM: $PEER";
+      PEER_NAME=$PEER
+      REPLY=
+    fi
+  done
+  [[ -z $REPLY ]] || echo 'Invalid selection, please try again or press enter to skip loading wireguard config';
+done
 
 if [[ -z "$PEER_NAME" ]]; then
     echo "error: unable to find wireguard peer config"
