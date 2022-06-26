@@ -29,9 +29,21 @@ services:
         restart: always
         depends_on:
             - wireguard
+    portainer_portal:
+        restart: always
+        image: portainer/portainer-ce
+        command: -H tcp://127.0.0.1:9001 --tlsskipverify
+        volumes:
+            - portainer_data:/data
+        depends_on:
+            - wireguard
+        network_mode: service:wireguard
     ubuntu:
         depends_on:
             - wireguard
         image: ubuntu
         network_mode: service:wireguard
         command: ["sleep","infinity"]
+
+volumes:
+    portainer_data:

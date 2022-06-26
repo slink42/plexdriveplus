@@ -31,16 +31,16 @@ collections:
     summary: Movies Popular on Plex
   Trending:
     template: { name: Chart, num: 2, poster: https://theposterdb.com/api/assets/169001 }
-    trakt_trending: 10
-    tmdb_trending_daily: 10
-    tmdb_trending_weekly: 10
+    trakt_trending: 25
+    tmdb_trending_daily: 25
+    tmdb_trending_weekly: 25
     summary: Movies Trending across the internet
   Popular:
     template: { name: Chart, num: 3, poster: https://theposterdb.com/api/assets/205416 }
-    tmdb_popular: 40
+    tmdb_popular: 60
     imdb_list:
       url: https://www.imdb.com/search/title/?title_type=feature,tv_movie,documentary,short
-      limit: 40
+      limit: 60
     summary: Popular Movies across the internet
   Top Rated Global:
     template: { name: Chart, num: 4 }

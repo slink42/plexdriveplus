@@ -10,17 +10,20 @@ if [ -z "$RAM_DISK_PATH" ]; then RAM_DISK_PATH=/ram_disk; else echo "RAM_DISK_PA
 
 
 LIBRARY_MASTER_BACKUP_PATH="$SCANNER_LIBRARY_PATH/Plug-in Support/Databases"
-MEDIA_MOUNT_CONTAINER_PATH="/config/Library/Application Support/Plex Media Server/Plug-in Support/Databases"
-MEDIA_MOUNT_CONTAINER_PATH_BACKUP="/config/Library/Application Support/Plex Media Server/Plug-in Support/Databases_Backup"
+
+PLEX_LIBRARY_PATH="/config/Library/Application Support/Plex Media Server"
+PLEX_LIBRARY_DATABASE_PATH="$PLEX_LIBRARY_PATH/Plug-in Support/Databases"
+PLEX_LIBRARY_DATABASE_BACKUP_PATH="$PLEX_LIBRARY_PATH/Plug-in Support/Databases_Backup"
 RAM_DISK_PLEX_DATABASE_PATH="$RAM_DISK_PATH/Plug-in Support/Databases"
 
 mkdir -p "$LIBRARY_MASTER_BACKUP_PATH"
-mkdir -p "$MEDIA_MOUNT_CONTAINER_PATH"
-chown -R -h abc:users "$MEDIA_MOUNT_CONTAINER_PATH"
-mkdir -p "$MEDIA_MOUNT_CONTAINER_PATH_BACKUP"
-chown -R -h abc:users "$MEDIA_MOUNT_CONTAINER_PATH_BACKUP"
+mkdir -p "$PLEX_LIBRARY_DATABASE_PATH"
+chown -R -h abc:abc "$PLEX_LIBRARY_PATH/Plug-in Support"
+mkdir -p "$PLEX_LIBRARY_DATABASE_BACKUP_PATH"
+chown -R -h abc:abc "$PLEX_LIBRARY_DATABASE_BACKUP_PATH"
 mkdir -p "$RAM_DISK_PLEX_DATABASE_PATH"
-chown -R -h abc:users "$RAM_DISK_PLEX_DATABASE_PATH"
+chown -R -h abc:abc "$RAM_DISK_PLEX_DATABASE_PATH"
+
 
 [ -z "$LOAD_LIBRARY_DB_TO_MEMORY" ] && LOAD_LIBRARY_DB_TO_MEMORY="NO"
 LIBRARY_FILES=( com.plexapp.plugins.library.db com.plexapp.plugins.library.blobs.db )
@@ -39,6 +42,8 @@ function syncPlexDB() {
 
         echo "making backup of backup db $PLEX_DB_2 -> $PLEX_DB_2-old2"
         cp "$PLEX_DB_2"  "$PLEX_DB_2-old2"
+
+        [ -d /tmp/plex-db-sync ] && rm -r /tmp/plex-db-sync
 
         echo "starting plex library db sync between live db: $PLEX_DB_1 and db backup: $PLEX_DB_2"
         "$PLEX_DB_SYNC_BIN" --plex-db-1 "$PLEX_DB_1" --plex-db-2 "$PLEX_DB_2" \
@@ -61,9 +66,9 @@ function syncPlexDB() {
 for  LIBRARY_FILE in "${LIBRARY_FILES[@]}"
 do
     MASTER_BACKUP_LIBRARY_FILE_PATH=$(find "$LIBRARY_MASTER_BACKUP_PATH" -name $LIBRARY_FILE-20[0-9][0-9]-[0-9][0-9]-[0-9][0-9] | sort | tail -n 1)
+    BACKUP_LIBRARY_FILE_TARGET_PATH="$PLEX_LIBRARY_DATABASE_BACKUP_PATH/$LIBRARY_FILE"
     if [ -f "$MASTER_BACKUP_LIBRARY_FILE_PATH" ]
     then
-        BACKUP_LIBRARY_FILE_TARGET_PATH="$MEDIA_MOUNT_CONTAINER_PATH_BACKUP/$LIBRARY_FILE"
         if  [ "$LOAD_LIBRARY_DB_TO_MEMORY" = "YES" ]
         then
             echo "setting ram disk as path for working copy of $LIBRARY_FILE"
@@ -72,15 +77,15 @@ do
             echo "copying $MASTER_BACKUP_LIBRARY_FILE_PATH to $LIBRARY_FILE_TARGET_PATH"
             cp --remove-destination "$MASTER_BACKUP_LIBRARY_FILE_PATH"  "$LIBRARY_FILE_TARGET_PATH"
 
-            echo "linking $LIBRARY_FILE_TARGET_PATH to $MEDIA_MOUNT_CONTAINER_PATH/$LIBRARY_FILE"
-            ln --force -s "$LIBRARY_FILE_TARGET_PATH" "$MEDIA_MOUNT_CONTAINER_PATH/$LIBRARY_FILE"
+            echo "linking $LIBRARY_FILE_TARGET_PATH to $PLEX_LIBRARY_DATABASE_PATH/$LIBRARY_FILE"
+            ln --force -s "$LIBRARY_FILE_TARGET_PATH" "$PLEX_LIBRARY_DATABASE_PATH/$LIBRARY_FILE"
             
             # set plex user symlink as owner
-            chown -h abc:users "$MEDIA_MOUNT_CONTAINER_PATH/$LIBRARY_FILE"
+            chown -h abc:abc "$PLEX_LIBRARY_DATABASE_PATH/$LIBRARY_FILE"
         else
         
             echo "setting default library path for working copy of $LIBRARY_FILE"
-            LIBRARY_FILE_TARGET_PATH="$MEDIA_MOUNT_CONTAINER_PATH/$LIBRARY_FILE"
+            LIBRARY_FILE_TARGET_PATH="$PLEX_LIBRARY_DATABASE_PATH/$LIBRARY_FILE"
 
             if [ -f "$LIBRARY_FILE_TARGET_PATH" ]
             then
@@ -93,18 +98,21 @@ do
         fi
 
         # set plex user symlink as owner
-        chown -h abc:users "$LIBRARY_FILE_TARGET_PATH"
+        chown -h abc:abc "$LIBRARY_FILE_TARGET_PATH"
 
         if [ "$LIBRARY_FILE" = "com.plexapp.plugins.library.db" ]
         then
-            syncPlexDB "$LIBRARY_FILE_TARGET_PATH" "$BACKUP_LIBRARY_FILE_TARGET_PATH"
+            syncPlexDB "$BACKUP_LIBRARY_FILE_TARGET_PATH" "$LIBRARY_FILE_TARGET_PATH" --tmp-folder "$RAM_DISK_PATH/plex-db-sync"
         fi
     else
-        echo "error: master copy of library file not found: copying $RAM_DISK_PATH to ram disk path $RAM_DISK_PATH"        
+        if  [ "$LOAD_LIBRARY_DB_TO_MEMORY" = "YES" ]
+        then
+            echo "error: master copy of library file not found: copying $BACKUP_LIBRARY_FILE_TARGET_PATH to ram disk path $RAM_DISK_PATH"
+            cp "$BACKUP_LIBRARY_FILE_TARGET_PATH" "$RAM_DISK_PATH"
+        fi
     fi
 done
 
-
 echo 
-echo "dinished copy and sync of plex master library to local working library path"
+echo "finished copy and sync of plex master library to local working library path"
 echo 

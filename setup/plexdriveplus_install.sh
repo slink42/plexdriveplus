@@ -9,6 +9,120 @@ PDP_VERSION=
 # set to any value to force script to use config files from cloud overwriting any local copies that exist
 USE_CLOUD_CONFIG=
 
+
+function logMessage() {
+    message=$1
+    log_level=$2
+    [ -z "$log_level" ] && log_level=-d
+
+    echo "$message"
+}
+
+function openURL() {
+    web_url=$1
+
+    if [[ $(xdg-open --version 2>/dev/null) ]]
+    then
+        # Open web_url in browser
+        echo "opening $web_url in browser"
+        xdg-open "$web_url"
+    else
+        echo "unable to open browser automaticly, please open $web_url in browser"
+    fi
+}
+
+function updateEnvFile() {
+    env_file=$1
+    var=$2
+    value=$3
+    mode=$4
+    if [ "$mode" = "force" ] 
+    then
+        echo "removing any existing value for $var from $env_file"
+        sed -i '/$var/'d "$env_file"
+    fi
+
+    if ! [ "$mode" = "check" ] || ! [[ $(cat $env_file | grep $var) ]]
+    then
+        echo "adding $var=$value to $env_file"
+        echo "$var=$value" >> "$env_file"
+    fi
+}
+
+function configPlexRamDisk() {
+    env_file=$1
+    if [ $(cat /proc/meminfo | grep MemTotal  | tr -dc '[0-9]') -ge 7340032 ]
+    then
+        echo "7 GB Ram or more, set plex library to load to ramdisk"
+        updateEnvFile "$env_file" "LOAD_LIBRARY_DB_TO_MEMORY" "YES" force
+    else
+        echo "Memory size: $(cat /proc/meminfo | grep MemTotal  | tr -dc '[0-9]')KB"
+        echo "Less than 7 GB Ram, setting plex library to load to normal disk"
+        
+        updateEnvFile "$env_file" "LOAD_LIBRARY_DB_TO_MEMORY" "NO"
+    fi
+}
+
+
+function prepareVolumeMountPath() {
+    MOUNT_PATH=$1
+    MOUNT_TYPE=$2
+    mkdir -p "$MOUNT_PATH"
+    if ! [[ $(ls -la "$MOUNT_PATH") ]]
+    then
+        echo "warning:inital attempt to prepare $MOUNT_PATH failed. Tring again after forcing any existing moutns to the path to disconnect"
+        $SUDO fusermount -uz "$MOUNT_PATH" 2>/dev/null
+        mkdir -p "$MOUNT_PATH"
+        if ! [[ $(ls -la "$MOUNT_PATH") ]]
+        then
+            echo "error: attempts to prepare $MOUNT_PATH for used as a volumn bind point failed. Manual intervention required"
+            exit 1
+        fi
+    fi
+
+    if [ "$MOUNT_TYPE" = 'executable_dir' ]
+    then
+        echo "setting contents of $MOUNT_PATH as executable and owned by root user"
+        $SUDO chmod -R +x "${MOUNT_PATH}"
+        $SUDO chown -R root:root "${MOUNT_PATH}" # needs to be owned by root for security
+    fi
+}
+
+
+function installDocker() {
+    docker_user=$1
+    
+    # install docker if not present
+    [[ $(docker --version) ]] || (echo "installing docker" &&  curl -fsSL https://get.docker.com | $SUDO bash &&  $SUDO systemctl start docker)
+
+    # install docker-compose not found
+    if ! [[ $(docker-compose --version) ]]
+    then
+        echo "installing docker-compose"
+        curl -SL https://github.com/docker/compose/releases/download/v2.5.0/docker-compose-linux-x86_64 -o /tmp/docker-compose
+        $SUDO mv  /tmp/docker-compose /usr/local/bin/docker-compose
+        $SUDO chmod +x /usr/local/bin/docker-compose
+    fi
+
+    # add current user to docker security group
+    # [[ $(groups root | grep docker) ]] || $SUDO groupadd docker
+    if ! [[ $(groups | grep docker) ]] && ! [[ $(groups | grep root) ]]; then
+        echo "Adding current user to docker management group: docker"
+        $SUDO usermod -aG docker $docker_user
+        read -p  "Please log out of and then back in to allow user addition to docker managememt group to apply"
+        exit 1
+    fi
+
+    # if docker isn't running set it to turn on at boot
+    if ! [[ $(docker ps) ]]
+    then
+        echo "Starting docker service and setting to run on boot"
+        $SUDO systemctl enable docker.service
+        $SUDO systemctl enable containerd.service
+        $SUDO systemctl start docker
+    fi
+    
+}
 # ENV_FILE=install.env
 INSTALL_ENV_FILE=install.env
 [[ -z "$1" ]] || INSTALL_ENV_FILE=$1
@@ -48,11 +162,8 @@ C_PURPLE="\033[38;5;129m"
 # install rclone if not present
 [[ $(rclone --version) ]] || (echo "installing rclone" &&  curl -fsSL https://rclone.org/install.sh | $SUDO bash)
 
-# install docker if not present
-[[ $(docker --version) ]] || (echo "installing docker" &&  curl -fsSL https://get.docker.com | $SUDO bash &&  $SUDO systemctl start docker)
-
-# install docker-compose not found
-[[ $(docker-compose --version) ]] || (echo "installing docker-compose" &&  curl -SL https://github.com/docker/compose/releases/download/v2.5.0/docker-compose-linux-x86_64 -o /usr/local/bin/docker-compose && chmod +x /usr/local/bin/docker-compose)
+# install docker if not present and setup to run as deamon on boot
+installDocker "$ADMIN_USERID"
 
 # add current user to docker security group
 # [[ $(groups root | grep docker) ]] || $SUDO groupadd docker
@@ -76,15 +187,15 @@ library management mode> ' -e management_mode
 case $management_mode in
         "1"|"")
                 echo "Slave Library Mode Selected"
-                DOCKER_COMPOSE_FILE_LIB_MANGER="-f \"$DOCKER_ROOT/setup/docker-compose-lib-slave.yml/\" -f \"$DOCKER_ROOT/setup/docker-compose-support.yml/\""
+                DOCKER_COMPOSE_FILE_LIB_MANGER="-f \"$DOCKER_ROOT/setup/docker-compose-lib-slave.yml\" -f \"$DOCKER_ROOT/setup/docker-compose-support.yml\""
                 ;;
         "2")
                 echo "Master Library Mode Selected"
-                DOCKER_COMPOSE_FILE_LIB_MANGER="-f \"$DOCKER_ROOT/setup/docker-compose-lib-scanner.yml/\" -f \"$DOCKER_ROOT/setup/docker-compose-lib-master.yml/\""
+                DOCKER_COMPOSE_FILE_LIB_MANGER="-f \"$DOCKER_ROOT/setup/docker-compose-lib-scanner.yml\" -f \"$DOCKER_ROOT/setup/docker-compose-lib-master.yml\""
                 ;;
         "3")
                 echo "Solo Library Mode Selected"
-                DOCKER_COMPOSE_FILE_LIB_MANGER="-f \"$DOCKER_ROOT/setup/docker-compose-lib-scanner.yml/\""
+                DOCKER_COMPOSE_FILE_LIB_MANGER="-f \"$DOCKER_ROOT/setup/docker-compose-lib-scanner.yml\""
                 ;;
         "4")
                 echo "KISS Library Mode Selected"
@@ -92,7 +203,7 @@ case $management_mode in
                 ;;
         "5")
                 echo "Slave Library Mode Selected"
-                DOCKER_COMPOSE_FILE_LIB_MANGER="-f \"$DOCKER_ROOT/setup/docker-compose-lib-slave.yml/\""
+                DOCKER_COMPOSE_FILE_LIB_MANGER="-f \"$DOCKER_ROOT/setup/docker-compose-lib-slave.yml\""
                 ;;
         *)
                 echo "Invalid selection, exiting"
@@ -204,45 +315,27 @@ if [[ $management_mode = "2" ]] || [[ $management_mode = "3" ]]; then
 
 
     # make sure paths aren't mounted
-    fusermount -uz "$DOCKER_ROOT/mnt/rclone/scanner_secure_media" 2>/dev/null
-    fusermount -uz "$DOCKER_ROOT/mnt/rclone/scanner_secure_media2" 2>/dev/null
-    fusermount -uz "$DOCKER_ROOT/mnt/rclone/scanner_secure_media3" 2>/dev/null
-    fusermount -uz "$DOCKER_ROOT/mnt/mergerfs/scanner_secure_media" 2>/dev/null
-
-    mkdir -p "$DOCKER_ROOT/mnt/rclone/scanner_secure_media"
-    mkdir -p "$DOCKER_ROOT/mnt/rclone/scanner_secure_media2"
-    mkdir -p "$DOCKER_ROOT/mnt/rclone/scanner_secure_media3"
-    mkdir -p "$DOCKER_ROOT/mnt/mergerfs/scanner_secure_media"
+    prepareVolumeMountPath "$DOCKER_ROOT/mnt/rclone/scanner_secure_media"
+    prepareVolumeMountPath "$DOCKER_ROOT/mnt/rclone/scanner_secure_media2"
+    prepareVolumeMountPath "$DOCKER_ROOT/mnt/rclone/scanner_secure_media3"
+    prepareVolumeMountPath "$DOCKER_ROOT/mnt/mergerfs/scanner_secure_media"
 fi
 
 ## make sure scanner rclone paths aren't mounted
 # rclone
-fusermount -uz "$DOCKER_ROOT/mnt/rclone/secure_media" 2>/dev/null
-fusermount -uz "$DOCKER_ROOT/mnt/rclone/secure_media2" 2>/dev/null
-fusermount -uz "$DOCKER_ROOT/mnt/rclone/secure_media3" 2>/dev/null
+prepareVolumeMountPath "$DOCKER_ROOT/mnt/rclone/secure_media"
+prepareVolumeMountPath "$DOCKER_ROOT/mnt/rclone/secure_media2"
+prepareVolumeMountPath "$DOCKER_ROOT/mnt/rclone/secure_media3"
 # plexdrive & it rclone crypt
-fusermount -uz "$DOCKER_ROOT/mnt/plexdrive/secure_media" 2>/dev/null
-fusermount -uz "$DOCKER_ROOT/mnt/plexdrive/cloud" 2>/dev/null # need to use mergerfs in plexdrive container as workaround, otherwise mount doesn't get exposed to host properly
-fusermount -uz "$DOCKER_ROOT/mnt/plexdrive/local" 2>/dev/null
-fusermount -uz "$DOCKER_ROOT/mnt/rclone/plexdrive_secure_media" 2>/dev/null
-fusermount -uz "$DOCKER_ROOT/mnt/rclone/plexdrive_secure_media" 2>/dev/null
+prepareVolumeMountPath "$DOCKER_ROOT/mnt/plexdrive/secure_media"
+prepareVolumeMountPath "$DOCKER_ROOT/mnt/plexdrive/cloud" # need to use mergerfs in plexdrive container as workaround, otherwise mount doesn't get exposed to host properly
+prepareVolumeMountPath "$DOCKER_ROOT/mnt/plexdrive/local"
+prepareVolumeMountPath "$DOCKER_ROOT/mnt/rclone/plexdrive_secure_media"
+prepareVolumeMountPath "$DOCKER_ROOT/mnt/rclone/plexdrive_secure_media"
 # mergerfs
-fusermount -uz "$DOCKER_ROOT/mnt/mergerfs/secure_media" 2>/dev/null
-fusermount -uz "$DOCKER_ROOT/mnt/mergerfs/streamer" 2>/dev/null
-fusermount -uz "${DOCKER_ROOT}/mnt/mergerfs/streamer"
-
-# rclone
-mkdir -p "$DOCKER_ROOT/mnt/rclone/secure_media"
-mkdir -p "$DOCKER_ROOT/mnt/rclone/secure_media2"
-mkdir -p "$DOCKER_ROOT/mnt/rclone/secure_media3"
-# plexdrive & it rclone crypt
-mkdir -p "$DOCKER_ROOT/mnt/plexdrive/secure_media"
-mkdir -p "$DOCKER_ROOT/mnt/plexdrive/cloud"
-mkdir -p "$DOCKER_ROOT/mnt/plexdrive/local"
-mkdir -p "$DOCKER_ROOT/mnt/rclone/plexdrive_secure_media"
-# mergerfs
-mkdir -p "$DOCKER_ROOT/mnt/mergerfs/secure_media"
-mkdir -p "${DOCKER_ROOT}/mnt/mergerfs/streamer"
+prepareVolumeMountPath "$DOCKER_ROOT/mnt/mergerfs/secure_media"
+prepareVolumeMountPath "$DOCKER_ROOT/mnt/mergerfs/streamer"
+prepareVolumeMountPath "${DOCKER_ROOT}/mnt/mergerfs/streamer"
 
 ## copy gdrive mount tokens to plexdrive
 echo "copying rclone token to plexdrive"
@@ -314,11 +407,11 @@ if ! [ "$ADMIN_USERID" -eq "0" ]; then
 fi
 
 # Set user and group id if not already provided in env file
-[[ $(cat $ENV_FILE | grep USERID) ]] || echo "USERID=$USERID" >> "$ENV_FILE"
-[[ $(cat $ENV_FILE | grep GROUPID) ]] || echo "GROUPID=$GROUPID" >> "$ENV_FILE"
+updateEnvFile "$ENV_FILE" "USERID" "$USERID" check
+updateEnvFile "$ENV_FILE" "GROUPID" "$GROUPID" check
 
-
-
+# Select if Plex should load DB to RAM or disk
+configPlexRamDisk "$ENV_FILE"
 
 ## Start with updated rclone config
 echo "starting containers with docker-compose"
@@ -326,23 +419,21 @@ sed -i '/DOCKER_ROOT/'d "$ENV_FILE"
 echo "DOCKER_ROOT=$DOCKER_ROOT" >> "$ENV_FILE"
 
 # Create paths mounted by docker beforehand to ensure they are owned by current user rather than root
-mkdir -p "${DOCKER_ROOT}/mnt/mergerfs/streamer/media"
-mkdir -p "${DOCKER_ROOT}/mnt/mergerfs/scanner/media"
-mkdir -p "${DOCKER_ROOT}/plex-scanner/Library/Application Support/Plex Media Server/Plug-in Support/"
-mkdir -p "${DOCKER_ROOT}/plex-scanner/Library/Application Support/Plex Media Server/Metadata/"
-mkdir -p "${DOCKER_ROOT}/plex-scanner/Library/Application Support/Plex Media Server/Media/"
-mkdir -p "${DOCKER_ROOT}/mnt/rclone/plexdrive_secure_media/Media/movies-4k/"
-mkdir -p "${DOCKER_ROOT}/mnt/rclone/plexdrive_secure_media/Media/tv-4k/"
 
-mkdir -p "${DOCKER_ROOT}/plex-streamer/custom-cont-init.d"
-echo "Chainging dir ownership to root:root for {DOCKER_ROOT}/plex-streamer/custom-cont-init.d. Required by rclone container security checks"
-$SUDO chown -R root:root "${DOCKER_ROOT}/plex-streamer/custom-cont-init.d" # needs to be owned by root to run / for security
-mkdir -p "${DOCKER_ROOT}/plex-streamer/transcode"
-mkdir -p "${DOCKER_ROOT}/scripts/"
-chmod -R +x "${DOCKER_ROOT}/scripts/"
+prepareVolumeMountPath "${DOCKER_ROOT}/mnt/mergerfs/streamer/media"
+prepareVolumeMountPath "${DOCKER_ROOT}/mnt/mergerfs/scanner/media"
+prepareVolumeMountPath "${DOCKER_ROOT}/plex-scanner/Library/Application Support/Plex Media Server/Plug-in Support/Databases"
+prepareVolumeMountPath "${DOCKER_ROOT}/plex-scanner/Library/Application Support/Plex Media Server/Metadata/"
+prepareVolumeMountPath "${DOCKER_ROOT}/plex-scanner/Library/Application Support/Plex Media Server/Media/"
+prepareVolumeMountPath "${DOCKER_ROOT}/mnt/rclone/plexdrive_secure_media/Media/movies-4k/"
+prepareVolumeMountPath "${DOCKER_ROOT}/mnt/rclone/plexdrive_secure_media/Media/tv-4k/"
+
+prepareVolumeMountPath "${DOCKER_ROOT}/plex-streamer/custom-cont-init.d" executable_dir
+prepareVolumeMountPath "${DOCKER_ROOT}/plex-streamer/transcode"
+prepareVolumeMountPath "${DOCKER_ROOT}/scripts/" executable_dir
 
 # copy generic Plex Preferences.xml
-mkdir -p "$DOCKER_ROOT/plex-streamer/Library/Application Support/Plex Media Server/"
+prepareVolumeMountPath "$DOCKER_ROOT/plex-streamer/Library/Application Support/Plex Media Server/"
 PLEX_PREF_MASTER="$DOCKER_ROOT/setup/plex_streamer_Preferences.xml" 
 [ -f "$PLEX_PREF_MASTER" ] || PLEX_PREF_MASTER="$DOCKER_ROOT/setup/Preferences.xml"
 if [[ -z "$USE_CLOUD_CONFIG" ]] && [ -f "$DOCKER_ROOT/plex-streamer/Library/Application Support/Plex Media Server/Preferences.xml" ]; then
@@ -360,16 +451,19 @@ if grep -qs "PlexOnlineToken" "$DOCKER_ROOT/plex-streamer/Library/Application Su
     echo "Plex servers already claimed"
     PLEX_CLAIM_ID="claim-xxxxxxxxxxxxxxx"
 else
-    # load plex claim ID to PLEX_CLAIM_ID variable .env file
-read -i 'claim-xxxxxxxxxxxxxxx' -p 'If you are running this headless, please enter you plex claim id generated from https://www.plex.tv/claim/. If you dont know what this means just press enter:
+
+    echo "opening plex claim in browser"
+    openURL "https://www.plex.tv/claim/"
+        # load plex claim ID to PLEX_CLAIM_ID variable .env file
+    read -i 'claim-xxxxxxxxxxxxxxx' -p 'If you are running this headless, please enter you plex claim id generated from https://www.plex.tv/claim/. If you dont know what this means just press enter:
 plex claim id> ' -e PLEX_CLAIM_ID
     echo "Using PLEX_CLAIM: $PLEX_CLAIM_ID"
 fi
 # write PLEX_CLAIM_ID value to .env file
-sed -i '/PLEX_CLAIM/'d "$ENV_FILE"
-echo "PLEX_CLAIM=$PLEX_CLAIM_ID" >> "$ENV_FILE"
+updateEnvFile "$ENV_FILE" "PLEX_CLAIM" "$PLEX_CLAIM_ID" force
 
-
+# download wireguard config if management_mode selected
+[[ $management_mode = "1" ]] && "${DOCKER_ROOT}/scripts/wireguard/download_client_config.sh"
 
 # check for host network compatibility. HOST_NETWORK env var used in docker compose
 if [[ "$OSTYPE" == "linux-gnu"* ]]; then
@@ -497,9 +591,14 @@ fi
 
 
 # Open plex in browser
-echo "please open portainer in web browser to set admin user and password for docker management web gui: https://127.0.0.1:9999"
-( [ $(xdg-open --version) ] && xdg-open https://127.0.0.1:32400/web && echo "opening plex in browser" && exit 0 ) 2>/dev/null
+echo "opening plex in browser"
+openURL "http://127.0.0.1:32400/web"
+# Open heimdall in browser
+echo "opening heimdall in browser"
+openURL http://127.0.0.1:8889
+
 echo "open plex in browser to continue configuration there: https://127.0.0.1:32400/web"
+echo "open heimdall in browser to view web portals for use in monitoring/administration: https://127.0.0.1:8889"
 
 # copy library images / metadata backup from master
 if ! [[ -z "$LIB_IMAGE_DOWNLOAD" ]]; then
