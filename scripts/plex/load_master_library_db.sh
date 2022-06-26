@@ -10,6 +10,7 @@ if [ -z "$RAM_DISK_PATH" ]; then RAM_DISK_PATH=/ram_disk; else echo "RAM_DISK_PA
 
 
 LIBRARY_MASTER_BACKUP_PATH="$SCANNER_LIBRARY_PATH/Plug-in Support/Databases"
+
 PLEX_LIBRARY_PATH="/config/Library/Application Support/Plex Media Server"
 PLEX_LIBRARY_DATABASE_PATH="$PLEX_LIBRARY_PATH/Plug-in Support/Databases"
 PLEX_LIBRARY_DATABASE_BACKUP_PATH="$PLEX_LIBRARY_PATH/Plug-in Support/Databases_Backup"
@@ -22,6 +23,7 @@ mkdir -p "$PLEX_LIBRARY_DATABASE_BACKUP_PATH"
 chown -R -h abc:abc "$PLEX_LIBRARY_DATABASE_BACKUP_PATH"
 mkdir -p "$RAM_DISK_PLEX_DATABASE_PATH"
 chown -R -h abc:abc "$RAM_DISK_PLEX_DATABASE_PATH"
+
 
 [ -z "$LOAD_LIBRARY_DB_TO_MEMORY" ] && LOAD_LIBRARY_DB_TO_MEMORY="NO"
 LIBRARY_FILES=( com.plexapp.plugins.library.db com.plexapp.plugins.library.blobs.db )

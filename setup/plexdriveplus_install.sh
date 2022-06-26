@@ -419,6 +419,7 @@ sed -i '/DOCKER_ROOT/'d "$ENV_FILE"
 echo "DOCKER_ROOT=$DOCKER_ROOT" >> "$ENV_FILE"
 
 # Create paths mounted by docker beforehand to ensure they are owned by current user rather than root
+
 prepareVolumeMountPath "${DOCKER_ROOT}/mnt/mergerfs/streamer/media"
 prepareVolumeMountPath "${DOCKER_ROOT}/mnt/mergerfs/scanner/media"
 prepareVolumeMountPath "${DOCKER_ROOT}/plex-scanner/Library/Application Support/Plex Media Server/Plug-in Support/Databases"
