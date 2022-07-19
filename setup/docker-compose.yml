@@ -183,11 +183,13 @@ services:
             - 'HEALTHCHECK_PATHS=/data/mountcheck'
             #- RCLONE_LOG_FILE=/config/rclone_plexdrive_mount.log
             - RCLONE_LOG_LEVEL=INFO
+            - MFS_BRANCHES=/cloud=RO:/mnt/rclone/secure_media=RO:/mnt/rclone/secure_media2=RO:/mnt/rclone/secure_media3=RO
             - 'RCLONE_REMOTE_PATH=plexdrive_crypt:'
             - 'RCLONE_MOUNT_USER_OPTS=--read-only --use-json-log --dir-cache-time 30m --multi-thread-streams=20 --allow-non-empty --allow-other --rc-web-gui --rc-web-gui-update --rc-web-gui-no-open-browser --rc-user ${RCLONE_USER} --rc-pass ${RCLONE_PASSWORD}'
         volumes:
             - '${DOCKER_ROOT}/rclone/:/config:rw'
             - '${DOCKER_ROOT}/scripts/:/scripts:ro'
+            - '${DOCKER_ROOT}/scripts/mergerfs/variables:/usr/local/bin/variables:ro'
             - '${DOCKER_ROOT}/mnt/plexdrive/secure_media/:/mnt/plexdrive:rslave'
             - '${DOCKER_ROOT}/mnt/rclone/plexdrive_secure_media:/data:rshared'
             - empty_volume:/local
@@ -216,8 +218,6 @@ services:
             plexdrive:
                 condition: service_healthy
     streamer_mergerfs:
-        entrypoint: /bin/sh
-        command: /scripts/mergerfs/start.sh
         restart: always
         labels:
             - "autoheal=true"
@@ -227,11 +227,11 @@ services:
             - PGID=${GROUPID}
             - MFS_USER_OPTS=allow_other,auto_cache,auto_unmount,direct_io,gid=${GROUPID},sync_read,uid=${USERID}
             - MFS_BRANCHES=/mnt/plexdrive/secure_media/=RO:/mnt/rclone/secure_media=RO:/mnt/rclone/secure_media2=RO:/mnt/rclone/secure_media3=RO
-            - MFS_DEST=/data/media
-            - 'HEALTHCHECK_MOUNTS=/data/media'
-            - 'HEALTHCHECK_PATHS=/data/media/mountcheck /data/media/Media/movies /data/media/Media/movies-4k /data/media/Media/tv /data/media/Media/tv-4k'
+            - MFS_DEST=/mnt/mergerfs/streamer
+            - 'HEALTHCHECK_MOUNTS=/mnt/mergerfs/streamer'
+            - 'HEALTHCHECK_PATHS=/mnt/mergerfs/streamer/media/mountcheck /mnt/mergerfs/streamer/media/Media/movies /mnt/mergerfs/streamer/media/Media/movies-4k /mnt/mergerfs/streamer/media/Media/tv /mnt/mergerfs/streamer/media/Media/tv-4k'
         volumes:
-            - '${DOCKER_ROOT}/mnt/mergerfs/streamer:/data:rshared'
+            - '${DOCKER_ROOT}/mnt/mergerfs:/mnt/mergerfs:rshared'
             - '${DOCKER_ROOT}/mnt/rclone:/mnt/rclone:rslave'
             - '${DOCKER_ROOT}/mnt/rclone/plexdrive_secure_media/Media/movies-4k/:/mnt/plexdrive/secure_media/Media/movies-4k/:rslave'
             - '${DOCKER_ROOT}/mnt/rclone/plexdrive_secure_media/Media/tv-4k/:/mnt/plexdrive/secure_media/Media/tv-4k/:rslave'
@@ -247,7 +247,7 @@ services:
             - SYS_ADMIN
         security_opt:
             - apparmor:unconfined
-        image: hotio/mergerfs
+        image: slink42/mergerfs
         healthcheck:
             test: ["CMD-SHELL", "sh /scripts/healthcheck"]
             interval: 60s
