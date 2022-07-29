@@ -133,8 +133,8 @@ services:
             - PGID=${GROUPID}
             - MFS_USER_OPTS=allow_other,nonempty,auto_cache,auto_unmount,direct_io,gid=${GROUPID},sync_read,uid=${USERID}
             - MFS_BRANCHES=/mnt/rclone/secure_media=RO:/mnt/rclone/secure_media2=RO:/mnt/rclone/secure_media3=RO
-            - MERGED_DEST=/mnt/mergerfs/scanner
-            - 'HEALTHCHECK_MOUNTS=/mnt/mergerfs/scanner'
+            - MERGED_DEST=/mnt/mergerfs/scanner/media
+            - 'HEALTHCHECK_MOUNTS=/mnt/mergerfs/scanner/media'
             - 'HEALTHCHECK_PATHS=/mnt/mergerfs/scanner/media/mountcheck /mnt/mergerfs/scanner/media/Media/movies /mnt/mergerfs/scanner/media/Media/movies-4k /mnt/mergerfs/scanner/media/Media/tv /mnt/mergerfs/scanner/media/Media/tv-4k'
         volumes:
             - '${DOCKER_ROOT}/mnt/mergerfs:/mnt/mergerfs:rshared'
