@@ -183,9 +183,8 @@ services:
             - 'HEALTHCHECK_PATHS=/data/mountcheck'
             #- RCLONE_LOG_FILE=/config/rclone_plexdrive_mount.log
             - RCLONE_LOG_LEVEL=INFO
-            - MFS_BRANCHES=/cloud=RO:/mnt/rclone/secure_media=RO:/mnt/rclone/secure_media2=RO:/mnt/rclone/secure_media3=RO
             - 'RCLONE_REMOTE_PATH=plexdrive_crypt:'
-            - 'RCLONE_MOUNT_USER_OPTS=--read-only --use-json-log --dir-cache-time 30m --multi-thread-streams=20 --allow-non-empty --allow-other --rc-web-gui --rc-web-gui-update --rc-web-gui-no-open-browser --rc-user ${RCLONE_USER} --rc-pass ${RCLONE_PASSWORD}'
+            - 'RCLONE_MOUNT_USER_OPTS=--include=/mountcheck --include=/Media/tv-4k/ --include=/Media/movies-4k/ --read-only --use-json-log --dir-cache-time 30m --multi-thread-streams=20 --allow-non-empty --allow-other --rc-web-gui --rc-web-gui-update --rc-web-gui-no-open-browser --rc-user ${RCLONE_USER} --rc-pass ${RCLONE_PASSWORD}'
         volumes:
             - '${DOCKER_ROOT}/rclone/:/config:rw'
             - '${DOCKER_ROOT}/scripts/:/scripts:ro'
