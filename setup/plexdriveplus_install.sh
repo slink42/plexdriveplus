@@ -435,10 +435,12 @@ prepareVolumeMountPath "${DOCKER_ROOT}/mnt/rclone/plexdrive_secure_media/Media/t
 prepareVolumeMountPath "${DOCKER_ROOT}/plex-scanner/custom-cont-init.d" executable_dir
 prepareVolumeMountPath "${DOCKER_ROOT}/plex-scanner/custom-services.d" executable_dir
 prepareVolumeMountPath "${DOCKER_ROOT}/plex-scanner/transcode"
+ls -la "${DOCKER_ROOT}/plex-scanner/"
 
 prepareVolumeMountPath "${DOCKER_ROOT}/plex-streamer/custom-cont-init.d" executable_dir
 prepareVolumeMountPath "${DOCKER_ROOT}/plex-streamer/custom-services.d" executable_dir
 prepareVolumeMountPath "${DOCKER_ROOT}/plex-streamer/transcode"
+ls -la "${DOCKER_ROOT}/plex-streamer/"
 prepareVolumeMountPath "${DOCKER_ROOT}/scripts/" executable_dir
 
 # copy generic Plex Preferences.xml
@@ -452,7 +454,6 @@ else
     echo "Using Preferences.xml downloaded from cloud for Plex server config"
     cp "$PLEX_PREF_MASTER" "$DOCKER_ROOT/plex-streamer/Library/Application Support/Plex Media Server/Preferences.xml"
 fi
-
 
 # load plex claim id env variable
 if grep -qs "PlexOnlineToken" "$DOCKER_ROOT/plex-streamer/Library/Application Support/Plex Media Server/Preferences.xml"  && \
@@ -509,6 +510,7 @@ echo "HOST_NETWORK=$HOST_NETWORK" >> "$ENV_FILE"
 sed -i '/HOST_NETWORK_MODE/'d "$ENV_FILE"
 echo "HOST_NETWORK_MODE=$HOST_NETWORK" >> "$ENV_FILE"
 
+ls -la "${DOCKER_ROOT}/plex-streamer/"
 
 # start docker containers
 DOCKER_COMPOSE_FILE="$DOCKER_ROOT/setup/docker-compose.yml"
