@@ -82,7 +82,11 @@ function prepareVolumeMountPath() {
 
     if [ "$MOUNT_TYPE" = 'executable_dir' ]
     then
+        echo ""
+        echo "********************************************************************"
         echo "setting contents of $MOUNT_PATH as executable and owned by root user"
+        echo "********************************************************************"
+        echo ""
         $SUDO chmod -R +x "${MOUNT_PATH}"
         $SUDO chown -R root:root "${MOUNT_PATH}" # needs to be owned by root for security
     fi
@@ -428,7 +432,12 @@ prepareVolumeMountPath "${DOCKER_ROOT}/plex-scanner/Library/Application Support/
 prepareVolumeMountPath "${DOCKER_ROOT}/mnt/rclone/plexdrive_secure_media/Media/movies-4k/"
 prepareVolumeMountPath "${DOCKER_ROOT}/mnt/rclone/plexdrive_secure_media/Media/tv-4k/"
 
+prepareVolumeMountPath "${DOCKER_ROOT}/plex-scanner/custom-cont-init.d" executable_dir
+prepareVolumeMountPath "${DOCKER_ROOT}/plex-scanner/custom-services.d" executable_dir
+prepareVolumeMountPath "${DOCKER_ROOT}/plex-scanner/transcode"
+
 prepareVolumeMountPath "${DOCKER_ROOT}/plex-streamer/custom-cont-init.d" executable_dir
+prepareVolumeMountPath "${DOCKER_ROOT}/plex-streamer/custom-services.d" executable_dir
 prepareVolumeMountPath "${DOCKER_ROOT}/plex-streamer/transcode"
 prepareVolumeMountPath "${DOCKER_ROOT}/scripts/" executable_dir
 
