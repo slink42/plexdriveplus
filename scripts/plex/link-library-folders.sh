@@ -41,6 +41,6 @@ do
             
         fi
         # set plex user symlink as owner
-        chown -h abc:users "$MEDIA_MOUNT_CONTAINER_PATH"
+        chown -h ${PLEX_UID}:${PLEX_GID} "$MEDIA_MOUNT_CONTAINER_PATH"
     fi
 done
