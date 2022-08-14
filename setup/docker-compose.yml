@@ -16,18 +16,19 @@ services:
             - TZ=Australia/Melbourne
             - PGID=${GROUPID}
             - PUID=${USERID}
-            - 'HEALTHCHECK_MOUNTS=/data'
-            - 'HEALTHCHECK_PATHS=/data/mountcheck'
+            - 'HEALTHCHECK_MOUNTS=/mnt/secure_media'
+            - 'HEALTHCHECK_PATHS=/mnt/secure_media/mountcheck'
             #- RCLONE_LOG_FILE=/config/rclone_media_mount_1.log
             - RCLONE_LOG_LEVEL=INFO
             - 'RCLONE_REMOTE_PATH=secure_media:'
             - 'RCLONE_MOUNT_USER_OPTS=--read-only --use-json-log --acd-templink-threshold 1g --buffer-size 8M --timeout 5s --contimeout 5s --stats 300s --dir-cache-time 30m --multi-thread-streams=20 --allow-non-empty --allow-other --rc-web-gui --rc-web-gui-update --rc-web-gui-no-open-browser --rc-user ${RCLONE_USER} --rc-pass ${RCLONE_PASSWORD}'
             - RCLONE_CONFIG_GDRIVE_MOLE_TEAM_DRIVE=${RCLONE_CONFIG_GDRIVE_TEAM_DRIVE_1}
             - RCLONE_CONFIG_GDRIVE_WOLF_TEAM_DRIVE=${RCLONE_CONFIG_GDRIVE_TEAM_DRIVE_1}
+            - MERGED_DEST=/mnt/secure_media
         volumes:
             - '${DOCKER_ROOT}/rclone/:/config:rw'
             - '${DOCKER_ROOT}/scripts/:/scripts:ro'
-            - '${DOCKER_ROOT}/mnt/rclone/secure_media:/data:rshared'
+            - '${DOCKER_ROOT}/mnt/rclone:/mnt:rshared'
             - empty_volume:/local
         networks:
             - bridge
@@ -43,7 +44,7 @@ services:
             - SYS_ADMIN
         security_opt:
             - apparmor:unconfined
-        image: wiserain/rclone
+        image: slink42/rclone
         healthcheck:
             test: ["CMD-SHELL", "sh /scripts/healthcheck"]
             interval: 120s
@@ -58,18 +59,19 @@ services:
             - TZ=Australia/Melbourne
             - PGID=${GROUPID}
             - PUID=${USERID}
-            - 'HEALTHCHECK_MOUNTS=/data'
-            - 'HEALTHCHECK_PATHS=/data'
+            - 'HEALTHCHECK_MOUNTS=/mnt/secure_media2'
+            - 'HEALTHCHECK_PATHS=/mnt/secure_media2/mountcheck'
             #- RCLONE_LOG_FILE=/config/rclone_media_mount_2.log
             - RCLONE_LOG_LEVEL=INFO
             - 'RCLONE_REMOTE_PATH=secure_media:'
             - 'RCLONE_MOUNT_USER_OPTS=--read-only --use-json-log --acd-templink-threshold 1g --buffer-size 8M --timeout 5s --contimeout 5s --stats 300s --dir-cache-time 30m --multi-thread-streams=20 --allow-non-empty --allow-other --rc-web-gui --rc-web-gui-update --rc-web-gui-no-open-browser --rc-user ${RCLONE_USER} --rc-pass ${RCLONE_PASSWORD}'
             - RCLONE_CONFIG_GDRIVE_MOLE_TEAM_DRIVE=${RCLONE_CONFIG_GDRIVE_TEAM_DRIVE_2}
             - RCLONE_CONFIG_GDRIVE_WOLF_TEAM_DRIVE=${RCLONE_CONFIG_GDRIVE_TEAM_DRIVE_2}
+            - MERGED_DEST=/mnt/secure_media2
         volumes:
             - '${DOCKER_ROOT}/rclone/:/config:rw'
             - '${DOCKER_ROOT}/scripts/:/scripts:ro'
-            - '${DOCKER_ROOT}/mnt/rclone/secure_media2:/data:rshared'
+            - '${DOCKER_ROOT}/mnt/rclone:/mnt:rshared'
             - empty_volume:/local
         networks:
             - bridge
@@ -85,7 +87,7 @@ services:
             - SYS_ADMIN
         security_opt:
             - apparmor:unconfined
-        image: wiserain/rclone
+        image: slink42/rclone
         healthcheck:
             test: ["CMD-SHELL", "sh /scripts/healthcheck"]
             interval: 120s
@@ -100,18 +102,19 @@ services:
             - TZ=Australia/Melbourne
             - PGID=${GROUPID}
             - PUID=${USERID}
-            - 'HEALTHCHECK_MOUNTS=/data'
-            - 'HEALTHCHECK_PATHS=/data'
+            - 'HEALTHCHECK_MOUNTS=/mnt/secure_media3'
+            - 'HEALTHCHECK_PATHS=/mnt/secure_media3/mountcheck'
             - RCLONE_LOG_FILE=/config/rclone_media_mount_3.log
             - RCLONE_LOG_LEVEL=INFO
             - 'RCLONE_REMOTE_PATH=secure_media:'
             - 'RCLONE_MOUNT_USER_OPTS=--read-only --use-json-log --acd-templink-threshold 1g --buffer-size 8M --timeout 5s --contimeout 5s --stats 300s --dir-cache-time 30m --multi-thread-streams=20 --allow-non-empty --allow-other --rc-web-gui --rc-web-gui-update --rc-web-gui-no-open-browser --rc-user ${RCLONE_USER} --rc-pass ${RCLONE_PASSWORD}'
             - RCLONE_CONFIG_GDRIVE_MOLE_TEAM_DRIVE=${RCLONE_CONFIG_GDRIVE_TEAM_DRIVE_3}
             - RCLONE_CONFIG_GDRIVE_WOLF_TEAM_DRIVE=${RCLONE_CONFIG_GDRIVE_TEAM_DRIVE_3}
+            - MERGED_DEST=/mnt/secure_media3
         volumes:
             - '${DOCKER_ROOT}/rclone/:/config:rw'
             - '${DOCKER_ROOT}/scripts/:/scripts:ro'
-            - '${DOCKER_ROOT}/mnt/rclone/secure_media3:/data:rshared'
+            - '${DOCKER_ROOT}/mnt/rclone:/mnt:rshared'
             - empty_volume:/local
         networks:
             - bridge
@@ -127,7 +130,7 @@ services:
             - SYS_ADMIN
         security_opt:
             - apparmor:unconfined
-        image: wiserain/rclone
+        image: slink42/rclone
         healthcheck:
             test: ["CMD-SHELL", "sh /scripts/healthcheck"]
             interval: 120s
