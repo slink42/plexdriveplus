@@ -34,7 +34,7 @@ services:
         image: portainer/portainer-ce
         command: -H tcp://127.0.0.1:9001 --tlsskipverify
         volumes:
-            - portainer_wg_data:/data
+            - portainer_data:/data
         depends_on:
             - wireguard
         network_mode: service:wireguard
@@ -48,7 +48,9 @@ services:
         restart: always
         image: portainer/portainer-ce
         volumes:
-            - portainer_data:/data
+            - portainer_local_data:/data
+            - /var/run/docker.sock:/var/run/docker.sock
+            - /var/lib/docker/volumes:/var/lib/docker/volumes
         networks:
             - support
         ports:
@@ -56,4 +58,4 @@ services:
 
 volumes:
     portainer_data:
-    portainer_wg_data:
+    portainer_local_data:
