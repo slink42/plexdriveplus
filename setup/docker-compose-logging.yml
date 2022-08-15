@@ -1,70 +1,70 @@
-# version: '3.3'
-# services:
-#     pushgateway:
-#         image: docker.io/prom/pushgateway
-#         networks:
-#             - internal
-#         hostname: pushgateway
-#         restart: unless-stopped
-#     prometheus:
-#         image: docker.io/prom/prometheus
-#         ports:
-#             - "19090:9090"
-#         networks:
-#             - bridge
-#             - internal
-#         hostname: prometheus
-#         volumes:
-#             - ${DOCKER_ROOT}/prometheus:/etc/prometheus
-#         restart: unless-stopped
-#     exporter:
-#         image: docker.io/vshn/rclone-exporter:v1
-#         command:
-#             - --push.url
-#             - http://pushgateway:9091
-#             - --scrape.url
-#             - http://plexdriveplus-rclone_media-1:5572
-#         # Example of configuring Basic Auth and other options with ENV vars
-#         environment:
-#             PUSH_INTERVAL: 15s
-#             LOG_LEVEL: debug
-#             SCRAPE_BASICAUTH_USERNAME: ${RCLONE_USER}
-#             SCRAPE_BASICAUTH_PASSWORD: ${RCLONE_PASSWORD}
-#         networks:
-#             - internal
-#         hostname: exporter
-#         restart: unless-stopped
-#     heimdall:
-#         image: lscr.io/linuxserver/heimdall:latest
-#         environment:
-#             - PGID=${GROUPID}
-#             - PUID=${USERID} 
-#             - TZ=Australia/Melbourne
-#         volumes:
-#             - ${DOCKER_ROOT}/heimdall:/config
-#         ports:
-#             - 8889:80
-#             - 4444:443
-#         networks:
-#             - bridge
-#             - internal
-#         hostname: heimdall
-#         restart: always
-#     nginx:
-#         image: lscr.io/linuxserver/nginx:latest
-#         cap_add:
-#             - NET_ADMIN
-#         environment:
-#             - PGID=${GROUPID}
-#             - PUID=${USERID} 
-#             - TZ=Australia/Melbourne
-#         volumes:
-#             - ${DOCKER_ROOT}/nginx:/config
-#         ports:
-#             - 4443:443
-#             - 8888:80 #optional
-#         networks:
-#             - bridge
-#             - internal
-#         hostname: nginx
-#         restart: always
+version: '3.3'
+services:
+    pushgateway:
+        image: docker.io/prom/pushgateway
+        networks:
+            - internal
+        hostname: pushgateway
+        restart: unless-stopped
+    prometheus:
+        image: docker.io/prom/prometheus
+        ports:
+            - "19090:9090"
+        networks:
+            - bridge
+            - internal
+        hostname: prometheus
+        volumes:
+            - ${DOCKER_ROOT}/prometheus:/etc/prometheus
+        restart: unless-stopped
+    exporter:
+        image: docker.io/vshn/rclone-exporter:v1
+        command:
+            - --push.url
+            - http://pushgateway:9091
+            - --scrape.url
+            - http://plexdriveplus-rclone_media-1:5572
+        # Example of configuring Basic Auth and other options with ENV vars
+        environment:
+            PUSH_INTERVAL: 15s
+            LOG_LEVEL: debug
+            SCRAPE_BASICAUTH_USERNAME: ${RCLONE_USER}
+            SCRAPE_BASICAUTH_PASSWORD: ${RCLONE_PASSWORD}
+        networks:
+            - internal
+        hostname: exporter
+        restart: unless-stopped
+    heimdall:
+        image: lscr.io/linuxserver/heimdall:latest
+        environment:
+            - PGID=${GROUPID}
+            - PUID=${USERID} 
+            - TZ=Australia/Melbourne
+        volumes:
+            - ${DOCKER_ROOT}/heimdall:/config
+        ports:
+            - 8889:80
+            - 4444:443
+        networks:
+            - bridge
+            - internal
+        hostname: heimdall
+        restart: always
+    nginx:
+        image: lscr.io/linuxserver/nginx:latest
+        cap_add:
+            - NET_ADMIN
+        environment:
+            - PGID=${GROUPID}
+            - PUID=${USERID} 
+            - TZ=Australia/Melbourne
+        volumes:
+            - ${DOCKER_ROOT}/nginx:/config
+        ports:
+            - 4443:443
+            - 8888:80 #optional
+        networks:
+            - bridge
+            - internal
+        hostname: nginx
+        restart: always
