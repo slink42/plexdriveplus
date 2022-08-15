@@ -8,8 +8,6 @@ services:
             - TZ=Australia/Melbourne
             - PGID=${GROUPID}
             - PUID=${USERID}
-            - 'HEALTHCHECK_MOUNTS=/mnt/scanner_secure_media'
-            - 'HEALTHCHECK_PATHS=/mnt/scanner_secure_media/mountcheck'
             #- RCLONE_LOG_FILE=/config/rclone_media_scanner_mount_1.log
             - RCLONE_LOG_LEVEL=INFO
             - 'RCLONE_REMOTE_PATH=secure_media_scanner:'
@@ -19,7 +17,6 @@ services:
             - MERGED_DEST=/mnt/scanner_secure_media
         volumes:
             - '${DOCKER_ROOT}/rclone/:/config:rw'
-            - '${DOCKER_ROOT}/scripts/:/scripts:ro'
             - '${DOCKER_ROOT}/mnt/rclone:/mnt:rshared'
         networks:
             - bridge
@@ -36,12 +33,6 @@ services:
         security_opt:
             - apparmor:unconfined
         image: slink42/rclone
-        healthcheck:
-            test: ["CMD-SHELL", "sh /scripts/healthcheck"]
-            interval: 120s
-            timeout: 10s
-            retries: 1
-            start_period: 5s
     rclone_media_scanner2:
         restart: always
         labels:
@@ -50,8 +41,6 @@ services:
             - TZ=Australia/Melbourne
             - PGID=${GROUPID}
             - PUID=${USERID}
-            - 'HEALTHCHECK_MOUNTS=/mnt/scanner_secure_media2'
-            - 'HEALTHCHECK_PATHS=/mnt/scanner_secure_media2'
             #- RCLONE_LOG_FILE=/config/rclone_media_scanner_mount_2.log
             - RCLONE_LOG_LEVEL=INFO
             - 'RCLONE_REMOTE_PATH=secure_media_scanner:'
@@ -61,7 +50,6 @@ services:
             - MERGED_DEST=/mnt/scanner_secure_media2
         volumes:
             - '${DOCKER_ROOT}/rclone/:/config:rw'
-            - '${DOCKER_ROOT}/scripts/:/scripts:ro'
             - '${DOCKER_ROOT}/mnt/rclone:/mnt:rshared'
         networks:
             - bridge
@@ -78,12 +66,6 @@ services:
         security_opt:
             - apparmor:unconfined
         image: slink42/rclone
-        healthcheck:
-            test: ["CMD-SHELL", "sh /scripts/healthcheck"]
-            interval: 120s
-            timeout: 10s
-            retries: 1
-            start_period: 5s
     rclone_media_scanner3:
         restart: always
         labels:
@@ -92,8 +74,6 @@ services:
             - TZ=Australia/Melbourne
             - PGID=${GROUPID}
             - PUID=${USERID}
-            - 'HEALTHCHECK_MOUNTS=/mnt/scanner_secure_media3'
-            - 'HEALTHCHECK_PATHS=/mnt/scanner_secure_media3'
             #- RCLONE_LOG_FILE=/config/rclone_media_scanner_mount_3.log
             - RCLONE_LOG_LEVEL=INFO
             - 'RCLONE_REMOTE_PATH=secure_media_scanner:'
@@ -103,7 +83,6 @@ services:
             - MERGED_DEST=/mnt/scanner_secure_media3
         volumes:
             - '${DOCKER_ROOT}/rclone/:/config:rw'
-            - '${DOCKER_ROOT}/scripts/:/scripts:ro'
             - '${DOCKER_ROOT}/mnt/rclone:/mnt:rshared'
         networks:
             - bridge
@@ -120,12 +99,6 @@ services:
         security_opt:
             - apparmor:unconfined
         image: slink42/rclone
-        healthcheck:
-            test: ["CMD-SHELL", "sh /scripts/healthcheck"]
-            interval: 120s
-            timeout: 10s
-            retries: 1
-            start_period: 5s
     scanner_mergerfs:
         restart: always
         labels:
@@ -137,12 +110,10 @@ services:
             - MFS_USER_OPTS=allow_other,nonempty,auto_cache,auto_unmount,direct_io,gid=${GROUPID},sync_read,uid=${USERID}
             - MFS_BRANCHES=/mnt/rclone/secure_media=RO:/mnt/rclone/secure_media2=RO:/mnt/rclone/secure_media3=RO
             - MERGED_DEST=/mnt/mergerfs/scanner/media
-            - 'HEALTHCHECK_MOUNTS=/mnt/mergerfs/scanner/media'
-            - 'HEALTHCHECK_PATHS=/mnt/mergerfs/scanner/media/mountcheck /mnt/mergerfs/scanner/media/Media/movies /mnt/mergerfs/scanner/media/Media/movies-4k /mnt/mergerfs/scanner/media/Media/tv /mnt/mergerfs/scanner/media/Media/tv-4k'
+            # - 'HEALTHCHECK_PATHS=/mnt/mergerfs/scanner/media/mountcheck /mnt/mergerfs/scanner/media/Media/movies /mnt/mergerfs/scanner/media/Media/movies-4k /mnt/mergerfs/scanner/media/Media/tv /mnt/mergerfs/scanner/media/Media/tv-4k'
         volumes:
             - '${DOCKER_ROOT}/mnt/mergerfs:/mnt/mergerfs:rshared'
             - '${DOCKER_ROOT}/mnt/rclone:/mnt/rclone:rslave'
-            - '${DOCKER_ROOT}/scripts/:/scripts:ro'
         networks:
             - internal
         logging:
@@ -155,12 +126,6 @@ services:
         security_opt:
             - apparmor:unconfined
         image: slink42/mergerfs
-        healthcheck:
-            test: ["CMD-SHELL", "sh /scripts/healthcheck"]
-            interval: 60s
-            timeout: 55s
-            retries: 3
-            start_period: 10s
     plex_scanner:
         networks:
             - bridge
