@@ -41,12 +41,6 @@ services:
         security_opt:
             - apparmor:unconfined
         image: slink42/rclone
-        healthcheck:
-            test: ["CMD-SHELL", "sh /scripts/healthcheck"]
-            interval: 120s
-            timeout: 10s
-            retries: 1
-            start_period: 5s
     rclone_media2:
         restart: always
         labels:
