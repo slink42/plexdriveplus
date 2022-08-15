@@ -187,13 +187,14 @@ services:
             #- RCLONE_LOG_FILE=/config/rclone_plexdrive_mount.log
             - RCLONE_LOG_LEVEL=INFO
             - 'RCLONE_REMOTE_PATH=plexdrive_crypt:'
-            # - 'RCLONE_REMOTE_PATH=plexdrive_securemedia_crypt:' replace once new config ahs synced. Also change volume mount to: '${DOCKER_ROOT}/mnt/plexdrive:/mnt/plexdrive:rslave'
+            # - 'RCLONE_REMOTE_PATH=plexdrive_securemedia_crypt:' replace once new config ahs synced. Also change volume mount to: '${DOCKER_ROOT}/mnt/plexdrive:/mnt/plexdrive:rshared'
             - 'RCLONE_MOUNT_USER_OPTS=--include=/mountcheck --include=/Media/tv-4k/ --include=/Media/movies-4k/ --read-only --use-json-log --dir-cache-time 30m --multi-thread-streams=20 --allow-non-empty --allow-other --rc-web-gui --rc-web-gui-no-open-browser --rc-user ${RCLONE_USER} --rc-pass ${RCLONE_PASSWORD}'
             - MERGED_DEST=/mnt/rclone/plexdrive_secure_media
         volumes:
             - '${DOCKER_ROOT}/rclone/:/config:rw'
             - '${DOCKER_ROOT}/scripts/:/scripts:ro'
-            - '${DOCKER_ROOT}/mnt/plexdrive/secure_media:/mnt/plexdrive:rslave'
+            - '${DOCKER_ROOT}/mnt/plexdrive/secure_media:/mnt/plexdrive:rshared'
+            # - '${DOCKER_ROOT}/mnt/plexdrive:/mnt/plexdrive:rshared'
             - '${DOCKER_ROOT}/mnt/rclone:/mnt/rclone:rshared'
             - empty_volume:/local
         networks:
