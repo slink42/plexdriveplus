@@ -308,8 +308,6 @@ services:
         #     streamer_mergerfs:
         #         condition: service_healthy
     autoheal:
-        # container_name: pdp-autoheal
-        restart: always
         image: willfarrell/autoheal
         environment:
             - AUTOHEAL_CONTAINER_LABEL=autoheal
@@ -319,11 +317,13 @@ services:
             - /var/run/docker.sock:/var/run/docker.sock
         networks:
             - internal
+        restart: always
     watchtower:
         image: containrrr/watchtower
         volumes:
             - /var/run/docker.sock:/var/run/docker.sock
         command: --interval 30 --include-stopped
+        restart: always
 
 volumes:
     empty_volume:
