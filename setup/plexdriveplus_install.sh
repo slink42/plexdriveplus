@@ -90,6 +90,24 @@ function prepareVolumeMountPath() {
         $SUDO chmod -R +x "${MOUNT_PATH}"
         $SUDO chown -R root:root "${MOUNT_PATH}" # needs to be owned by root for security
     fi
+
+    if [ "$MOUNT_TYPE" = 'remove_dir' ]
+    then
+        echo ""
+        echo "********************************************************************"
+        echo "removing contents of $MOUNT_PATH"
+        echo "********************************************************************"
+        echo ""
+       if [ -d "$MOUNT_PATH" ]; then
+            if rm -r "$MOUNT_PATH"; then
+                echo "sucessfully removed existing dir: $MOUNT_PATH"
+            else
+                echo "failed to remove existing dir: $MOUNT_PATH"
+                echo "trying again with sudo. If this fails too library linking might not work"
+                $SUDO rm -r "$MOUNT_PATH"
+            fi
+        fi
+    fi
 }
 
 
@@ -261,15 +279,15 @@ mkdir -p "$DOCKER_ROOT/rclone"
     || (PDP_URL="https://github.com/slink42/plexdriveplus/archive/refs/tags/${PDP_VERSION}.tar.gz" &&  echo "" && echo "loading plexdrive plus using version: $PDP_VERSION")
 # remove existing custom-cont-init.d scripts if they exist to ensure only scripts downloaded remain for running at plex startup
 wget --no-check-certificate --content-disposition ${PDP_URL} -O "${DOCKER_ROOT}/plexdriveplus.tar.gz"
-if [ -d "${DOCKER_ROOT}/plex-streamer/custom-cont-init.d/" ]; then
-    if rm -r "${DOCKER_ROOT}/plex-streamer/custom-cont-init.d/"; then
-        echo "sucessfully removed existing dir: ${DOCKER_ROOT}/plex-streamer/custom-cont-init.d/"
-    else
-        echo "failed to remove existing dir: ${DOCKER_ROOT}/plex-streamer/custom-cont-init.d/"
-        echo "trying again with sudo. If this fails too library linking might not work"
-        $SUDO rm -r "${DOCKER_ROOT}/plex-streamer/custom-cont-init.d/"
-    fi
-fi
+
+# make sure folders set to be owened by root later via executable_dir are empty ahead of tar extract
+prepareVolumeMountPath "${DOCKER_ROOT}/plex-scanner/custom-cont-init.d" remove_dir
+prepareVolumeMountPath "${DOCKER_ROOT}/plex-scanner/custom-services.d" remove_dir
+prepareVolumeMountPath "${DOCKER_ROOT}/plex-streamer/custom-cont-init.d" remove_dir
+prepareVolumeMountPath "${DOCKER_ROOT}/plex-streamer/custom-services.d" remove_dir
+prepareVolumeMountPath "${DOCKER_ROOT}/scripts/" remove_dir
+
+# extract tar 
 tar xvzf "${DOCKER_ROOT}/plexdriveplus.tar.gz" --overwrite --strip=1 -C "${DOCKER_ROOT}"
 
 ### Rclone & Plexdrive setup
@@ -433,12 +451,10 @@ prepareVolumeMountPath "${DOCKER_ROOT}/plex-scanner/Library/Application Support/
 prepareVolumeMountPath "${DOCKER_ROOT}/plex-scanner/custom-cont-init.d" executable_dir
 prepareVolumeMountPath "${DOCKER_ROOT}/plex-scanner/custom-services.d" executable_dir
 prepareVolumeMountPath "${DOCKER_ROOT}/plex-scanner/transcode"
-ls -la "${DOCKER_ROOT}/plex-scanner/"
 
 prepareVolumeMountPath "${DOCKER_ROOT}/plex-streamer/custom-cont-init.d" executable_dir
 prepareVolumeMountPath "${DOCKER_ROOT}/plex-streamer/custom-services.d" executable_dir
 prepareVolumeMountPath "${DOCKER_ROOT}/plex-streamer/transcode"
-ls -la "${DOCKER_ROOT}/plex-streamer/"
 prepareVolumeMountPath "${DOCKER_ROOT}/scripts/" executable_dir
 
 # copy generic Plex Preferences.xml
