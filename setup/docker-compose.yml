@@ -60,7 +60,7 @@ services:
             - PGID=${GROUPID}
             - PUID=${USERID}
             - 'HEALTHCHECK_MOUNTS=/mnt/secure_media2'
-            - 'HEALTHCHECK_PATHS=/mnt/secure_media2/mountcheck'
+            - 'HEALTHCHECK_PATHS=/mnt/secure_media2'
             #- RCLONE_LOG_FILE=/config/rclone_media_mount_2.log
             - RCLONE_LOG_LEVEL=INFO
             - 'RCLONE_REMOTE_PATH=secure_media:'
@@ -103,7 +103,7 @@ services:
             - PGID=${GROUPID}
             - PUID=${USERID}
             - 'HEALTHCHECK_MOUNTS=/mnt/secure_media3'
-            - 'HEALTHCHECK_PATHS=/mnt/secure_media3/mountcheck'
+            - 'HEALTHCHECK_PATHS=/mnt/secure_media3'
             - RCLONE_LOG_FILE=/config/rclone_media_mount_3.log
             - RCLONE_LOG_LEVEL=INFO
             - 'RCLONE_REMOTE_PATH=secure_media:'
