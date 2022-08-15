@@ -25,7 +25,7 @@ services:
             - MERGED_DEST=/mnt/secure_media
         volumes:
             - '${DOCKER_ROOT}/rclone/:/config:rw'
-            - '${DOCKER_ROOT}/mnt/rclone:/mnt:rshared'
+            - '${DOCKER_ROOT}/mnt/rclone:/mnt:shared'
         networks:
             - bridge
             - internal
@@ -58,7 +58,7 @@ services:
             - MERGED_DEST=/mnt/secure_media2
         volumes:
             - '${DOCKER_ROOT}/rclone/:/config:rw'
-            - '${DOCKER_ROOT}/mnt/rclone:/mnt:rshared'
+            - '${DOCKER_ROOT}/mnt/rclone:/mnt:shared'
         networks:
             - bridge
             - internal
@@ -91,8 +91,7 @@ services:
             - MERGED_DEST=/mnt/secure_media3
         volumes:
             - '${DOCKER_ROOT}/rclone/:/config:rw'
-            - '${DOCKER_ROOT}/mnt/rclone:/mnt:rshared'
-            - empty_volume:/local
+            - '${DOCKER_ROOT}/mnt/rclone:/mnt:shared'
         networks:
             - bridge
             - internal
@@ -124,7 +123,7 @@ services:
         volumes:
             - '${DOCKER_ROOT}/plexdrive/config:/config:rw'
             # - '${DOCKER_ROOT}/scripts/:/scripts:ro'
-            - '${DOCKER_ROOT}/mnt/plexdrive/secure_media:/data:rshared'
+            - '${DOCKER_ROOT}/mnt/plexdrive/secure_media:/data:shared'
         networks:
             - bridge
             - internal
@@ -155,14 +154,14 @@ services:
             #- RCLONE_LOG_FILE=/config/rclone_plexdrive_mount.log
             - RCLONE_LOG_LEVEL=INFO
             - 'RCLONE_REMOTE_PATH=plexdrive_crypt:'
-            # - 'RCLONE_REMOTE_PATH=plexdrive_securemedia_crypt:' replace once new config ahs synced. Also change volume mount to: '${DOCKER_ROOT}/mnt/plexdrive:/mnt/plexdrive:rslave'
+            # - 'RCLONE_REMOTE_PATH=plexdrive_securemedia_crypt:' replace once new config ahs synced. Also change volume mount to: '${DOCKER_ROOT}/mnt/plexdrive:/mnt/plexdrive:slave'
             - 'RCLONE_MOUNT_USER_OPTS=--include=/mountcheck --include=/Media/tv-4k/ --include=/Media/movies-4k/ --read-only --use-json-log --dir-cache-time 30m --multi-thread-streams=20 --allow-non-empty --allow-other --rc-web-gui --rc-web-gui-no-open-browser --rc-user ${RCLONE_USER} --rc-pass ${RCLONE_PASSWORD}'
             - MERGED_DEST=/mnt/rclone/plexdrive_secure_media
         volumes:
             - '${DOCKER_ROOT}/rclone/:/config:rw'
-            - '${DOCKER_ROOT}/mnt/plexdrive/secure_media:/mnt/plexdrive:rslave'
-            # - '${DOCKER_ROOT}/mnt/plexdrive:/mnt/plexdrive:rslave'
-            - '${DOCKER_ROOT}/mnt/rclone:/mnt/rclone:rshared'
+            - '${DOCKER_ROOT}/mnt/plexdrive/secure_media:/mnt/plexdrive:slave'
+            # - '${DOCKER_ROOT}/mnt/plexdrive:/mnt/plexdrive:slave'
+            - '${DOCKER_ROOT}/mnt/rclone:/mnt/rclone:shared'
         networks:
             - bridge
             - internal
@@ -200,7 +199,7 @@ services:
             - MERGED_DEST=/mnt/mergerfs/streamer/media
             # - 'HEALTHCHECK_PATHS=/mnt/mergerfs/streamer/media/mountcheck /mnt/mergerfs/streamer/media/Media/movies /mnt/mergerfs/streamer/media/Media/movies-4k /mnt/mergerfs/streamer/media/Media/tv /mnt/mergerfs/streamer/media/Media/tv-4k'
         volumes:
-            - '${DOCKER_ROOT}/mnt/mergerfs:/mnt/mergerfs:rshared'
+            - '${DOCKER_ROOT}/mnt/mergerfs:/mnt/mergerfs:shared'
             - '${DOCKER_ROOT}/mnt/rclone:/mnt/rclone:rslave'
         networks:
             - internal
