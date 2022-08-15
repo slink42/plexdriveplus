@@ -91,7 +91,7 @@ function prepareVolumeMountPath() {
         $SUDO chown -R root:root "${MOUNT_PATH}" # needs to be owned by root for security
     fi
 
-    if [ "$MOUNT_TYPE" = 'remove_dir' ]
+    if [ "$MOUNT_TYPE" = 'sudo_remove_dir' ]
     then
         echo ""
         echo "********************************************************************"
@@ -99,12 +99,10 @@ function prepareVolumeMountPath() {
         echo "********************************************************************"
         echo ""
        if [ -d "$MOUNT_PATH" ]; then
-            if rm -r "$MOUNT_PATH"; then
+            if $SUDO rm -r "$MOUNT_PATH"; then
                 echo "sucessfully removed existing dir: $MOUNT_PATH"
             else
                 echo "failed to remove existing dir: $MOUNT_PATH"
-                echo "trying again with sudo. If this fails too library linking might not work"
-                $SUDO rm -r "$MOUNT_PATH"
             fi
         fi
     fi
@@ -281,11 +279,11 @@ mkdir -p "$DOCKER_ROOT/rclone"
 wget --no-check-certificate --content-disposition ${PDP_URL} -O "${DOCKER_ROOT}/plexdriveplus.tar.gz"
 
 # make sure folders set to be owened by root later via executable_dir are empty ahead of tar extract
-prepareVolumeMountPath "${DOCKER_ROOT}/plex-scanner/custom-cont-init.d" remove_dir
-prepareVolumeMountPath "${DOCKER_ROOT}/plex-scanner/custom-services.d" remove_dir
-prepareVolumeMountPath "${DOCKER_ROOT}/plex-streamer/custom-cont-init.d" remove_dir
-prepareVolumeMountPath "${DOCKER_ROOT}/plex-streamer/custom-services.d" remove_dir
-prepareVolumeMountPath "${DOCKER_ROOT}/scripts/" remove_dir
+prepareVolumeMountPath "${DOCKER_ROOT}/plex-scanner/custom-cont-init.d" sudo_remove_dir
+prepareVolumeMountPath "${DOCKER_ROOT}/plex-scanner/custom-services.d" sudo_remove_dir
+prepareVolumeMountPath "${DOCKER_ROOT}/plex-streamer/custom-cont-init.d" sudo_remove_dir
+prepareVolumeMountPath "${DOCKER_ROOT}/plex-streamer/custom-services.d" sudo_remove_dir
+prepareVolumeMountPath "${DOCKER_ROOT}/scripts/" sudo_remove_dir
 
 # extract tar 
 tar xvzf "${DOCKER_ROOT}/plexdriveplus.tar.gz" --overwrite --strip=1 -C "${DOCKER_ROOT}"
