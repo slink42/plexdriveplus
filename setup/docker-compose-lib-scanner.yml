@@ -7,19 +7,17 @@ services:
         environment:
             - TZ=Australia/Melbourne
             - PGID=${GROUPID}
-            - PUID=${USERID}   
-            - 'HEALTHCHECK_MOUNTS=/data'
-            - 'HEALTHCHECK_PATHS=/data'
-            # - RCLONE_LOG_FILE=/config/rclone_media_scanner_mount_1.log
+            - PUID=${USERID}
+            #- RCLONE_LOG_FILE=/config/rclone_media_scanner_mount_1.log
             - RCLONE_LOG_LEVEL=INFO
             - 'RCLONE_REMOTE_PATH=secure_media_scanner:'
-            - 'RCLONE_MOUNT_USER_OPTS=--read-only --use-json-log --acd-templink-threshold 1g --buffer-size 8M --timeout 5s --contimeout 5s --stats 300s --dir-cache-time 30m --multi-thread-streams=20 --allow-non-empty --allow-other --rc-web-gui --rc-web-gui-update --rc-web-gui-no-open-browser --rc-user ${RCLONE_USER} --rc-pass ${RCLONE_PASSWORD}'
+            - 'RCLONE_MOUNT_USER_OPTS=--read-only --use-json-log --acd-templink-threshold 1g --buffer-size 8M --timeout 5s --contimeout 5s --stats 300s --dir-cache-time 30m --multi-thread-streams=20 --allow-non-empty --allow-other --rc-web-gui --rc-web-gui-no-open-browser --rc-user ${RCLONE_USER} --rc-pass ${RCLONE_PASSWORD}'
             - RCLONE_CONFIG_GDRIVE_MOLE_TEAM_DRIVE=${RCLONE_CONFIG_GDRIVE_TEAM_DRIVE_1}
             - RCLONE_CONFIG_GDRIVE_WOLF_TEAM_DRIVE=${RCLONE_CONFIG_GDRIVE_TEAM_DRIVE_1}
+            - MERGED_DEST=/mnt/scanner_secure_media
         volumes:
             - '${DOCKER_ROOT}/rclone/:/config:rw'
-            - '${DOCKER_ROOT}/scripts/:/scripts:ro'
-            - '${DOCKER_ROOT}/mnt/rclone/scanner_secure_media:/data:rshared'
+            - '${DOCKER_ROOT}/mnt/rclone:/mnt:rshared'
         networks:
             - bridge
             - internal
@@ -34,13 +32,7 @@ services:
             - SYS_ADMIN
         security_opt:
             - apparmor:unconfined
-        image: wiserain/rclone
-        healthcheck:
-            test: ["CMD-SHELL", "sh /scripts/healthcheck"]
-            interval: 120s
-            timeout: 10s
-            retries: 1
-            start_period: 5s
+        image: slink42/rclone
     rclone_media_scanner2:
         restart: always
         labels:
@@ -48,19 +40,17 @@ services:
         environment:
             - TZ=Australia/Melbourne
             - PGID=${GROUPID}
-            - PUID=${USERID}   
-            - 'HEALTHCHECK_MOUNTS=/data'
-            - 'HEALTHCHECK_PATHS=/data'
-            # - RCLONE_LOG_FILE=/config/rclone_media_scanner_mount_2.log
+            - PUID=${USERID}
+            #- RCLONE_LOG_FILE=/config/rclone_media_scanner_mount_2.log
             - RCLONE_LOG_LEVEL=INFO
             - 'RCLONE_REMOTE_PATH=secure_media_scanner:'
-            - 'RCLONE_MOUNT_USER_OPTS=--read-only --use-json-log --acd-templink-threshold 1g --buffer-size 8M --timeout 5s --contimeout 5s --stats 300s --dir-cache-time 30m --multi-thread-streams=20 --allow-non-empty --allow-other --rc-web-gui --rc-web-gui-update --rc-web-gui-no-open-browser --rc-user ${RCLONE_USER} --rc-pass ${RCLONE_PASSWORD}'
+            - 'RCLONE_MOUNT_USER_OPTS=--read-only --use-json-log --acd-templink-threshold 1g --buffer-size 8M --timeout 5s --contimeout 5s --stats 300s --dir-cache-time 30m --multi-thread-streams=20 --allow-non-empty --allow-other --rc-web-gui --rc-web-gui-no-open-browser --rc-user ${RCLONE_USER} --rc-pass ${RCLONE_PASSWORD}'
             - RCLONE_CONFIG_GDRIVE_MOLE_TEAM_DRIVE=${RCLONE_CONFIG_GDRIVE_TEAM_DRIVE_2}
             - RCLONE_CONFIG_GDRIVE_WOLF_TEAM_DRIVE=${RCLONE_CONFIG_GDRIVE_TEAM_DRIVE_2}
+            - MERGED_DEST=/mnt/scanner_secure_media2
         volumes:
             - '${DOCKER_ROOT}/rclone/:/config:rw'
-            - '${DOCKER_ROOT}/scripts/:/scripts:ro'
-            - '${DOCKER_ROOT}/mnt/rclone/scanner_secure_media2:/data:rshared'
+            - '${DOCKER_ROOT}/mnt/rclone:/mnt:rshared'
         networks:
             - bridge
             - internal
@@ -75,13 +65,7 @@ services:
             - SYS_ADMIN
         security_opt:
             - apparmor:unconfined
-        image: wiserain/rclone
-        healthcheck:
-            test: ["CMD-SHELL", "sh /scripts/healthcheck"]
-            interval: 120s
-            timeout: 10s
-            retries: 1
-            start_period: 5s
+        image: slink42/rclone
     rclone_media_scanner3:
         restart: always
         labels:
@@ -89,19 +73,17 @@ services:
         environment:
             - TZ=Australia/Melbourne
             - PGID=${GROUPID}
-            - PUID=${USERID}   
-            - 'HEALTHCHECK_MOUNTS=/data'
-            - 'HEALTHCHECK_PATHS=/data'
-            # - RCLONE_LOG_FILE=/config/rclone_media_scanner_mount_3.log
+            - PUID=${USERID}
+            #- RCLONE_LOG_FILE=/config/rclone_media_scanner_mount_3.log
             - RCLONE_LOG_LEVEL=INFO
             - 'RCLONE_REMOTE_PATH=secure_media_scanner:'
-            - 'RCLONE_MOUNT_USER_OPTS=--read-only --use-json-log --acd-templink-threshold 1g --buffer-size 8M --timeout 5s --contimeout 5s --stats 300s --dir-cache-time 30m --multi-thread-streams=20 --allow-non-empty --allow-other --rc-web-gui --rc-web-gui-update --rc-web-gui-no-open-browser --rc-user ${RCLONE_USER} --rc-pass ${RCLONE_PASSWORD}'
+            - 'RCLONE_MOUNT_USER_OPTS=--read-only --use-json-log --acd-templink-threshold 1g --buffer-size 8M --timeout 5s --contimeout 5s --stats 300s --dir-cache-time 30m --multi-thread-streams=20 --allow-non-empty --allow-other --rc-web-gui --rc-web-gui-no-open-browser --rc-user ${RCLONE_USER} --rc-pass ${RCLONE_PASSWORD}'
             - RCLONE_CONFIG_GDRIVE_MOLE_TEAM_DRIVE=${RCLONE_CONFIG_GDRIVE_TEAM_DRIVE_3}
             - RCLONE_CONFIG_GDRIVE_WOLF_TEAM_DRIVE=${RCLONE_CONFIG_GDRIVE_TEAM_DRIVE_3}
+            - MERGED_DEST=/mnt/scanner_secure_media3
         volumes:
             - '${DOCKER_ROOT}/rclone/:/config:rw'
-            - '${DOCKER_ROOT}/scripts/:/scripts:ro'
-            - '${DOCKER_ROOT}/mnt/rclone/scanner_secure_media3:/data:rshared'
+            - '${DOCKER_ROOT}/mnt/rclone:/mnt:rshared'
         networks:
             - bridge
             - internal
@@ -116,16 +98,8 @@ services:
             - SYS_ADMIN
         security_opt:
             - apparmor:unconfined
-        image: wiserain/rclone
-        healthcheck:
-            test: ["CMD-SHELL", "sh /scripts/healthcheck"]
-            interval: 120s
-            timeout: 10s
-            retries: 1
-            start_period: 5s
+        image: slink42/rclone
     scanner_mergerfs:
-        entrypoint: /bin/sh
-        command: /scripts/mergerfs/start.sh
         restart: always
         labels:
             - "autoheal=true"
@@ -133,15 +107,13 @@ services:
             - TZ=Australia/Melbourne
             - PUID=${USERID}
             - PGID=${GROUPID}
-            - MFS_USER_OPTS=allow_other,auto_cache,auto_unmount,direct_io,gid=${GROUPID},sync_read,uid=${USERID}
-            - MFS_BRANCHES=/mnt/rclone/scanner_secure_media=RO:/mnt/rclone/scanner_secure_media2=RO:/mnt/rclone/scanner_secure_media3=RO
-            - MFS_DEST=/data/media
-            - 'HEALTHCHECK_MOUNTS=/data/media'
-            - 'HEALTHCHECK_PATHS=/data/media/mountcheck /data/media/Media/movies /data/media/Media/movies-4k /data/media/Media/tv /data/media/Media/tv-4k'
+            - MFS_USER_OPTS=allow_other,nonempty,auto_cache,auto_unmount,direct_io,gid=${GROUPID},sync_read,uid=${USERID}
+            - MFS_BRANCHES=/mnt/rclone/secure_media=RO:/mnt/rclone/secure_media2=RO:/mnt/rclone/secure_media3=RO
+            - MERGED_DEST=/mnt/mergerfs/scanner/media
+            # - 'HEALTHCHECK_PATHS=/mnt/mergerfs/scanner/media/mountcheck /mnt/mergerfs/scanner/media/Media/movies /mnt/mergerfs/scanner/media/Media/movies-4k /mnt/mergerfs/scanner/media/Media/tv /mnt/mergerfs/scanner/media/Media/tv-4k'
         volumes:
-            - '${DOCKER_ROOT}/mnt/mergerfs/scanner:/data:rshared'
-            - '${DOCKER_ROOT}/mnt/rclone:/mnt/rclone:rshared'
-            - '${DOCKER_ROOT}/scripts/:/scripts:ro'
+            - '${DOCKER_ROOT}/mnt/mergerfs:/mnt/mergerfs:rshared'
+            - '${DOCKER_ROOT}/mnt/rclone:/mnt/rclone:rslave'
         networks:
             - internal
         logging:
@@ -153,13 +125,7 @@ services:
             - SYS_ADMIN
         security_opt:
             - apparmor:unconfined
-        image: hotio/mergerfs
-        healthcheck:
-            test: ["CMD-SHELL", "sh /scripts/healthcheck"]
-            interval: 60s
-            timeout: 55s
-            retries: 3
-            start_period: 10s
+        image: slink42/mergerfs
     plex_scanner:
         networks:
             - bridge

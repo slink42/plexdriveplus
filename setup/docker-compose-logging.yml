@@ -9,7 +9,7 @@ services:
     prometheus:
         image: docker.io/prom/prometheus
         ports:
-            - "9090:9090"
+            - "19090:9090"
         networks:
             - bridge
             - internal
@@ -68,16 +68,3 @@ services:
             - internal
         hostname: nginx
         restart: always
-#   rclone:
-#     image: docker.io/rclone/rclone:1.50
-#     stdin_open: true
-#     tty: true
-#     entrypoint: sh
-#     volumes:
-#     - ./:/config/rclone/
-#     ports:
-#     - "5572:5572"
-#     networks:
-#         - internal
-#     user: "1000:1000"
-#     #command: rclone --rc --rc-addr "0.0.0.0:5572" --rc-user user --rc-pass password -v serve http source:bucket

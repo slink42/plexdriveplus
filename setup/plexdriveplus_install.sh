@@ -70,21 +70,41 @@ function prepareVolumeMountPath() {
     mkdir -p "$MOUNT_PATH"
     if ! [[ $(ls -la "$MOUNT_PATH") ]]
     then
-        echo "warning:inital attempt to prepare $MOUNT_PATH failed. Tring again after forcing any existing moutns to the path to disconnect"
+        echo "warning:inital attempt to prepare $MOUNT_PATH failed. Trying again after forcing any existing mounts to the path to disconnect"
         $SUDO fusermount -uz "$MOUNT_PATH" 2>/dev/null
         mkdir -p "$MOUNT_PATH"
         if ! [[ $(ls -la "$MOUNT_PATH") ]]
         then
-            echo "error: attempts to prepare $MOUNT_PATH for used as a volumn bind point failed. Manual intervention required"
+            echo "error: attempts to prepare $MOUNT_PATH for used as a volume bind point failed. Manual intervention required"
             exit 1
         fi
     fi
 
     if [ "$MOUNT_TYPE" = 'executable_dir' ]
     then
+        echo ""
+        echo "********************************************************************"
         echo "setting contents of $MOUNT_PATH as executable and owned by root user"
+        echo "********************************************************************"
+        echo ""
         $SUDO chmod -R +x "${MOUNT_PATH}"
         $SUDO chown -R root:root "${MOUNT_PATH}" # needs to be owned by root for security
+    fi
+
+    if [ "$MOUNT_TYPE" = 'sudo_remove_dir' ]
+    then
+        echo ""
+        echo "********************************************************************"
+        echo "removing contents of $MOUNT_PATH"
+        echo "********************************************************************"
+        echo ""
+       if [ -d "$MOUNT_PATH" ]; then
+            if $SUDO rm -r "$MOUNT_PATH"; then
+                echo "sucessfully removed existing dir: $MOUNT_PATH"
+            else
+                echo "failed to remove existing dir: $MOUNT_PATH"
+            fi
+        fi
     fi
 }
 
@@ -257,15 +277,15 @@ mkdir -p "$DOCKER_ROOT/rclone"
     || (PDP_URL="https://github.com/slink42/plexdriveplus/archive/refs/tags/${PDP_VERSION}.tar.gz" &&  echo "" && echo "loading plexdrive plus using version: $PDP_VERSION")
 # remove existing custom-cont-init.d scripts if they exist to ensure only scripts downloaded remain for running at plex startup
 wget --no-check-certificate --content-disposition ${PDP_URL} -O "${DOCKER_ROOT}/plexdriveplus.tar.gz"
-if [ -d "${DOCKER_ROOT}/plex-streamer/custom-cont-init.d/" ]; then
-    if rm -r "${DOCKER_ROOT}/plex-streamer/custom-cont-init.d/"; then
-        echo "sucessfully removed existing dir: ${DOCKER_ROOT}/plex-streamer/custom-cont-init.d/"
-    else
-        echo "failed to remove existing dir: ${DOCKER_ROOT}/plex-streamer/custom-cont-init.d/"
-        echo "trying again with sudo. If this fails too library linking might not work"
-        $SUDO rm -r "${DOCKER_ROOT}/plex-streamer/custom-cont-init.d/"
-    fi
-fi
+
+# make sure folders set to be owened by root later via executable_dir are empty ahead of tar extract
+prepareVolumeMountPath "${DOCKER_ROOT}/plex-scanner/custom-cont-init.d" sudo_remove_dir
+prepareVolumeMountPath "${DOCKER_ROOT}/plex-scanner/custom-services.d" sudo_remove_dir
+prepareVolumeMountPath "${DOCKER_ROOT}/plex-streamer/custom-cont-init.d" sudo_remove_dir
+prepareVolumeMountPath "${DOCKER_ROOT}/plex-streamer/custom-services.d" sudo_remove_dir
+prepareVolumeMountPath "${DOCKER_ROOT}/scripts/" sudo_remove_dir
+
+# extract tar 
 tar xvzf "${DOCKER_ROOT}/plexdriveplus.tar.gz" --overwrite --strip=1 -C "${DOCKER_ROOT}"
 
 ### Rclone & Plexdrive setup
@@ -425,10 +445,13 @@ prepareVolumeMountPath "${DOCKER_ROOT}/mnt/mergerfs/scanner/media"
 prepareVolumeMountPath "${DOCKER_ROOT}/plex-scanner/Library/Application Support/Plex Media Server/Plug-in Support/Databases"
 prepareVolumeMountPath "${DOCKER_ROOT}/plex-scanner/Library/Application Support/Plex Media Server/Metadata/"
 prepareVolumeMountPath "${DOCKER_ROOT}/plex-scanner/Library/Application Support/Plex Media Server/Media/"
-prepareVolumeMountPath "${DOCKER_ROOT}/mnt/rclone/plexdrive_secure_media/Media/movies-4k/"
-prepareVolumeMountPath "${DOCKER_ROOT}/mnt/rclone/plexdrive_secure_media/Media/tv-4k/"
+
+prepareVolumeMountPath "${DOCKER_ROOT}/plex-scanner/custom-cont-init.d" executable_dir
+prepareVolumeMountPath "${DOCKER_ROOT}/plex-scanner/custom-services.d" executable_dir
+prepareVolumeMountPath "${DOCKER_ROOT}/plex-scanner/transcode"
 
 prepareVolumeMountPath "${DOCKER_ROOT}/plex-streamer/custom-cont-init.d" executable_dir
+prepareVolumeMountPath "${DOCKER_ROOT}/plex-streamer/custom-services.d" executable_dir
 prepareVolumeMountPath "${DOCKER_ROOT}/plex-streamer/transcode"
 prepareVolumeMountPath "${DOCKER_ROOT}/scripts/" executable_dir
 
@@ -443,7 +466,6 @@ else
     echo "Using Preferences.xml downloaded from cloud for Plex server config"
     cp "$PLEX_PREF_MASTER" "$DOCKER_ROOT/plex-streamer/Library/Application Support/Plex Media Server/Preferences.xml"
 fi
-
 
 # load plex claim id env variable
 if grep -qs "PlexOnlineToken" "$DOCKER_ROOT/plex-streamer/Library/Application Support/Plex Media Server/Preferences.xml"  && \
@@ -500,7 +522,6 @@ echo "HOST_NETWORK=$HOST_NETWORK" >> "$ENV_FILE"
 sed -i '/HOST_NETWORK_MODE/'d "$ENV_FILE"
 echo "HOST_NETWORK_MODE=$HOST_NETWORK" >> "$ENV_FILE"
 
-
 # start docker containers
 DOCKER_COMPOSE_FILE="$DOCKER_ROOT/setup/docker-compose.yml"
 SLAVE_DOCKER_COMPOSE_FILE="$DOCKER_ROOT/setup/docker-compose-lib-slave.yml"
@@ -510,7 +531,8 @@ if [[ $management_mode = "2" ]] || [[ $management_mode = "3" ]]; then
         # load plex claim ID to PLEX_CLAIM_ID variable .env file
     read -i 'Do you want to initalise library database useing copy from cloud? Type "yes" to download> ' -e MASTER_LIB_DOWNLOAD
     if [[ "$MASTER_LIB_DOWNLOAD" = "yes" ]]; then
-        DOCKER_COMPOSE_COMMAND="docker-compose --env-file \"$ENV_FILE\" --project-directory \"$DOCKER_ROOT/setup\" -f \"$DOCKER_COMPOSE_FILE\" -f \"$LOGGING_COMPOSE_FILE\" -f \"$SLAVE_DOCKER_COMPOSE_FILE\" --project-name plexdriveplus up -d --force-recreate"
+        DOCKER_COMPOSE_COMMAND="docker-compose --env-file \"$ENV_FILE\" --project-directory \"$DOCKER_ROOT/setup\" -f \"$DOCKER_COMPOSE_FILE\" -f \"$SLAVE_DOCKER_COMPOSE_FILE\" --project-name plexdriveplus up -d --force-recreate"
+        # DOCKER_COMPOSE_COMMAND="docker-compose --env-file \"$ENV_FILE\" --project-directory \"$DOCKER_ROOT/setup\" -f \"$DOCKER_COMPOSE_FILE\" -f \"$LOGGING_COMPOSE_FILE\" -f \"$SLAVE_DOCKER_COMPOSE_FILE\" --project-name plexdriveplus up -d --force-recreate"
         echo "initialising docker containers with command: $DOCKER_COMPOSE_COMMAND"
         bash -c "$DOCKER_COMPOSE_COMMAND"
     else
@@ -521,7 +543,8 @@ if [[ $management_mode = "2" ]] || [[ $management_mode = "3" ]]; then
     [ -f "${DOCKER_ROOT}/plex-meta-manager/config.yml" ] || cp  "${DOCKER_ROOT}/plex-meta-manager/template.config.yml"  "${DOCKER_ROOT}/plex-meta-manager/config.yml"
 
 else
-    DOCKER_COMPOSE_COMMAND="docker-compose --env-file \"$ENV_FILE\" --project-directory \"$DOCKER_ROOT/setup\" -f \"$DOCKER_COMPOSE_FILE\" -f \"$LOGGING_COMPOSE_FILE\" $DOCKER_COMPOSE_FILE_LIB_MANGER --project-name plexdriveplus up -d --remove-orphans --force-recreate"
+    DOCKER_COMPOSE_COMMAND="docker-compose --env-file \"$ENV_FILE\" --project-directory \"$DOCKER_ROOT/setup\" -f \"$DOCKER_COMPOSE_FILE\" $DOCKER_COMPOSE_FILE_LIB_MANGER --project-name plexdriveplus up -d --remove-orphans --force-recreate"
+    # DOCKER_COMPOSE_COMMAND="docker-compose --env-file \"$ENV_FILE\" --project-directory \"$DOCKER_ROOT/setup\" -f \"$DOCKER_COMPOSE_FILE\" -f \"$LOGGING_COMPOSE_FILE\" $DOCKER_COMPOSE_FILE_LIB_MANGER --project-name plexdriveplus up -d --remove-orphans --force-recreate"
     echo "starting docker containers with command: $DOCKER_COMPOSE_COMMAND"
     bash -c "$DOCKER_COMPOSE_COMMAND"
 fi

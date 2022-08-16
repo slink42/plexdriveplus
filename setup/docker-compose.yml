@@ -16,19 +16,16 @@ services:
             - TZ=Australia/Melbourne
             - PGID=${GROUPID}
             - PUID=${USERID}
-            - 'HEALTHCHECK_MOUNTS=/data'
-            - 'HEALTHCHECK_PATHS=/data/mountcheck'
             #- RCLONE_LOG_FILE=/config/rclone_media_mount_1.log
             - RCLONE_LOG_LEVEL=INFO
             - 'RCLONE_REMOTE_PATH=secure_media:'
-            - 'RCLONE_MOUNT_USER_OPTS=--read-only --use-json-log --acd-templink-threshold 1g --buffer-size 8M --timeout 5s --contimeout 5s --stats 300s --dir-cache-time 30m --multi-thread-streams=20 --allow-non-empty --allow-other --rc-web-gui --rc-web-gui-update --rc-web-gui-no-open-browser --rc-user ${RCLONE_USER} --rc-pass ${RCLONE_PASSWORD}'
+            - 'RCLONE_MOUNT_USER_OPTS=--read-only --use-json-log --acd-templink-threshold 1g --buffer-size 8M --timeout 5s --contimeout 5s --stats 300s --dir-cache-time 30m --multi-thread-streams=20 --allow-non-empty --allow-other --rc-web-gui --rc-web-gui-no-open-browser --rc-user ${RCLONE_USER} --rc-pass ${RCLONE_PASSWORD}'
             - RCLONE_CONFIG_GDRIVE_MOLE_TEAM_DRIVE=${RCLONE_CONFIG_GDRIVE_TEAM_DRIVE_1}
             - RCLONE_CONFIG_GDRIVE_WOLF_TEAM_DRIVE=${RCLONE_CONFIG_GDRIVE_TEAM_DRIVE_1}
+            - MERGED_DEST=/mnt/secure_media
         volumes:
             - '${DOCKER_ROOT}/rclone/:/config:rw'
-            - '${DOCKER_ROOT}/scripts/:/scripts:ro'
-            - '${DOCKER_ROOT}/mnt/rclone/secure_media:/data:rshared'
-            - empty_volume:/local
+            - '${DOCKER_ROOT}/mnt/rclone:/mnt:shared'
         networks:
             - bridge
             - internal
@@ -43,13 +40,7 @@ services:
             - SYS_ADMIN
         security_opt:
             - apparmor:unconfined
-        image: wiserain/rclone
-        healthcheck:
-            test: ["CMD-SHELL", "sh /scripts/healthcheck"]
-            interval: 120s
-            timeout: 10s
-            retries: 1
-            start_period: 5s
+        image: slink42/rclone
     rclone_media2:
         restart: always
         labels:
@@ -58,19 +49,16 @@ services:
             - TZ=Australia/Melbourne
             - PGID=${GROUPID}
             - PUID=${USERID}
-            - 'HEALTHCHECK_MOUNTS=/data'
-            - 'HEALTHCHECK_PATHS=/data'
             #- RCLONE_LOG_FILE=/config/rclone_media_mount_2.log
             - RCLONE_LOG_LEVEL=INFO
             - 'RCLONE_REMOTE_PATH=secure_media:'
-            - 'RCLONE_MOUNT_USER_OPTS=--read-only --use-json-log --acd-templink-threshold 1g --buffer-size 8M --timeout 5s --contimeout 5s --stats 300s --dir-cache-time 30m --multi-thread-streams=20 --allow-non-empty --allow-other --rc-web-gui --rc-web-gui-update --rc-web-gui-no-open-browser --rc-user ${RCLONE_USER} --rc-pass ${RCLONE_PASSWORD}'
+            - 'RCLONE_MOUNT_USER_OPTS=--read-only --use-json-log --acd-templink-threshold 1g --buffer-size 8M --timeout 5s --contimeout 5s --stats 300s --dir-cache-time 30m --multi-thread-streams=20 --allow-non-empty --allow-other --rc-web-gui --rc-web-gui-no-open-browser --rc-user ${RCLONE_USER} --rc-pass ${RCLONE_PASSWORD}'
             - RCLONE_CONFIG_GDRIVE_MOLE_TEAM_DRIVE=${RCLONE_CONFIG_GDRIVE_TEAM_DRIVE_2}
             - RCLONE_CONFIG_GDRIVE_WOLF_TEAM_DRIVE=${RCLONE_CONFIG_GDRIVE_TEAM_DRIVE_2}
+            - MERGED_DEST=/mnt/secure_media2
         volumes:
             - '${DOCKER_ROOT}/rclone/:/config:rw'
-            - '${DOCKER_ROOT}/scripts/:/scripts:ro'
-            - '${DOCKER_ROOT}/mnt/rclone/secure_media2:/data:rshared'
-            - empty_volume:/local
+            - '${DOCKER_ROOT}/mnt/rclone:/mnt:shared'
         networks:
             - bridge
             - internal
@@ -85,13 +73,7 @@ services:
             - SYS_ADMIN
         security_opt:
             - apparmor:unconfined
-        image: wiserain/rclone
-        healthcheck:
-            test: ["CMD-SHELL", "sh /scripts/healthcheck"]
-            interval: 120s
-            timeout: 10s
-            retries: 1
-            start_period: 5s
+        image: slink42/rclone
     rclone_media3:
         restart: always
         labels:
@@ -100,19 +82,16 @@ services:
             - TZ=Australia/Melbourne
             - PGID=${GROUPID}
             - PUID=${USERID}
-            - 'HEALTHCHECK_MOUNTS=/data'
-            - 'HEALTHCHECK_PATHS=/data'
             - RCLONE_LOG_FILE=/config/rclone_media_mount_3.log
             - RCLONE_LOG_LEVEL=INFO
             - 'RCLONE_REMOTE_PATH=secure_media:'
-            - 'RCLONE_MOUNT_USER_OPTS=--read-only --use-json-log --acd-templink-threshold 1g --buffer-size 8M --timeout 5s --contimeout 5s --stats 300s --dir-cache-time 30m --multi-thread-streams=20 --allow-non-empty --allow-other --rc-web-gui --rc-web-gui-update --rc-web-gui-no-open-browser --rc-user ${RCLONE_USER} --rc-pass ${RCLONE_PASSWORD}'
+            - 'RCLONE_MOUNT_USER_OPTS=--read-only --use-json-log --acd-templink-threshold 1g --buffer-size 8M --timeout 5s --contimeout 5s --stats 300s --dir-cache-time 30m --multi-thread-streams=20 --allow-non-empty --allow-other --rc-web-gui --rc-web-gui-no-open-browser --rc-user ${RCLONE_USER} --rc-pass ${RCLONE_PASSWORD}'
             - RCLONE_CONFIG_GDRIVE_MOLE_TEAM_DRIVE=${RCLONE_CONFIG_GDRIVE_TEAM_DRIVE_3}
             - RCLONE_CONFIG_GDRIVE_WOLF_TEAM_DRIVE=${RCLONE_CONFIG_GDRIVE_TEAM_DRIVE_3}
+            - MERGED_DEST=/mnt/secure_media3
         volumes:
             - '${DOCKER_ROOT}/rclone/:/config:rw'
-            - '${DOCKER_ROOT}/scripts/:/scripts:ro'
-            - '${DOCKER_ROOT}/mnt/rclone/secure_media3:/data:rshared'
-            - empty_volume:/local
+            - '${DOCKER_ROOT}/mnt/rclone:/mnt:shared'
         networks:
             - bridge
             - internal
@@ -127,13 +106,7 @@ services:
             - SYS_ADMIN
         security_opt:
             - apparmor:unconfined
-        image: wiserain/rclone
-        healthcheck:
-            test: ["CMD-SHELL", "sh /scripts/healthcheck"]
-            interval: 120s
-            timeout: 10s
-            retries: 1
-            start_period: 5s
+        image: slink42/rclone
     plexdrive:
         restart: always
         labels:
@@ -142,16 +115,11 @@ services:
             - TZ=Australia/Melbourne
             - PUID=${USERID}
             - PGID=${GROUPID}
-            - 'HEALTHCHECK_MOUNTS=/data'
-            - HEALTHCHECK_PATHS=/data /data/Config
             - POOLING_FS=mergerfs
             - 'PLEXDRIVE_OPTS=-v 2 --max-chunks=10 --chunk-size=20M --chunk-check-threads=20 --chunk-load-threads=4 --chunk-load-ahead=5 --drive-id=0ALNBa0QBHhldUk9PVA -o allow_other,read_only,nonempty,auto_unmount'
-            # - MFS_USER_OPTS=rw,use_ino,func.getattr=newest,category.action=all,category.create=ff,cache.files=auto-full,dropcacheonclose=true
         volumes:
             - '${DOCKER_ROOT}/plexdrive/config:/config:rw'
-            - '${DOCKER_ROOT}/scripts/:/scripts:ro'
-            - '${DOCKER_ROOT}/mnt/plexdrive/secure_media:/data:rshared'
-            - empty_volume:/local
+            - '${DOCKER_ROOT}/mnt/plexdrive/secure_media:/data:shared'
         networks:
             - bridge
             - internal
@@ -165,12 +133,6 @@ services:
         security_opt:
             - apparmor:unconfined
         image: 'wiserain/plexdrive'
-        healthcheck:
-            test: ["CMD-SHELL", "sh /scripts/healthcheck"]
-            interval: 30s
-            timeout: 25s
-            retries: 5
-            start_period: 20s
     rclone_plexdrive:
         restart: always
         labels:
@@ -179,18 +141,17 @@ services:
             - TZ=Australia/Melbourne
             - PGID=${GROUPID}
             - PUID=${USERID}
-            - 'HEALTHCHECK_MOUNTS=/data'
-            - 'HEALTHCHECK_PATHS=/data/mountcheck'
             #- RCLONE_LOG_FILE=/config/rclone_plexdrive_mount.log
             - RCLONE_LOG_LEVEL=INFO
             - 'RCLONE_REMOTE_PATH=plexdrive_crypt:'
-            - 'RCLONE_MOUNT_USER_OPTS=--read-only --use-json-log --dir-cache-time 30m --multi-thread-streams=20 --allow-non-empty --allow-other --rc-web-gui --rc-web-gui-update --rc-web-gui-no-open-browser --rc-user ${RCLONE_USER} --rc-pass ${RCLONE_PASSWORD}'
+            # - 'RCLONE_REMOTE_PATH=plexdrive_securemedia_crypt:' replace once new config ahs synced. Also change volume mount to: '${DOCKER_ROOT}/mnt/plexdrive:/mnt/plexdrive:slave'
+            - 'RCLONE_MOUNT_USER_OPTS=--include=/mountcheck --include=/Media/tv-4k/ --include=/Media/movies-4k/ --read-only --use-json-log --dir-cache-time 30m --multi-thread-streams=20 --allow-non-empty --allow-other --rc-web-gui --rc-web-gui-no-open-browser --rc-user ${RCLONE_USER} --rc-pass ${RCLONE_PASSWORD}'
+            - MERGED_DEST=/mnt/rclone/plexdrive_secure_media
         volumes:
             - '${DOCKER_ROOT}/rclone/:/config:rw'
-            - '${DOCKER_ROOT}/scripts/:/scripts:ro'
-            - '${DOCKER_ROOT}/mnt/plexdrive/secure_media/:/mnt/plexdrive:rslave'
-            - '${DOCKER_ROOT}/mnt/rclone/plexdrive_secure_media:/data:rshared'
-            - empty_volume:/local
+            - '${DOCKER_ROOT}/mnt/plexdrive/secure_media:/mnt/plexdrive:slave'
+            # - '${DOCKER_ROOT}/mnt/plexdrive:/mnt/plexdrive:slave'
+            - '${DOCKER_ROOT}/mnt/rclone:/mnt/rclone:shared'
         networks:
             - bridge
             - internal
@@ -205,19 +166,11 @@ services:
             - SYS_ADMIN
         security_opt:
             - apparmor:unconfined
-        image: wiserain/rclone
-        healthcheck:
-            test: ["CMD-SHELL", "sh /scripts/healthcheck"]
-            interval: 120s
-            timeout: 10s
-            retries: 1
-            start_period: 5s
+        image: slink42/rclone
         depends_on:
             plexdrive:
                 condition: service_healthy
     streamer_mergerfs:
-        entrypoint: /bin/sh
-        command: /scripts/mergerfs/start.sh
         restart: always
         labels:
             - "autoheal=true"
@@ -225,17 +178,13 @@ services:
             - TZ=Australia/Melbourne
             - PUID=${USERID}
             - PGID=${GROUPID}
-            - MFS_USER_OPTS=allow_other,auto_cache,auto_unmount,direct_io,gid=${GROUPID},sync_read,uid=${USERID}
-            - MFS_BRANCHES=/mnt/plexdrive/secure_media/=RO:/mnt/rclone/secure_media=RO:/mnt/rclone/secure_media2=RO:/mnt/rclone/secure_media3=RO
-            - MFS_DEST=/data/media
-            - 'HEALTHCHECK_MOUNTS=/data/media'
-            - 'HEALTHCHECK_PATHS=/data/media/mountcheck /data/media/Media/movies /data/media/Media/movies-4k /data/media/Media/tv /data/media/Media/tv-4k'
+            - MFS_USER_OPTS=allow_other,nonempty,auto_cache,auto_unmount,direct_io,gid=${GROUPID},sync_read,uid=${USERID}
+            - MFS_BRANCHES=/mnt/rclone/plexdrive_secure_media/=RO:/mnt/rclone/secure_media=RO:/mnt/rclone/secure_media2=RO:/mnt/rclone/secure_media3=RO
+            - MERGED_DEST=/mnt/mergerfs/streamer/media
+            # - 'HEALTHCHECK_PATHS=/mnt/mergerfs/streamer/media/mountcheck /mnt/mergerfs/streamer/media/Media/movies /mnt/mergerfs/streamer/media/Media/movies-4k /mnt/mergerfs/streamer/media/Media/tv /mnt/mergerfs/streamer/media/Media/tv-4k'
         volumes:
-            - '${DOCKER_ROOT}/mnt/mergerfs/streamer:/data:rshared'
+            - '${DOCKER_ROOT}/mnt/mergerfs:/mnt/mergerfs:shared'
             - '${DOCKER_ROOT}/mnt/rclone:/mnt/rclone:rslave'
-            - '${DOCKER_ROOT}/mnt/rclone/plexdrive_secure_media/Media/movies-4k/:/mnt/plexdrive/secure_media/Media/movies-4k/:rslave'
-            - '${DOCKER_ROOT}/mnt/rclone/plexdrive_secure_media/Media/tv-4k/:/mnt/plexdrive/secure_media/Media/tv-4k/:rslave'
-            - '${DOCKER_ROOT}/scripts/:/scripts:ro'
         networks:
             - internal
         logging:
@@ -247,13 +196,7 @@ services:
             - SYS_ADMIN
         security_opt:
             - apparmor:unconfined
-        image: hotio/mergerfs
-        healthcheck:
-            test: ["CMD-SHELL", "sh /scripts/healthcheck"]
-            interval: 60s
-            timeout: 55s
-            retries: 3
-            start_period: 10s
+        image: slink42/mergerfs
     plex_streamer:
         network_mode: host
         # networks:
@@ -307,8 +250,6 @@ services:
         #     streamer_mergerfs:
         #         condition: service_healthy
     autoheal:
-        # container_name: pdp-autoheal
-        restart: always
         image: willfarrell/autoheal
         environment:
             - AUTOHEAL_CONTAINER_LABEL=autoheal
@@ -318,11 +259,13 @@ services:
             - /var/run/docker.sock:/var/run/docker.sock
         networks:
             - internal
+        restart: always
     watchtower:
         image: containrrr/watchtower
         volumes:
             - /var/run/docker.sock:/var/run/docker.sock
         command: --interval 30 --include-stopped
+        restart: always
 
 volumes:
     empty_volume:

@@ -89,7 +89,8 @@ if [ "$OPTIMISE_LIBRARY" = "FULL" ]; then
     cp -f "$TMP_PLEX_DATABASE" "$PLEX_DATABASE"
     cp -f "$TMP_PLEX_DATABASE_BLOBS" "$PLEX_DATABASE_BLOBS"
     #cp -f "$TMP_PLEX_DATABASE_TRAKT" "$PLEX_DATABASE_TRAKT"
-    chown -R plex:plex "/config/Library/Application Support/Plex Media Server/Plug-in Support/Databases/"
+
+    chown -R ${PLEX_UID}:${PLEX_GID} "/config/Library/Application Support/Plex Media Server/Plug-in Support/Databases/"
 
     rm -f "$TMP_PLEX_DATABASE"
     rm -f "$TMP_PLEX_DATABASE_BLOBS"

@@ -18,12 +18,11 @@ RAM_DISK_PLEX_DATABASE_PATH="$RAM_DISK_PATH/Plug-in Support/Databases"
 
 mkdir -p "$LIBRARY_MASTER_BACKUP_PATH"
 mkdir -p "$PLEX_LIBRARY_DATABASE_PATH"
-chown -R -h abc:abc "$PLEX_LIBRARY_PATH/Plug-in Support"
+chown -R -h ${PLEX_UID}:${PLEX_GID} "$PLEX_LIBRARY_PATH/Plug-in Support"
 mkdir -p "$PLEX_LIBRARY_DATABASE_BACKUP_PATH"
-chown -R -h abc:abc "$PLEX_LIBRARY_DATABASE_BACKUP_PATH"
+chown -R -h ${PLEX_UID}:${PLEX_GID} "$PLEX_LIBRARY_DATABASE_BACKUP_PATH"
 mkdir -p "$RAM_DISK_PLEX_DATABASE_PATH"
-chown -R -h abc:abc "$RAM_DISK_PLEX_DATABASE_PATH"
-
+chown -R -h ${PLEX_UID}:${PLEX_GID} "$RAM_DISK_PLEX_DATABASE_PATH"
 
 [ -z "$LOAD_LIBRARY_DB_TO_MEMORY" ] && LOAD_LIBRARY_DB_TO_MEMORY="NO"
 LIBRARY_FILES=( com.plexapp.plugins.library.db com.plexapp.plugins.library.blobs.db )
@@ -81,7 +80,7 @@ do
             ln --force -s "$LIBRARY_FILE_TARGET_PATH" "$PLEX_LIBRARY_DATABASE_PATH/$LIBRARY_FILE"
             
             # set plex user symlink as owner
-            chown -h abc:abc "$PLEX_LIBRARY_DATABASE_PATH/$LIBRARY_FILE"
+            chown -h ${PLEX_UID}:${PLEX_GID} "$PLEX_LIBRARY_DATABASE_PATH/$LIBRARY_FILE"
         else
         
             echo "setting default library path for working copy of $LIBRARY_FILE"
@@ -98,7 +97,7 @@ do
         fi
 
         # set plex user symlink as owner
-        chown -h abc:abc "$LIBRARY_FILE_TARGET_PATH"
+        chown -h ${PLEX_UID}:${PLEX_GID} "$LIBRARY_FILE_TARGET_PATH"
 
         if [ "$LIBRARY_FILE" = "com.plexapp.plugins.library.db" ]
         then
