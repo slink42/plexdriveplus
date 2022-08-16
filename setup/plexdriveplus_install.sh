@@ -450,9 +450,6 @@ prepareVolumeMountPath "${DOCKER_ROOT}/plex-scanner/custom-cont-init.d" executab
 prepareVolumeMountPath "${DOCKER_ROOT}/plex-scanner/custom-services.d" executable_dir
 prepareVolumeMountPath "${DOCKER_ROOT}/plex-scanner/transcode"
 
-prepareVolumeMountPath "${DOCKER_ROOT}/plex-streamer/custom-cont-init.d" executable_dir
-prepareVolumeMountPath "${DOCKER_ROOT}/plex-streamer/custom-services.d" executable_dir
-prepareVolumeMountPath "${DOCKER_ROOT}/plex-streamer/transcode"
 prepareVolumeMountPath "${DOCKER_ROOT}/scripts/" executable_dir
 
 # copy generic Plex Preferences.xml
