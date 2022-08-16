@@ -115,14 +115,10 @@ services:
             - TZ=Australia/Melbourne
             - PUID=${USERID}
             - PGID=${GROUPID}
-            # - 'HEALTHCHECK_MOUNTS=/data'
-            # - HEALTHCHECK_PATHS=/data /data/Config
             - POOLING_FS=mergerfs
             - 'PLEXDRIVE_OPTS=-v 2 --max-chunks=10 --chunk-size=20M --chunk-check-threads=20 --chunk-load-threads=4 --chunk-load-ahead=5 --drive-id=0ALNBa0QBHhldUk9PVA -o allow_other,read_only,nonempty,auto_unmount'
-            # - MFS_USER_OPTS=rw,use_ino,func.getattr=newest,category.action=all,category.create=ff,cache.files=auto-full,dropcacheonclose=true
         volumes:
             - '${DOCKER_ROOT}/plexdrive/config:/config:rw'
-            # - '${DOCKER_ROOT}/scripts/:/scripts:ro'
             - '${DOCKER_ROOT}/mnt/plexdrive/secure_media:/data:shared'
         networks:
             - bridge
@@ -137,12 +133,6 @@ services:
         security_opt:
             - apparmor:unconfined
         image: 'wiserain/plexdrive'
-        # healthcheck:
-        #     test: ["CMD-SHELL", "sh /scripts/healthcheck"]
-        #     interval: 30s
-        #     timeout: 25s
-        #     retries: 5
-        #     start_period: 20s
     rclone_plexdrive:
         restart: always
         labels:
@@ -177,12 +167,6 @@ services:
         security_opt:
             - apparmor:unconfined
         image: slink42/rclone
-        # healthcheck:
-        #     test: ["CMD-SHELL", "sh /scripts/healthcheck"]
-        #     interval: 120s
-        #     timeout: 10s
-        #     retries: 1
-        #     start_period: 5s
         depends_on:
             plexdrive:
                 condition: service_healthy

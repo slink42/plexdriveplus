@@ -522,8 +522,6 @@ echo "HOST_NETWORK=$HOST_NETWORK" >> "$ENV_FILE"
 sed -i '/HOST_NETWORK_MODE/'d "$ENV_FILE"
 echo "HOST_NETWORK_MODE=$HOST_NETWORK" >> "$ENV_FILE"
 
-ls -la "${DOCKER_ROOT}/plex-streamer/"
-
 # start docker containers
 DOCKER_COMPOSE_FILE="$DOCKER_ROOT/setup/docker-compose.yml"
 SLAVE_DOCKER_COMPOSE_FILE="$DOCKER_ROOT/setup/docker-compose-lib-slave.yml"
