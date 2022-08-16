@@ -213,8 +213,6 @@ services:
             - PLEX_GID=${GROUPID}
             - VERSION=latest
             - 'NVIDIA_VISIBLE_DEVICES='
-            - 'SCANNER_LIBRARY_PATH=/mnt/plex-scanner/Library/Application Support/Plex Media Server'
-            - 'STREAMER_LIBRARY_PATH=/mnt/plex-streamer/Library/Application Support/Plex Media Server'
             - TCP_PORT_32400=32400
             - TCP_PORT_3005=3005
             - TCP_PORT_8324=8324
@@ -227,25 +225,23 @@ services:
             - PUID=${USERID}
             - PGID=${GROUPID}
             - LOAD_LIBRARY_DB_TO_MEMORY=${LOAD_LIBRARY_DB_TO_MEMORY}
+            - 'SCANNER_LIBRARY_PATH=/mnt/plex-scanner/Library/Application Support/Plex Media Server'
             - 'HEALTHCHECK_MOUNTS=/plex/media'
             - 'HEALTHCHECK_PATHS=/plex/media/mountcheck'
+            - 'LIB_SAVE_CRON=35 12,19 * * *'
+            - 'LIB_BACKUP_PATH_LOCAL=/config/Library/Application Support/Plex Media Server/Plug-in Support/Databases'
+            - 'LIB_RELOAD_CRON=35 5 * * *'
+            - 'LIB_BACKUP_PATH_MASTER=/mnt/plex-scanner/Library/Application Support/Plex Media Server/Plug-in Support/Databases'
         volumes:
             - '${DOCKER_ROOT}/plex-streamer/transcode:/transcode:rw'
             - '${DOCKER_ROOT}/mnt/mergerfs/streamer:/plex:rslave'
             - '${DOCKER_ROOT}/plex-scanner/:/mnt/plex-scanner:rw'
             - '${DOCKER_ROOT}/plex-streamer/:/config:rw'
-            - '${DOCKER_ROOT}/scripts/:/scripts:ro'
         tmpfs:
             - /ram_disk
         ports:
             - "32400:32400"
-        image: linuxserver/plex
-        healthcheck:
-            test: ["CMD-SHELL", "bash /scripts/plexhealthcheck"]
-            interval: 300s
-            timeout: 60s
-            retries: 3
-            start_period: 30s
+        image: slink42/plex
         # depends_on:
         #     streamer_mergerfs:
         #         condition: service_healthy
