@@ -24,7 +24,6 @@ chown -R -h ${PLEX_UID}:${PLEX_GID} "$PLEX_LIBRARY_DATABASE_BACKUP_PATH"
 mkdir -p "$RAM_DISK_PLEX_DATABASE_PATH"
 chown -R -h ${PLEX_UID}:${PLEX_GID} "$RAM_DISK_PLEX_DATABASE_PATH"
 
-
 [ -z "$LOAD_LIBRARY_DB_TO_MEMORY" ] && LOAD_LIBRARY_DB_TO_MEMORY="NO"
 LIBRARY_FILES=( com.plexapp.plugins.library.db com.plexapp.plugins.library.blobs.db )
 
