@@ -234,7 +234,7 @@ services:
             - 'LIB_BACKUP_PATH_MASTER=/mnt/plex-scanner/Library/Application Support/Plex Media Server/Plug-in Support/Databases'
         volumes:
             - '${DOCKER_ROOT}/plex-streamer/transcode:/transcode:rw'
-            - '${DOCKER_ROOT}/mnt/mergerfs/streamer:/plex:rslave'
+            - '${DOCKER_ROOT}/mnt/mergerfs/streamer:/plex:slave'
             - '${DOCKER_ROOT}/plex-scanner/:/mnt/plex-scanner:rw'
             - '${DOCKER_ROOT}/plex-streamer/:/config:rw'
         tmpfs:
