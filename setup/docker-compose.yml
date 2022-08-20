@@ -115,7 +115,6 @@ services:
             - TZ=Australia/Melbourne
             - PUID=${USERID}
             - PGID=${GROUPID}
-            - POOLING_FS=mergerfs
             - 'PLEXDRIVE_OPTS=-v 2 --max-chunks=10 --chunk-size=20M --chunk-check-threads=20 --chunk-load-threads=4 --chunk-load-ahead=5 --drive-id=0ALNBa0QBHhldUk9PVA -o allow_other,read_only,nonempty,auto_unmount'
         volumes:
             - '${DOCKER_ROOT}/plexdrive/config:/config:rw'
