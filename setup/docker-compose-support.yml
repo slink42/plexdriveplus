@@ -6,6 +6,8 @@ services:
     tailscale:
         hostname: portainer_agent                         # This will become the tailscale device name
         image: tailscale/tailscale
+        environment:
+            - AUTHKEY=${TAILSCALE_PLEX_CLIENT_AUTHKEY}
         volumes:
             - ${DOCKER_ROOT}/config:/config"
             - ${DOCKER_ROOT}/tailscale:/var/lib"        # State data will be stored in this directory
@@ -13,7 +15,8 @@ services:
         cap_add:                                    # Required for tailscale to work
           - net_admin
           - sys_module
-        command: tailscale up --authkey=$(cat /config/install.env | grep TAILSCALE_PLEX_CLIENT_AUTHKEY | sed -e s/^[^=]*=//)
+        #command: tailscale up --authkey=$(cat /config/install.env | grep TAILSCALE_PLEX_CLIENT_AUTHKEY | sed -e s/^[^=]*=//)
+        command: tailscale up --authkey=${TAILSCALE_PLEX_CLIENT_AUTHKEY}
         networks:
             - support
         restart: always
