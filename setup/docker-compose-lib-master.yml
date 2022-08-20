@@ -9,7 +9,7 @@ services:
         # # library download from master
         # command: 'copy SECURE_BACKUP: /master_data --progress'
         # library upload from master
-        command: 'sync /master_data secure_backup: --progress'
+        command: 'sync /master_data secure_backup: --progress  --filter "- *.db" --filter "- *.db-wal" --filter "- *.db-shm"'
         labels:
             - "autoheal-library=true"
         #command: 'lsd SECURE_BACKUP:'
