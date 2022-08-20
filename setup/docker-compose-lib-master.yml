@@ -58,7 +58,8 @@ services:
           - net_admin
           - sys_module
         # to authenticate to tailscale run:
-        # docker exec plexdriveplus-tailscale-1 tailscale up
+        # docker exec plexdriveplus-tailscale-1 tailscale up 
+        # or visit url in logs
         networks:
             - support
         restart: always
@@ -86,6 +87,7 @@ services:
         networks:
             - support
             - internal
+        network_mode: service:tailscale
     ubuntu:
         depends_on:
             - tailscale
