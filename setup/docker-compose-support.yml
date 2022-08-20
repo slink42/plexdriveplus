@@ -4,10 +4,8 @@ networks:
         driver: bridge
 services:
     tailscale:
-        hostname: portainer_agent                         # This will become the tailscale device name
-        image: tailscale/tailscale
-        environment:
-            - AUTHKEY=${TAILSCALE_PLEX_CLIENT_AUTHKEY}
+        hostname: ${DOCKER_ROOT}_plex_client             # This will become the tailscale device name
+        image: tailscale/tailscale:latest\
         volumes:
             - ${DOCKER_ROOT}/config:/config"
             - ${DOCKER_ROOT}/tailscale:/var/lib"        # State data will be stored in this directory
@@ -15,46 +13,43 @@ services:
         cap_add:                                    # Required for tailscale to work
           - net_admin
           - sys_module
-        #command: tailscale up --authkey=$(cat /config/install.env | grep TAILSCALE_PLEX_CLIENT_AUTHKEY | sed -e s/^[^=]*=//)
-        command: tailscale up --authkey=${TAILSCALE_PLEX_CLIENT_AUTHKEY}
+        command: tailscale up --authkey=${$(cat "$DOCKER_ROOT/config/.env" | grep TAILSCALE_PLEX_CLIENT_AUTHKEY)/TAILSCALE_PLEX_CLIENT_AUTHKEY=/}
+        # networks:
+        #     - support
+        network_mode: host
+        restart: always
+    portainer_agent_tailscale:
+        hostname: portainer_agent_tailscale
+        image: portainer/agent:latest
         networks:
             - support
-        restart: always
-    portainer_agent:
-        image: portainer/agent:latest
-        network_mode: service:tailscale
         volumes:
             - /var/run/docker.sock:/var/run/docker.sock
             - /var/lib/docker/volumes:/var/lib/docker/volumes
         restart: always
         depends_on:
             - tailscale
-    portainer_portal_wg:
+    portainer_agent:
+        hostname: portainer_agent
+        image: portainer/agent:latest
+        networks:
+            - support
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock
+            - /var/lib/docker/volumes:/var/lib/docker/volumes
         restart: always
+    portainer_portal:
+        hostname: portainer_portal
         image: portainer/portainer-ce
-        command: -H tcp://127.0.0.1:9001 --tlsskipverify
+        command: -H tcp://portainer_agent:9001 --tlsskipverify
         volumes:
             - portainer_data:/data
-        depends_on:
-            - tailscale
-        network_mode: service:tailscale
-    ubuntu:
-        depends_on:
-            - tailscale
-        image: ubuntu
-        network_mode: service:tailscale
-        command: ["sleep","infinity"]
-    portainer_portal:
-        restart: always
-        image: portainer/portainer-ce
-        volumes:
-            - portainer_local_data:/data
-            - /var/run/docker.sock:/var/run/docker.sock
-            - /var/lib/docker/volumes:/var/lib/docker/volumes
         networks:
             - support
         ports:
-            - "9010:9000"
+            - "9443:9443"
+            - "9000:9000"
+        restart: always
 
 volumes:
     portainer_data:
