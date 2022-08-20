@@ -5,7 +5,7 @@ services:
         # # command: 'lsd SECURE_BACKUP:'
         # library download from master, exclude current db files s they are usually corrupt
         # command: 'copy SECURE_BACKUP:Library /config/Library --progress --filter "- *.db" --filter "- *.db-wal" --filter "- *.db-shm"'
-        command: 'sync SECURE_BACKUP:Library /config/Library --progress'
+        command: 'sync SECURE_BACKUP: /config --progress --filter "+ /Library/**" --filter "+ /config/**" --filter "- *"'
         # # library upload from master
         # command: 'sync /config SECURE_BACKUP: --progress'
         labels:
