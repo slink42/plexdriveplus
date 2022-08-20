@@ -79,7 +79,7 @@ services:
         restart: always
         image: portainer/portainer-ce
         command: -H tcp://portainer_agent:9001 --tlsskipverify
-        hostname: portainer_portal
+        #hostname: portainer_portal
         ports:
             - "9999:9000"
         volumes:
