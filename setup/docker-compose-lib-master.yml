@@ -60,6 +60,8 @@ services:
         # to authenticate to tailscale run:
         # docker exec plexdriveplus-tailscale-1 tailscale up 
         # or visit url in logs
+        ports:
+            - "9999:9000"
         networks:
             - support
         restart: always
@@ -80,8 +82,6 @@ services:
         image: portainer/portainer-ce
         command: -H tcp://portainer_agent:9001 --tlsskipverify
         #hostname: portainer_portal
-        ports:
-            - "9999:9000"
         volumes:
             - portainer_data:/data
         networks:
