@@ -60,14 +60,7 @@ services:
         # to authenticate to tailscale run:
         # docker exec plexdriveplus-tailscale-1 tailscale up 
         # or visit url in logs
-        ports:
-            - "9999:9000"
-        networks:
-            - support
         restart: always
-    myservice-container:
-        image: nginx                                # Your image goes here
-        network_mode: service:tailscale
     portainer_agent:
         restart: always
         image: portainer/agent
@@ -85,15 +78,8 @@ services:
         volumes:
             - portainer_data:/data
         networks:
-            - support
             - internal
         network_mode: service:tailscale
-    ubuntu:
-        depends_on:
-            - tailscale
-        image: ubuntu
-        network_mode: service:tailscale
-        command: ["sleep","infinity"]
 
 volumes:
     portainer_data:
