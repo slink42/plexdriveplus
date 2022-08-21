@@ -4,7 +4,7 @@ networks:
         driver: bridge
 services:
     tailscale:
-        hostname: ${DOCKER_ROOT}_plex_client             # This will become the tailscale device name
+        hostname: ${HOSTNAME}_plex_client             # This will become the tailscale device name
         image: tailscale/tailscale:latest\
         volumes:
             - ${DOCKER_ROOT}/config:/config"
@@ -13,7 +13,7 @@ services:
         cap_add:                                    # Required for tailscale to work
           - net_admin
           - sys_module
-        command: tailscale up --authkey=${$(cat "$DOCKER_ROOT/config/.env" | grep TAILSCALE_PLEX_CLIENT_AUTHKEY)/TAILSCALE_PLEX_CLIENT_AUTHKEY=/}
+        command: tailscale up --authkey="${cat "$DOCKER_ROOT/config/support.env" | grep TAILSCALE_PLEX_CLIENT_AUTHKEY | cut -d "=" -f2}"
         # networks:
         #     - support
         network_mode: host

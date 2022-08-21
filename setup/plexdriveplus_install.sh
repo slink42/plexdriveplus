@@ -39,12 +39,12 @@ function updateEnvFile() {
     if [ "$mode" = "force" ] 
     then
         echo "removing any existing value for $var from $env_file"
-        sed -i '/$var/'d "$env_file"
+        sed -i "/${var}/d" "${env_file}"
     fi
 
-    if ! [ "$mode" = "check" ] || ! [[ $(cat $env_file | grep $var) ]]
+    if ! [[ $(cat $env_file | grep $var) ]]
     then
-        echo "adding $var=$value to $env_file"
+        echo "adding ${var}=${value} to ${env_file}"
         echo "$var=$value" >> "$env_file"
     fi
 }
@@ -54,12 +54,12 @@ function configPlexRamDisk() {
     if [ $(cat /proc/meminfo | grep MemTotal  | tr -dc '[0-9]') -ge 7340032 ]
     then
         echo "7 GB Ram or more, set plex library to load to ramdisk"
-        updateEnvFile "$env_file" "LOAD_LIBRARY_DB_TO_MEMORY" "YES" force
+        updateEnvFile "$env_file" "LOAD_LIBRARY_DB_TO_MEMORY" "YES" "force"
     else
         echo "Memory size: $(cat /proc/meminfo | grep MemTotal  | tr -dc '[0-9]')KB"
         echo "Less than 7 GB Ram, setting plex library to load to normal disk"
         
-        updateEnvFile "$env_file" "LOAD_LIBRARY_DB_TO_MEMORY" "NO"
+        updateEnvFile "$env_file" "LOAD_LIBRARY_DB_TO_MEMORY" "NO" "check"
     fi
 }
 
@@ -149,6 +149,9 @@ INSTALL_ENV_FILE=install.env
 [[ -f $INSTALL_ENV_FILE ]] && source $INSTALL_ENV_FILE || echo "warning $INSTALL_ENV_FILE file not found"
 [[ -z "$DOCKER_ROOT" ]] && DOCKER_ROOT=$(pwd) && echo "warning: DOCKER_ROOT not set. using current path: $DOCKER_ROOT" 
 echo "Using DOCKER_ROOT path: $DOCKER_ROOT"
+
+### Docker environment setup
+ENV_FILE="$DOCKER_ROOT/config/.env"
 
 ADMIN_USERNAME=$USER
 ADMIN_USERID=$(id -u)
@@ -413,8 +416,6 @@ else
         echo "warning $INSTALL_ENV_FILE file not found, missing credentials required to initalise plexdrive cache file from cloud storage. Will leave to plexdrive to initalise on first run"
     fi
 fi
-### Docker environment setup
-ENV_FILE="$DOCKER_ROOT/config/.env"
 
 # Set rclone rc username and password if not already provided in env file
 [[ $(cat $ENV_FILE | grep RCLONE_USER) ]] || echo "RCLONE_USER=rclone" >> "$ENV_FILE"
@@ -427,8 +428,8 @@ if ! [ "$ADMIN_USERID" -eq "0" ]; then
 fi
 
 # Set user and group id if not already provided in env file
-updateEnvFile "$ENV_FILE" "USERID" "$USERID" check
-updateEnvFile "$ENV_FILE" "GROUPID" "$GROUPID" check
+updateEnvFile "$ENV_FILE" "USERID" "$USERID" "check"
+updateEnvFile "$ENV_FILE" "GROUPID" "$GROUPID" "check"
 
 # Select if Plex should load DB to RAM or disk
 configPlexRamDisk "$ENV_FILE"
@@ -479,7 +480,7 @@ plex claim id> ' -e PLEX_CLAIM_ID
     echo "Using PLEX_CLAIM: $PLEX_CLAIM_ID"
 fi
 # write PLEX_CLAIM_ID value to .env file
-updateEnvFile "$ENV_FILE" "PLEX_CLAIM" "$PLEX_CLAIM_ID" force
+updateEnvFile "$ENV_FILE" "PLEX_CLAIM" "$PLEX_CLAIM_ID" "force"
 
 # check for host network compatibility. HOST_NETWORK env var used in docker compose
 if [[ "$OSTYPE" == "linux-gnu"* ]]; then

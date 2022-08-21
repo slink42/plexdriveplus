@@ -38,13 +38,13 @@ if [ -d "$PLEX_DATABASE_PATH" ]; then
         if [[ -f "$BACKUP_BLOB_FILE" ]]; then
             echo "Loaded plex library db from backup: $BACKUP_FILE"
             cp --remove-destination "$BACKUP_FILE" "$LIBRARY_FILE"
-            rm "${LIBRARY_FILE}-shm"
-            rm "${LIBRARY_FILE}-wal"
+            rm -f "${LIBRARY_FILE}-shm"
+            rm -f "${LIBRARY_FILE}-wal"
 
             echo "Loaded plex library blobs from backup: $BACKUP_BLOB_FILE"
             cp --remove-destination "$BACKUP_BLOB_FILE" "$LIBRARY_BLOB_FILE"
-            rm "${LIBRARY_BLOB_FILE}-shm"
-            rm "${LIBRARY_BLOB_FILE}-wal"
+            rm -f "${LIBRARY_BLOB_FILE}-shm"
+            rm -f "${LIBRARY_BLOB_FILE}-wal"
         else
             echo "error: com.plexapp.plugins.library.blobs.db backup with date matching com.plexapp.plugins.library.db backup not found. backup restore aborted"
         fi
