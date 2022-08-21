@@ -6,8 +6,10 @@ services:
     tailscale:
         hostname: ${HOSTNAME}_plex_client             # This will become the tailscale device name
         image: tailscale/tailscale:latest
+        env_file: 
+            - "${DOCKER_ROOT}/config/support.env"
         environment:
-            - TS_AUTH_KEY=$${cat "$DOCKER_ROOT/config/support.env" | grep TAILSCALE_PLEX_CLIENT_AUTHKEY | cut -d "=" -f2}
+            - TS_AUTH_KEY=${TAILSCALE_PLEX_CLIENT_AUTHKEY}
         volumes:
             - ${DOCKER_ROOT}/config:/config"
             - ${DOCKER_ROOT}/tailscale:/var/lib"        # State data will be stored in this directory
