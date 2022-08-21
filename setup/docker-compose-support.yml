@@ -9,8 +9,9 @@ services:
         env_file: 
             - "${DOCKER_ROOT}/config/tailscale-client.env"
         volumes:
-            - ${DOCKER_ROOT}/config:/config"
-            - ${DOCKER_ROOT}/tailscale:/var/lib"        # State data will be stored in this directory
+            - "${DOCKER_ROOT}/config:/config"
+            # - ${DOCKER_ROOT}/tailscale:/var/lib"        # State data will be stored in this directory
+            - "/var/lib:/var/lib"        # State data will be stored in this directory
             - "/dev/net/tun:/dev/net/tun"           # Required for tailscale to work
         cap_add:                                    # Required for tailscale to work
           - net_admin
@@ -20,7 +21,7 @@ services:
         network_mode: host
         restart: always
     portainer_agent_tailscale:
-        hostname: portainer_agent_tailscale
+        hostname: tailscale
         image: portainer/agent:latest
         networks:
             - support
