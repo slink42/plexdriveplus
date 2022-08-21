@@ -18,11 +18,8 @@ services:
             - PUID=${USERID}   
             - PGID=${GROUPID}
             - 'RCLONE_CONFIG_SECURE_BACKUP_REMOTE=gdrive_backup_rw:plexdriveplus'
-            - RCLONE_CONFIG_SECURE_BACKUP_TYPE=${RCLONE_CONFIG_SECURE_BACKUP_TYPE}
-            - RCLONE_CONFIG_SECURE_BACKUP_FILENAME_ENCRYPTION=${RCLONE_CONFIG_SECURE_BACKUP_FILENAME_ENCRYPTION}
-            - RCLONE_CONFIG_SECURE_BACKUP_DIRECTORY_NAME_ENCRYPTION=${RCLONE_CONFIG_SECURE_BACKUP_DIRECTORY_NAME_ENCRYPTION}
-            - RCLONE_CONFIG_SECURE_BACKUP_PASSWORD=${RCLONE_CONFIG_SECURE_BACKUP_PASSWORD}
-            - RCLONE_CONFIG_SECURE_BACKUP_PASSWORD2=${RCLONE_CONFIG_SECURE_BACKUP_PASSWORD2}
+        env_file: 
+            - "${DOCKER_ROOT}/config/rclone.env"
         volumes:
             - '${DOCKER_ROOT}/rclone/:/config/rclone:rw'
             - '${DOCKER_ROOT}/plex-scanner/Library/Application Support/Plex Media Server/Plug-in Support/:/master_data/Library/Application Support/Plex Media Server/Plug-in Support/:rw'

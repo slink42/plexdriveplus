@@ -15,6 +15,8 @@ services:
             - RCLONE_CONFIG_GDRIVE_MOLE_TEAM_DRIVE=${RCLONE_CONFIG_GDRIVE_TEAM_DRIVE_1}
             - RCLONE_CONFIG_GDRIVE_WOLF_TEAM_DRIVE=${RCLONE_CONFIG_GDRIVE_TEAM_DRIVE_1}
             - MERGED_DEST=/mnt/scanner_secure_media
+        env_file: 
+            - "${DOCKER_ROOT}/config/rclone.env"
         volumes:
             - '${DOCKER_ROOT}/rclone/:/config:rw'
             - '${DOCKER_ROOT}/mnt/rclone:/mnt:rshared'
@@ -48,6 +50,8 @@ services:
             - RCLONE_CONFIG_GDRIVE_MOLE_TEAM_DRIVE=${RCLONE_CONFIG_GDRIVE_TEAM_DRIVE_2}
             - RCLONE_CONFIG_GDRIVE_WOLF_TEAM_DRIVE=${RCLONE_CONFIG_GDRIVE_TEAM_DRIVE_2}
             - MERGED_DEST=/mnt/scanner_secure_media2
+        env_file: 
+            - "${DOCKER_ROOT}/config/rclone.env"
         volumes:
             - '${DOCKER_ROOT}/rclone/:/config:rw'
             - '${DOCKER_ROOT}/mnt/rclone:/mnt:rshared'
@@ -81,6 +85,8 @@ services:
             - RCLONE_CONFIG_GDRIVE_MOLE_TEAM_DRIVE=${RCLONE_CONFIG_GDRIVE_TEAM_DRIVE_3}
             - RCLONE_CONFIG_GDRIVE_WOLF_TEAM_DRIVE=${RCLONE_CONFIG_GDRIVE_TEAM_DRIVE_3}
             - MERGED_DEST=/mnt/scanner_secure_media3
+        env_file: 
+            - "${DOCKER_ROOT}/config/rclone.env"
         volumes:
             - '${DOCKER_ROOT}/rclone/:/config:rw'
             - '${DOCKER_ROOT}/mnt/rclone:/mnt:rshared'
