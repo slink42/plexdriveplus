@@ -5,7 +5,7 @@ networks:
 services:
     tailscale:
         hostname: ${HOSTNAME}_plex_client             # This will become the tailscale device name
-        image: tailscale/tailscale:latest\
+        image: tailscale/tailscale:latest
         volumes:
             - ${DOCKER_ROOT}/config:/config"
             - ${DOCKER_ROOT}/tailscale:/var/lib"        # State data will be stored in this directory
