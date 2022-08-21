@@ -49,6 +49,8 @@ services:
         hostname: plex-master-server                         # This will become the tailscale device name
         image: tailscale/tailscale
         network_mode: host
+        env_file: 
+            - "${DOCKER_ROOT}/tailscale/tailscale-master.env"
         volumes:
             - "/var/lib:/var/lib"        # State data will be stored in this directory
             - "/dev/net/tun:/dev/net/tun"           # Required for tailscale to work
