@@ -49,7 +49,7 @@ services:
             - support
         ports:
             - "9443:9443"
-            - "9000:9000"
+            - "9999:9000"
         restart: always
 
 volumes:
