@@ -46,7 +46,7 @@ services:
         networks:
             - internal
     tailscale:
-        hostname: portainer_agent                         # This will become the tailscale device name
+        hostname: plex-master-server                         # This will become the tailscale device name
         image: tailscale/tailscale
         volumes:
             - ${DOCKER_ROOT}/tailscale:/var/lib"        # State data will be stored in this directory
