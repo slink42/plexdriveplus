@@ -16,7 +16,7 @@ collections:
       primary_release_date.lte: 12/31/1979
       with_original_language: en
       sort_by: popularity.desc
-      limit: 100
+      limit: 250
     summary: A collection of the Top Content of the 1970s
   Best of the 1980s:
     tmdb_discover:
@@ -24,7 +24,7 @@ collections:
       primary_release_date.lte: 12/31/1989
       with_original_language: en
       sort_by: popularity.desc
-      limit: 100
+      limit: 250
     summary: A collection of the Top Content of the 1980s
   Best of the 1990s:
     tmdb_discover:
@@ -32,7 +32,7 @@ collections:
       primary_release_date.lte: 12/31/1999
       with_original_language: en
       sort_by: popularity.desc
-      limit: 100
+      limit: 250
     summary: A collection of the Top Content of the 1990s
   Best of the 2000s:
     tmdb_discover:
@@ -40,7 +40,7 @@ collections:
       primary_release_date.lte: 12/31/2009
       with_original_language: en
       sort_by: popularity.desc
-      limit: 100
+      limit: 250
     summary: A collection of the Top Content of the 2000s
   Best of the 2010s:
     tmdb_discover:
@@ -48,7 +48,7 @@ collections:
       primary_release_date.lte: 12/31/2019
       with_original_language: en
       sort_by: popularity.desc
-      limit: 100
+      limit: 250
     summary: A collection of the Top Content of the 2010s
   Best of the 2020s:
     tmdb_discover:
@@ -56,15 +56,15 @@ collections:
       primary_release_date.lte: 12/31/2029
       with_original_language: en
       sort_by: popularity.desc
-      limit: 100
+      limit: 250
     summary: A collection of the Top Content of the 2020s
   Vulture’s 101 Best Movie Endings:
     letterboxd_list: https://letterboxd.com/brianformo/list/vultures-101-best-movie-endings/
 # list-driven
   Trending on TMDB & Trakt:  
-    trakt_trending: 100
-    tmdb_trending_daily: 100
-    tmdb_trending_weekly: 100
+    trakt_trending: 250
+    tmdb_trending_daily: 250
+    tmdb_trending_weekly: 250
     sort_title: ---Trending
     sync_mode: sync
  #   smart_label: year.desc
