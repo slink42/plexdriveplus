@@ -154,7 +154,7 @@ services:
             - '${DOCKER_ROOT}/mnt/mergerfs/scanner:/plex:rslave' # should contain subfolder: media
             - '${DOCKER_ROOT}/plex-scanner/:/config:rw'
             - '${DOCKER_ROOT}/scripts/:/scripts:ro'
-            - '/tmp:/tmp:rw'
+            - '${DOCKER_ROOT}/tmp:/tmp:rw'
         ports:
             - "34400:32400"
         image: linuxserver/plex
