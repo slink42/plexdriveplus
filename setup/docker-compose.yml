@@ -245,6 +245,7 @@ services:
             - '${DOCKER_ROOT}/mnt/mergerfs/streamer:/plex:slave'
             - '${DOCKER_ROOT}/plex-scanner/:/mnt/plex-scanner:rw'
             - '${DOCKER_ROOT}/plex-streamer/:/config:rw'
+            - '/tmp:/tmp:rw'
         tmpfs:
             - /ram_disk
         ports:
