@@ -150,6 +150,9 @@ services:
             - PGID=${GROUPID}
             - 'HEALTHCHECK_MOUNTS=/plex/media'
             - 'HEALTHCHECK_PATHS=/plex/media/mountcheck'
+            - 'LIB_META_BACKUP_PATH_MASTER=/config/backups/meta'
+            - 'LIB_META_BACKUP_CRON=35 00 * * *'
+            - 'LIB_DB_BACKUP_CRON=35 00 * * *'
         volumes:
             - '${DOCKER_ROOT}/mnt/mergerfs/scanner:/plex:rslave' # should contain subfolder: media
             - '${DOCKER_ROOT}/plex-scanner/:/config:rw'
