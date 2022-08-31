@@ -151,7 +151,7 @@ services:
             #- RCLONE_LOG_FILE=/config/rclone_plexdrive_mount.log
             - RCLONE_LOG_LEVEL=INFO
             - 'RCLONE_REMOTE_PATH=plexdrive_securemedia_crypt:'
-            - 'RCLONE_MOUNT_USER_OPTS=--include=mountcheck --include=Media/tv-4k --include=Media/movies-4k --read-only --use-json-log --dir-cache-time 30m --multi-thread-streams=20 --allow-non-empty --allow-other --rc-web-gui --rc-web-gui-no-open-browser --rc-user ${RCLONE_USER} --rc-pass ${RCLONE_PASSWORD}'
+            - 'RCLONE_MOUNT_USER_OPTS=--include=mountcheck --include=Media/tv-4k/** --include=Media/movies-4k/** --read-only --use-json-log --dir-cache-time 30m --multi-thread-streams=20 --allow-non-empty --allow-other --rc-web-gui --rc-web-gui-no-open-browser --rc-user ${RCLONE_USER} --rc-pass ${RCLONE_PASSWORD}'
             - MERGED_DEST=/mnt/rclone/plexdrive_secure_media
         env_file: 
             - "${DOCKER_ROOT}/config/rclone.env"
@@ -236,10 +236,9 @@ services:
             - 'SCANNER_LIBRARY_PATH=/mnt/plex-scanner/Library/Application Support/Plex Media Server'
             - 'HEALTHCHECK_MOUNTS=/plex/media'
             - 'HEALTHCHECK_PATHS=/plex/media/mountcheck'
-            - 'LIB_DB_BACKUP_CRON=35 12,19 * * *'
+            - 'LIB_BACKUP_PATH_MASTER=/mnt/plex-scanner/Library/Application Support/Plex Media Server/Plug-in Support/Databases'
             - 'LIB_BACKUP_PATH_LOCAL=/config/Library/Application Support/Plex Media Server/Plug-in Support/Databases'
             - 'LIB_RELOAD_CRON=35 5 * * *'
-            - 'LIB_BACKUP_PATH_MASTER=/mnt/plex-scanner/Library/Application Support/Plex Media Server/Plug-in Support/Databases'
             - 'LIB_META_BACKUP_PATH_MASTER=/config/backups/meta'
         volumes:
             - '${DOCKER_ROOT}/plex-streamer/transcode:/transcode:rw'
