@@ -363,16 +363,17 @@ services:
             - 'SCANNER_LIBRARY_PATH=/mnt/plex-scanner/Library/Application Support/Plex Media Server'
             - 'HEALTHCHECK_MOUNTS=/plex/media'
             - 'HEALTHCHECK_PATHS=/plex/media/mountcheck'
-            - 'LIB_BACKUP_PATH_MASTER=/mnt/plex-scanner/Library/Application Support/Plex Media Server/Plug-in Support/Databases'
+            - 'LIB_BACKUP_PATH_MASTER=/backups/databases'
             - 'LIB_BACKUP_PATH_LOCAL=/config/Library/Application Support/Plex Media Server/Plug-in Support/Databases'
             - 'LIB_RELOAD_CRON=35 5 * * *'
-            - 'LIB_META_BACKUP_PATH_MASTER=/config/backups/meta'
+            - 'LIB_META_BACKUP_PATH_MASTER=/backups/meta'
         volumes:
             - '${DOCKER_ROOT}/plex-streamer/transcode:/transcode:rw'
             - '${DOCKER_ROOT}/mnt/mergerfs/streamer:/plex:slave'
-            - '${DOCKER_ROOT}/plex-scanner/:/mnt/plex-scanner:rw'
             - '${DOCKER_ROOT}/plex-streamer/:/config:rw'
-            - '${DOCKER_ROOT}/tmp:/tmp:rw'
+            - '${DOCKER_ROOT}/plex-scanner/Library/Application Support/Plex Media Server/Plug-in Support/Databases/:/backups/databases:rw'
+            - '${LARGE_DISK_ROOT}/plex_library_backup/meta:/backups/meta:rw'
+            - '${LARGE_DISK_ROOT}/tmp:/tmp:rw'
         tmpfs:
             - /ram_disk
         ports:

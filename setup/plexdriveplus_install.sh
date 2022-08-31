@@ -149,6 +149,8 @@ INSTALL_ENV_FILE=install.env
 [[ -f $INSTALL_ENV_FILE ]] && source $INSTALL_ENV_FILE || echo "warning $INSTALL_ENV_FILE file not found"
 [[ -z "$DOCKER_ROOT" ]] && DOCKER_ROOT=$(pwd) && echo "warning: DOCKER_ROOT not set. using current path: $DOCKER_ROOT" 
 echo "Using DOCKER_ROOT path: $DOCKER_ROOT"
+LARGE_DISK_ROOT=${LARGE_DISK_ROOT:-$DOCKER_ROOT}
+echo "Using LARGE_DISK_ROOT path: $LARGE_DISK_ROOT"
 
 ### Docker environment setup
 ENV_FILE="$DOCKER_ROOT/config/.env"
@@ -438,6 +440,8 @@ configPlexRamDisk "$ENV_FILE"
 echo "starting containers with docker-compose"
 sed -i '/DOCKER_ROOT/'d "$ENV_FILE"
 echo "DOCKER_ROOT=$DOCKER_ROOT" >> "$ENV_FILE"
+sed -i '/LARGE_DISK_ROOT/'d "$ENV_FILE"
+echo "LARGE_DISK_ROOT=$LARGE_DISK_ROOT" >> "$ENV_FILE"
 
 # Create paths mounted by docker beforehand to ensure they are owned by current user rather than root
 
