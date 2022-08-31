@@ -351,14 +351,14 @@ prepareVolumeMountPath "$DOCKER_ROOT/mnt/rclone/secure_media2"
 prepareVolumeMountPath "$DOCKER_ROOT/mnt/rclone/secure_media3"
 # plexdrive & it rclone crypt
 prepareVolumeMountPath "$DOCKER_ROOT/mnt/plexdrive/secure_media"
-prepareVolumeMountPath "$DOCKER_ROOT/mnt/plexdrive/cloud" # need to use mergerfs in plexdrive container as workaround, otherwise mount doesn't get exposed to host properly
-prepareVolumeMountPath "$DOCKER_ROOT/mnt/plexdrive/local"
+prepareVolumeMountPath "$DOCKER_ROOT/mnt/plexdrive/secure_media2"
+prepareVolumeMountPath "$DOCKER_ROOT/mnt/plexdrive/secure_media3"
 prepareVolumeMountPath "$DOCKER_ROOT/mnt/rclone/plexdrive_secure_media"
-prepareVolumeMountPath "$DOCKER_ROOT/mnt/rclone/plexdrive_secure_media"
+prepareVolumeMountPath "$DOCKER_ROOT/mnt/rclone/plexdrive_secure_media2"
+prepareVolumeMountPath "$DOCKER_ROOT/mnt/rclone/plexdrive_secure_media3"
 # mergerfs
 prepareVolumeMountPath "$DOCKER_ROOT/mnt/mergerfs/secure_media"
 prepareVolumeMountPath "$DOCKER_ROOT/mnt/mergerfs/streamer"
-prepareVolumeMountPath "${DOCKER_ROOT}/mnt/mergerfs/streamer"
 
 ## copy gdrive mount tokens to plexdrive
 echo "copying rclone token to plexdrive"
