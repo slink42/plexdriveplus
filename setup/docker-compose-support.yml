@@ -5,7 +5,7 @@ networks:
 services:
     tailscale:
         hostname: ${HOSTNAME}_plex_client             # This will become the tailscale device name
-        image: tailscale/tailscale:latest
+        image: tailscale/tailscale:stable
         env_file: 
             - "${DOCKER_ROOT}/config/tailscale-client.env"
         volumes:

@@ -47,7 +47,7 @@ services:
             - internal
     tailscale:
         hostname: plex-master-server                         # This will become the tailscale device name
-        image: tailscale/tailscale
+        image: tailscale/tailscale:stable
         network_mode: host
         env_file: 
             - "${DOCKER_ROOT}/tailscale/tailscale-master.env"
