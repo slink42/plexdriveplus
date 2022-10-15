@@ -280,14 +280,14 @@ mkdir -p "$DOCKER_ROOT/rclone"
 [[ -z "$PDP_BRANCH" ]] && PDP_BRANCH=master
 [[ -z "$PDP_VERSION" ]] && PDP_URL="https://github.com/slink42/plexdriveplus/archive/$PDP_BRANCH.tar.gz" &&  echo "" && echo "loading plexdrive plus using branch: $PDP_BRANCH" \
     || (PDP_URL="https://github.com/slink42/plexdriveplus/archive/refs/tags/${PDP_VERSION}.tar.gz" &&  echo "" && echo "loading plexdrive plus using version: $PDP_VERSION")
-# remove existing custom-cont-init.d scripts if they exist to ensure only scripts downloaded remain for running at plex startup
+# remove existing custom-cont-init.d (custom-scripts) scripts if they exist to ensure only scripts downloaded remain for running at plex startup
 wget --no-check-certificate --content-disposition ${PDP_URL} -O "${DOCKER_ROOT}/plexdriveplus.tar.gz"
 
 # make sure folders set to be owened by root later via executable_dir are empty ahead of tar extract
-prepareVolumeMountPath "${DOCKER_ROOT}/plex-scanner/custom-cont-init.d" sudo_remove_dir
-prepareVolumeMountPath "${DOCKER_ROOT}/plex-scanner/custom-services.d" sudo_remove_dir
-prepareVolumeMountPath "${DOCKER_ROOT}/plex-streamer/custom-cont-init.d" sudo_remove_dir
-prepareVolumeMountPath "${DOCKER_ROOT}/plex-streamer/custom-services.d" sudo_remove_dir
+prepareVolumeMountPath "${DOCKER_ROOT}/plex-scanner/custom-scripts" sudo_remove_dir
+prepareVolumeMountPath "${DOCKER_ROOT}/plex-scanner/custom-services" sudo_remove_dir
+prepareVolumeMountPath "${DOCKER_ROOT}/plex-streamer/custom-scripts" sudo_remove_dir
+prepareVolumeMountPath "${DOCKER_ROOT}/plex-streamer/custom-services" sudo_remove_dir
 prepareVolumeMountPath "${DOCKER_ROOT}/scripts/" sudo_remove_dir
 
 # extract tar 
@@ -451,8 +451,8 @@ prepareVolumeMountPath "${DOCKER_ROOT}/plex-scanner/Library/Application Support/
 prepareVolumeMountPath "${DOCKER_ROOT}/plex-scanner/Library/Application Support/Plex Media Server/Metadata/"
 prepareVolumeMountPath "${DOCKER_ROOT}/plex-scanner/Library/Application Support/Plex Media Server/Media/"
 
-prepareVolumeMountPath "${DOCKER_ROOT}/plex-scanner/custom-cont-init.d" executable_dir
-prepareVolumeMountPath "${DOCKER_ROOT}/plex-scanner/custom-services.d" executable_dir
+prepareVolumeMountPath "${DOCKER_ROOT}/plex-scanner/custom-scripts" executable_dir
+prepareVolumeMountPath "${DOCKER_ROOT}/plex-scanner/custom-services" executable_dir
 prepareVolumeMountPath "${DOCKER_ROOT}/plex-scanner/transcode"
 
 prepareVolumeMountPath "${DOCKER_ROOT}/scripts/" executable_dir

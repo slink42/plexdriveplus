@@ -156,6 +156,8 @@ services:
         volumes:
             - '${DOCKER_ROOT}/mnt/mergerfs/scanner:/plex:rslave' # should contain subfolder: media
             - '${DOCKER_ROOT}/plex-scanner/:/config:rw'
+            - '${DOCKER_ROOT}/plex-streamer/custom-scripts:/custom-cont-init.d:ro'
+            - '${DOCKER_ROOT}/plex-streamer/custom-services:/custom-services.d:ro'
             - '${DOCKER_ROOT}/scripts/:/scripts:ro'
             - '${DOCKER_ROOT}/tmp:/tmp:rw'
         ports:
