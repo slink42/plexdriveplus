@@ -533,6 +533,7 @@ if [[ $management_mode = "2" ]] || [[ $management_mode = "3" ]]; then
         # DOCKER_COMPOSE_COMMAND="docker-compose --env-file \"$ENV_FILE\" --project-directory \"$DOCKER_ROOT/setup\" -f \"$DOCKER_COMPOSE_FILE\" -f \"$SLAVE_DOCKER_COMPOSE_FILE\" --project-name plexdriveplus up -d --force-recreate"
         DOCKER_COMPOSE_COMMAND="docker-compose --env-file \"$ENV_FILE\" --project-directory \"$DOCKER_ROOT/setup\" -f \"$DOCKER_COMPOSE_FILE\" -f \"$LOGGING_COMPOSE_FILE\" -f \"$SLAVE_DOCKER_COMPOSE_FILE\" --project-name plexdriveplus up -d --force-recreate"
         echo "initialising docker containers with command: $DOCKER_COMPOSE_COMMAND"
+        echo "$DOCKER_COMPOSE_COMMAND" > "$DOCKER_ROOT/pdp_docker_up" && chmod  +x "$DOCKER_ROOT/pdp_docker_up"
         bash -c "$DOCKER_COMPOSE_COMMAND"
     else
          echo "library download skipped"
@@ -545,6 +546,7 @@ else
     # DOCKER_COMPOSE_COMMAND="docker-compose --env-file \"$ENV_FILE\" --project-directory \"$DOCKER_ROOT/setup\" -f \"$DOCKER_COMPOSE_FILE\" $DOCKER_COMPOSE_FILE_LIB_MANGER --project-name plexdriveplus up -d --remove-orphans --force-recreate"
     DOCKER_COMPOSE_COMMAND="docker-compose --env-file \"$ENV_FILE\" --project-directory \"$DOCKER_ROOT/setup\" -f \"$DOCKER_COMPOSE_FILE\" -f \"$LOGGING_COMPOSE_FILE\" $DOCKER_COMPOSE_FILE_LIB_MANGER --project-name plexdriveplus up -d --remove-orphans --force-recreate"
     echo "starting docker containers with command: $DOCKER_COMPOSE_COMMAND"
+    echo "$DOCKER_COMPOSE_COMMAND" > "$DOCKER_ROOT/pdp_docker_up" && chmod  +x "$DOCKER_ROOT/pdp_docker_up"
     bash -c "$DOCKER_COMPOSE_COMMAND"
 fi
 
@@ -606,6 +608,7 @@ if [[ $management_mode = "2" ]] || [[ $management_mode = "3" ]]; then
     #cp -r "$DOCKER_ROOT/plex-streamer/Library/Application Support/Plex Media Server/Plug-in Support" "$DOCKER_ROOT/plex-scanner/Library/Application Support/Plex Media Server/Plug-in Support"  
     DOCKER_COMPOSE_COMMAND="docker-compose --env-file \"$ENV_FILE\" --project-directory \"$DOCKER_ROOT/setup\" -f \"$DOCKER_COMPOSE_FILE\" -f \"$LOGGING_COMPOSE_FILE\"  $DOCKER_COMPOSE_FILE_LIB_MANGER  --project-name plexdriveplus up -d --remove-orphans --force-recreate"
     echo "starting docker containers with command: $DOCKER_COMPOSE_COMMAND"
+    echo "$DOCKER_COMPOSE_COMMAND" > "$DOCKER_ROOT/pdp_docker_up" && chmod  +x "$DOCKER_ROOT/pdp_docker_up"
     bash -c "$DOCKER_COMPOSE_COMMAND"
 
     echo "open plex scanner in browser to continue configuration there: https://127.0.0.1:34400/web"
