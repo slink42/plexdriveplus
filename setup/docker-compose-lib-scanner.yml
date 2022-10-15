@@ -150,7 +150,7 @@ services:
             - PGID=${GROUPID}
             - 'HEALTHCHECK_MOUNTS=/plex/media'
             - 'HEALTHCHECK_PATHS=/plex/media/mountcheck'
-            - 'LIB_META_BACKUP_PATH_MASTER=/config/backups/meta'
+            - 'LIB_META_BACKUP_PATH_MASTER=/backups/meta'
             - 'LIB_META_BACKUP_CRON=35 00 * * *'
             - 'LIB_DB_BACKUP_CRON=35 00 * * *'
         volumes:
@@ -159,7 +159,8 @@ services:
             - '${DOCKER_ROOT}/plex-streamer/custom-scripts:/custom-cont-init.d:ro'
             - '${DOCKER_ROOT}/plex-streamer/custom-services:/custom-services.d:ro'
             - '${DOCKER_ROOT}/scripts/:/scripts:ro'
-            - '${DOCKER_ROOT}/tmp:/tmp:rw'
+            - '${LARGE_DISK_ROOT}/plex_library_backup/meta:/backups/meta:rw'
+            - '${LARGE_DISK_ROOT}/tmp:/tmp:rw'
         ports:
             - "34400:32400"
         image: linuxserver/plex

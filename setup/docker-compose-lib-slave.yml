@@ -1,16 +1,37 @@
 version: '3.3'
 services:
+    # rclone_library_sync:
+    #     # container_name: pdp-rclone-library-download
+    #     # # command: 'lsd SECURE_BACKUP:'
+    #     # library download from master, exclude current db files s they are usually corrupt
+    #     # command: 'copy SECURE_BACKUP:Library /config/Library --progress --filter "- *.db" --filter "- *.db-wal" --filter "- *.db-shm"'
+    #     command: 'sync SECURE_BACKUP: /config --progress --filter "+ /Library/**" --filter "- /config/.env" --filter "+ /config/**" --filter "- *"'
+    #     # # library upload from master
+    #     # command: 'sync /config SECURE_BACKUP: --progress'
+    #     labels:
+    #         - "autoheal-library=true"
+    #     #command: 'lsd SECURE_BACKUP:'
+    #     environment:
+    #         - TZ=Australia/Melbourne
+    #         - PUID=${USERID}
+    #         - PGID=${GROUPID}
+    #     env_file: 
+    #         - "${DOCKER_ROOT}/config/rclone.env"
+    #     volumes:
+    #         - '${DOCKER_ROOT}/plex-scanner/Library/Application Support/Plex Media Server/Plug-in Support/:/config/Library/Application Support/Plex Media Server/Plug-in Support/:rw'
+    #     networks:
+    #         - bridge
+    #         - internal
+    #     user: "${USERID}:${GROUPID}"
+    #     logging:
+    #         options:
+    #             max-size: 20m
+    #     image: rclone/rclone
     rclone_library_sync:
-        # container_name: pdp-rclone-library-download
-        # # command: 'lsd SECURE_BACKUP:'
-        # library download from master, exclude current db files s they are usually corrupt
-        # command: 'copy SECURE_BACKUP:Library /config/Library --progress --filter "- *.db" --filter "- *.db-wal" --filter "- *.db-shm"'
-        command: 'sync SECURE_BACKUP: /config --progress --filter "+ /Library/**" --filter "- /config/.env" --filter "+ /config/**" --filter "- *"'
-        # # library upload from master
-        # command: 'sync /config SECURE_BACKUP: --progress'
+        #command: 'sync SECURE_BACKUP: /config --progress --filter "+ /Library/**" --filter "- /config/.env" --filter "+ /config/**" --filter "- *"'
+        command: 'sync SECURE_BACKUP: /master_data --progress --filter "+ /plex_library_backup/**" --filter "- *"'
         labels:
             - "autoheal-library=true"
-        #command: 'lsd SECURE_BACKUP:'
         environment:
             - TZ=Australia/Melbourne
             - PUID=${USERID}
@@ -18,7 +39,7 @@ services:
         env_file: 
             - "${DOCKER_ROOT}/config/rclone.env"
         volumes:
-            - '${DOCKER_ROOT}/plex-scanner/Library/Application Support/Plex Media Server/Plug-in Support/:/config/Library/Application Support/Plex Media Server/Plug-in Support/:rw'
+            - '${LARGE_DISK_ROOT}/plex_master_backup:/master_data/plex_library_backup:rw'
         networks:
             - bridge
             - internal
