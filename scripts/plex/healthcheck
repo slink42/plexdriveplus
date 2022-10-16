@@ -1,0 +1,36 @@
+#!/usr/bin/with-contenv bash
+. /scripts/plex/variables
+
+# Check plex service web service is active 
+if [ $(find /tmp -type d -mmin -2 | grep pms- |  wc -l) -gt 20 ]; then
+    echo "unhealthy - tmp folder has 20+ pms-* directories in last 2 mins"
+    exit 1
+fi
+
+# Check web service is active 
+PLEX_URL=http://localhost:32400
+if ! [[ $(curl --connect-timeout 15 --silent --show-error --fail $PLEX_URL/identity) ]]; then 
+    echo "unhealthy - no response from plex web service: $PLEX_URL"
+    exit 1
+fi
+
+
+for check_mount in $healthcheck_mountpoints; 
+do 
+    if [ $(findmnt ${check_mount} | grep fuse | wc -l) -ne 1 ]; then
+        echo "unhealthy - path not mounted: $check_mount"
+        exit 1
+    fi
+done
+
+
+for check_path in $healthcheck_paths; 
+do
+    if ! [ "$(ls -A $check_path)" ]; then
+        echo "unhealthy - check path empty: $check_path"
+        exit 1
+    fi
+done
+
+# Health checks all passed
+exit 0

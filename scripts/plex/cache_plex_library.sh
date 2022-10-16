@@ -1,15 +1,17 @@
-#!/bin/bash
+#!/usr/bin/with-contenv bash
+. /scripts/plex/variables
+
 # optimizes the databases, trims SSD, clears memory and caches into vmem.
 
-PLEX_DATABASE="/config/Library/Application Support/Plex Media Server/Plug-in Support/Databases/com.plexapp.plugins.library.db"
-PLEX_DATABASE_BLOBS="/config/Library/Application Support/Plex Media Server/Plug-in Support/Databases/com.plexapp.plugins.library.blobs.db"
-#PLEX_DATABASE_TRAKT="/config/Library/Application Support/Plex Media Server/Plug-in Support/Databases/com.plexapp.plugins.trakttv.db"
+PLEX_DATABASE="${library_db_path_local}/com.plexapp.plugins.library.db"
+PLEX_DATABASE_BLOBS="${library_db_path_local}/com.plexapp.plugins.library.blobs.db"
+#PLEX_DATABASE_TRAKT="${library_db_path_local}/com.plexapp.plugins.trakttv.db"
 
 TMP_PLEX_DATABASE="/tmp/com.plexapp.plugins.library.db"
 TMP_PLEX_DATABASE_BLOBS="/tmp/com.plexapp.plugins.library.blobs.db"
 #TMP_PLEX_DATABASE_TRAKT="/tmp/com.plexapp.plugins.trakttv.db"
 
-BACKUPDIR="/config/backups/maintenance"
+BACKUPDIR="${library_db_backup_path_local}"
 
 SQLITE3="/usr/bin/sqlite3"
 SQLDUMP="/tmp/dump.sql"
@@ -90,13 +92,13 @@ if [ "$OPTIMISE_LIBRARY" = "FULL" ]; then
     cp -f "$TMP_PLEX_DATABASE_BLOBS" "$PLEX_DATABASE_BLOBS"
     #cp -f "$TMP_PLEX_DATABASE_TRAKT" "$PLEX_DATABASE_TRAKT"
 
-    chown -R ${PLEX_UID}:${PLEX_GID} "/config/Library/Application Support/Plex Media Server/Plug-in Support/Databases/"
+    chown -R ${PLEX_UID}:${PLEX_GID} "${library_db_backup_path_local}/"
 
     rm -f "$TMP_PLEX_DATABASE"
     rm -f "$TMP_PLEX_DATABASE_BLOBS"
     #rm -f "$TMP_PLEX_DATABASE_TRAKT"
 
-    rm -rf "/config/Library/Application Support/Plex Media Server/Codecs/"*
+    rm -rf "${library_path_local}/Codecs/"*
 
     #fstrim -av
 fi
@@ -109,15 +111,15 @@ for PID in $VMTOUCH_PID; do
 done
 
 #echo 1 > /proc/sys/vm/drop_caches && swapoff -a && swapon -a
-# echo "vmtouch -dfhl /config/Library/Application Support/Plex Media Server/Cache/PhotoTranscoder/"
-# vmtouch -dfhl "/config/Library/Application Support/Plex Media Server/Cache/PhotoTranscoder/"
-# echo "vmtouch -dfhl /config/Library/Application Support/Plex Media Server/Media/localhost/"
-# vmtouch -dfhl "/config/Library/Application Support/Plex Media Server/Media/localhost/"
+# echo "vmtouch -dfhl ${library_path_local}/Cache/PhotoTranscoder/"
+# vmtouch -dfhl "${library_path_local}/Cache/PhotoTranscoder/"
+# echo "vmtouch -dfhl ${library_path_local}/Media/localhost/"
+# vmtouch -dfhl "${library_path_local}/Media/localhost/"
 echo "vmtouch -dfhl $PLEX_DATABASE"
 vmtouch -dfhl "$PLEX_DATABASE"
 echo "vmtouch -dfhl $PLEX_DATABASE_BLOBS"
 vmtouch -dfhl "$PLEX_DATABASE_BLOBS"
-#/usr/local/bin/vmtouch -dfhl "/mnt/.cache/rclone/google-cache.db"
+#/scripts/plex/vmtouch -dfhl "/mnt/.cache/rclone/google-cache.db"
 
 
 #systemctl start plexmediaserver &&

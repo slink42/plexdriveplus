@@ -1,21 +1,18 @@
-#!/bin/bash
-if  [ "$LOAD_LIBRARY_DB_TO_MEMORY" = "YES" ]
+#!/usr/bin/with-contenv bash
+. /scripts/plex/variables
+
+if  [ "${use_ramdisk}" = "YES" ]
 then
-    # Keep in sync with paths used in load_master_library_db.sh
-    if [ -z "$RAM_DISK_PATH" ]; then RAM_DISK_PATH=/ram_disk; else echo "RAM_DISK_PATH: $RAM_DISK_PATH"; fi
-    PLEX_LIBRARY_PATH="/config/Library/Application Support/Plex Media Server"
-    PLEX_LIBRARY_DATABASE_BACKUP_PATH="$PLEX_LIBRARY_PATH/Plug-in Support/Databases_Backup"
-    RAM_DISK_PLEX_DATABASE_PATH="$RAM_DISK_PATH/Plug-in Support/Databases"
-
-    for LIBRARY_FILE in $(ls "$RAM_DISK_PLEX_DATABASE_PATH")
+    for library_db_file in $(ls "${ram_disk_db_path}")
     do
-        RAMDISK_LIBRARY_FILE_PATH="$RAM_DISK_PLEX_DATABASE_PATH/$LIBRARY_FILE "
-        BACKUP_LIBRARY_FILE_PATH="$PLEX_LIBRARY_DATABASE_BACKUP_PATH/$LIBRARY_FILE"
+        ram_disk_db_file="${ram_disk_db_path}/${library_db_file}"
+        backup_db_file=$(getNewBackupFilePath "${library_db_file}")
 
-        echo "copying ram disk $RAMDISK_LIBRARY_FILE_PATH to backup path $BACKUP_LIBRARY_FILE_PATH"
+        echo "copying ram disk ${ram_disk_db_file} to backup path ${backup_db_file}"
 
-        cp --remove-destination "$RAMDISK_LIBRARY_FILE_PATH"  "$BACKUP_LIBRARY_FILE_PATH"
-    done 
+        cp --remove-destination "${ram_disk_db_file}" "${backup_db_file}"
+    done
+    /scripts/plex/remove_old_backups.sh
 else
     echo "not using ramdisk, no need to save to disk"
 fi

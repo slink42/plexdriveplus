@@ -1,0 +1,87 @@
+#!/usr/bin/with-contenv bash
+
+## Healthcheck
+
+# Check fuse mount points are active
+healthcheck_mountpoints=${HEALTHCHECK_MOUNTS:-}
+
+# Check expected folder paths exist
+healthcheck_paths=${HEALTHCHECK_PATHS:-}
+
+## Crontab
+
+# crontab settings for saving library to local backup. Missing = dont run
+library_db_backup_cron=$LIB_DB_BACKUP_CRON
+
+
+# crontab settings for saving library images to tar backup. Missing = dont run
+library_meta_backup_cron=$LIB_META_BACKUP_CRON
+
+# crontab settings for reloading library to from master backup. Missing = dont run
+library_reload_cron=$LIB_RELOAD_CRON
+
+## Plex Library
+
+# primary library path
+library_path_local=${LIB_PATH_LOCAL:-""${PLEX_MEDIA_SERVER_APPLICATION_SUPPORT_DIR}"/Plex Media Server"}
+library_db_path_local="${library_path_local}/Plug-in Support/Databases"
+
+# path to use for setting up library ramdisk
+ram_disk_path=${RAM_DISK_PATH:-"/ram_disk"}
+ram_disk_db_path="${ram_disk_path}/Plug-in Support/Databases"
+
+# set YES to use ramdisk
+use_ramdisk=${LOAD_LIBRARY_DB_TO_MEMORY:-"NO"}
+
+# set YES to force reload from backup
+force_library_restore=${FORCE_LIBRARY_RESTORE:-"NO"}
+
+# load values from plex Preferences xml
+getXPathFromFile () {
+  xmllint --recover --xpath "$2" "$1"
+}
+
+plex_preferences="${library_path_local}/Preferences.xml"
+
+if [ -f "${plex_preferences}" ]; then
+    plex_token=$(getXPathFromFile "${plex_preferences}" "Preferences/@PlexOnlineToken")
+    plex_username=$(getXPathFromFile "${plex_preferences}" "Preferences/@PlexOnlineUsername")
+    plex_db_backup_path=$(getXPathFromFile "${plex_preferences}" "Preferences/@ButlerDatabaseBackupPath")
+fi
+
+# Use path from plex preferences as default if availalbe, otherwise use plex default db backup location
+library_db_backup_path_local=${plex_db_backup_path:-"${library_db_path_local}"}
+# overwrite with environment value if supplied
+library_db_backup_path_local=${LIB_BACKUP_PATH_LOCAL:-"${library_db_backup_path_local}"}
+# use as master backup source location too unless environment value is supplied
+library_db_backup_path_master=${LIB_BACKUP_PATH_MASTER:-${library_db_backup_path_local}}
+library_path_master=$(dirname ${library_db_backup_path_local})
+
+# backup path containing tar files with library image files
+library_images_backup_path_master=${LIB_META_BACKUP_PATH_MASTER:-${library_db_backup_path_master}}
+
+# library files to target for use in ramdisk and backups
+library_files=( com.plexapp.plugins.library.db com.plexapp.plugins.library.blobs.db )
+
+# period after while library db files will be deleted
+library_db_backup_retention_days=${LIB_BACKUP_LOCAL_RETENTION_DAYS:-30}
+
+# date and time strings
+current_datetime_format="%Y-%m-%d %H%M"
+current_datetime=$(date +"${current_datetime_format}")
+current_date=$(date +"%Y-%m-%d")
+current_time=$(date +"%H%M")
+
+# start of tar files used for library images backup
+library_images_tar_filename_start="library_images"
+
+getNewBackupFilePath () {
+  library_db_file=$1
+  backup_db_file="${library_db_backup_path_local}/${library_db_file}-${current_date}"
+  [ -f "${backup_db_file}" ] && backup_db_file="${library_db_backup_path_local}/${library_db_file}-${current_datetime}"
+  echo $backup_db_file
+}
+
+
+
+        
