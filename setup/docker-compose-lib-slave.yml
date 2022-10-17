@@ -29,7 +29,7 @@ services:
     #     image: rclone/rclone
     rclone_library_sync:
         #command: 'sync SECURE_BACKUP: /config --progress --filter "+ /Library/**" --filter "- /config/.env" --filter "+ /config/**" --filter "- *"'
-        command: 'sync SECURE_BACKUP: /master_data --progress --filter "+ /plex_library_backup/**" --filter "- *"'
+        command: 'sync SECURE_BACKUP: /master_data --progress --filter-from /library_path_local/library_images_loaded.dat --filter "+ /plex_library_backup/**" --filter "- *"'
         labels:
             - "autoheal-library=true"
         environment:
@@ -40,6 +40,8 @@ services:
             - "${DOCKER_ROOT}/config/rclone.env"
         volumes:
             - '${LARGE_DISK_ROOT}/plex_master_backup:/master_data/plex_library_backup:rw'
+                # mount path containing done file --filter-from /library_path_local/library_images_loaded.dat
+            - '${DOCKER_ROOT}/plex-scanner/Library/Application Support/Plex Media Server:/library_path_local:rw'
         networks:
             - bridge
             - internal

@@ -8,7 +8,7 @@ echo "$(date) ****** Starting save_library_images_to_tar.sh ******"
 
 TAR_BACKUP_FOLDER="${library_images_backup_path_master}"
 
-LATEST_TAR_BACKUP_FOLDER_FILE=$(find "$TAR_BACKUP_FOLDER" -name ${library_images_tar_filename_start}_[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9] [0-9][0-9][0-9][0-9]_to_[0-9][0-9][0-9][0-9]-20[0-9][0-9]-[0-9][0-9]-[0-9][0-9] [0-9][0-9][0-9][0-9].tar.gz | sort | tail -n 1)
+LATEST_TAR_BACKUP_FOLDER_FILE=$(find "$TAR_BACKUP_FOLDER" -name "${library_images_tar_filename_start}_[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9] [0-9][0-9][0-9][0-9]_to_[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9] [0-9][0-9][0-9][0-9]_[0-9][0-9][0-9].tar.gz" | sort | tail -n 1)
 LATEST_TAR_BACKUP_FOLDER_FILE=$(basename "$LATEST_TAR_BACKUP_FOLDER_FILE")
 LATEST_TAR_BACKUP_DATE=$(echo $LATEST_TAR_BACKUP_FOLDER_FILE | cut -d "." -f1 | cut -d "_" -f5)
 
