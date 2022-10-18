@@ -451,6 +451,8 @@ prepareVolumeMountPath "${DOCKER_ROOT}/plex-scanner/Library/Application Support/
 prepareVolumeMountPath "${DOCKER_ROOT}/plex-scanner/Library/Application Support/Plex Media Server/Metadata/"
 prepareVolumeMountPath "${DOCKER_ROOT}/plex-scanner/Library/Application Support/Plex Media Server/Media/"
 
+prepareVolumeMountPath "${DOCKER_ROOT}/plex_master_backup/"
+
 prepareVolumeMountPath "${DOCKER_ROOT}/plex-scanner/custom-scripts" executable_dir
 prepareVolumeMountPath "${DOCKER_ROOT}/plex-scanner/custom-services" executable_dir
 prepareVolumeMountPath "${DOCKER_ROOT}/plex-scanner/transcode"
