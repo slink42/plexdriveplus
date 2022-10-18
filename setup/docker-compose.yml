@@ -373,9 +373,7 @@ services:
             - '${DOCKER_ROOT}/plex-streamer/:/config:rw'
             # - '${DOCKER_ROOT}/plex-streamer/custom-scripts:/custom-cont-init.d:ro'
             # - '${DOCKER_ROOT}/plex-streamer/custom-services:/custom-services.d:ro'
-            # - '${DOCKER_ROOT}/plex-scanner/:/mnt/plex-scanner:rw'
-            - '${LARGE_DISK_ROOT}/plex_master_backup/meta:/backups/meta:rw'
-            - '${LARGE_DISK_ROOT}/plex_master_backup/databases:/backups/databases:rw'
+            - '${LARGE_DISK_ROOT}/plex_master_backup:/backups:rw'
             - '${LARGE_DISK_ROOT}/tmp:/tmp:rw'
         tmpfs:
             - /ram_disk
