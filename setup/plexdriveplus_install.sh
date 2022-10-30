@@ -311,13 +311,9 @@ else
 	[[ -f "$DOCKER_ROOT/config/rclone.conf" ]] && echo "rclone config copy from master" && cp "$DOCKER_ROOT/config/rclone.conf" "$DOCKER_ROOT/rclone/"
     echo "reconnecting rclone mount: $GDRIVE_ENDPOINT"
 	rclone config --config "$DOCKER_ROOT/rclone/rclone.conf" reconnect $GDRIVE_ENDPOINT
-    GDRIVE_TOKEN=$(cat "$DOCKER_ROOT/rclone/rclone.conf" | grep "token = {\"access_token\":" | awk '{print $3}')
-    # write TOKEN value to .env file
-    updateEnvFile "$RCLONE_ENV_FILE" "RCLONE_CONFIG_SECURE_MEDIA_SHARED_TOKEN" "$GDRIVE_TOKEN" "force"
-    updateEnvFile "$RCLONE_ENV_FILE" "RCLONE_CONFIG_SECURE_MEDIA2_SHARED_TOKEN" "$GDRIVE_TOKEN" "force"
-    updateEnvFile "$RCLONE_ENV_FILE" "RCLONE_CONFIG_SECURE_MEDIA3_SHARED_TOKEN" "$GDRIVE_TOKEN" "force"
 fi
 # write rclone token to rclone.env file
+GDRIVE_TOKEN=$(cat "$DOCKER_ROOT/rclone/rclone.conf" | grep "token = {\"access_token\":" | awk '{print $3}')
 updateEnvFile "$RCLONE_ENV_FILE" "RCLONE_CONFIG_SECURE_MEDIA_SHARED_TOKEN" "$GDRIVE_TOKEN" "force"
 updateEnvFile "$RCLONE_ENV_FILE" "RCLONE_CONFIG_SECURE_MEDIA2_SHARED_TOKEN" "$GDRIVE_TOKEN" "force"
 updateEnvFile "$RCLONE_ENV_FILE" "RCLONE_CONFIG_SECURE_MEDIA3_SHARED_TOKEN" "$GDRIVE_TOKEN" "force"
