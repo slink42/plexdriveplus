@@ -8,7 +8,7 @@ networks:
         external: true
         name: host
 services:
-    rclone_media1:
+    rclone_media:
         restart: always
         labels:
             - "autoheal=true"
@@ -18,10 +18,8 @@ services:
             - PUID=${USERID}
             #- RCLONE_LOG_FILE=/config/rclone_media_mount_1.log
             - RCLONE_LOG_LEVEL=INFO
-            - 'RCLONE_REMOTE_PATH=secure_media:'
+            - 'RCLONE_REMOTE_PATH=secure_media_union:'
             - 'RCLONE_MOUNT_USER_OPTS=--read-only --use-json-log --acd-templink-threshold 1g --buffer-size 8M --timeout 5s --contimeout 5s --stats 300s --dir-cache-time 30m --multi-thread-streams=20 --allow-non-empty --allow-other --rc-web-gui --rc-web-gui-no-open-browser --rc-user ${RCLONE_USER} --rc-pass ${RCLONE_PASSWORD}'
-            - RCLONE_CONFIG_GDRIVE_MOLE_TEAM_DRIVE=${RCLONE_CONFIG_GDRIVE_TEAM_DRIVE_1}
-            - RCLONE_CONFIG_GDRIVE_WOLF_TEAM_DRIVE=${RCLONE_CONFIG_GDRIVE_TEAM_DRIVE_1}
             - MERGED_DEST=/mnt/secure_media
         env_file: 
             - "${DOCKER_ROOT}/config/rclone.env"
@@ -33,76 +31,6 @@ services:
             - internal
         ports:
             - "15571:5574"
-        logging:
-            options:
-                max-size: 20m
-        devices:
-            - /dev/fuse
-        cap_add:
-            - SYS_ADMIN
-        security_opt:
-            - apparmor:unconfined
-        image: slink42/rclone
-    rclone_media2:
-        restart: always
-        labels:
-            - "autoheal=true"
-        environment:
-            - TZ=Australia/Melbourne
-            - PGID=${GROUPID}
-            - PUID=${USERID}
-            #- RCLONE_LOG_FILE=/config/rclone_media_mount_2.log
-            - RCLONE_LOG_LEVEL=INFO
-            - 'RCLONE_REMOTE_PATH=secure_media:'
-            - 'RCLONE_MOUNT_USER_OPTS=--read-only --use-json-log --acd-templink-threshold 1g --buffer-size 8M --timeout 5s --contimeout 5s --stats 300s --dir-cache-time 30m --multi-thread-streams=20 --allow-non-empty --allow-other --rc-web-gui --rc-web-gui-no-open-browser --rc-user ${RCLONE_USER} --rc-pass ${RCLONE_PASSWORD}'
-            - RCLONE_CONFIG_GDRIVE_MOLE_TEAM_DRIVE=${RCLONE_CONFIG_GDRIVE_TEAM_DRIVE_2}
-            - RCLONE_CONFIG_GDRIVE_WOLF_TEAM_DRIVE=${RCLONE_CONFIG_GDRIVE_TEAM_DRIVE_2}
-            - MERGED_DEST=/mnt/secure_media2
-        env_file: 
-            - "${DOCKER_ROOT}/config/rclone.env"
-        volumes:
-            - '${DOCKER_ROOT}/rclone/:/config:rw'
-            - '${DOCKER_ROOT}/mnt/rclone:/mnt:shared'
-        networks:
-            - bridge
-            - internal
-        ports:
-            - "15572:5574"
-        logging:
-            options:
-                max-size: 20m
-        devices:
-            - /dev/fuse
-        cap_add:
-            - SYS_ADMIN
-        security_opt:
-            - apparmor:unconfined
-        image: slink42/rclone
-    rclone_media3:
-        restart: always
-        labels:
-            - "autoheal=true"
-        environment:
-            - TZ=Australia/Melbourne
-            - PGID=${GROUPID}
-            - PUID=${USERID}
-            - RCLONE_LOG_FILE=/config/rclone_media_mount_3.log
-            - RCLONE_LOG_LEVEL=INFO
-            - 'RCLONE_REMOTE_PATH=secure_media:'
-            - 'RCLONE_MOUNT_USER_OPTS=--read-only --use-json-log --acd-templink-threshold 1g --buffer-size 8M --timeout 5s --contimeout 5s --stats 300s --dir-cache-time 30m --multi-thread-streams=20 --allow-non-empty --allow-other --rc-web-gui --rc-web-gui-no-open-browser --rc-user ${RCLONE_USER} --rc-pass ${RCLONE_PASSWORD}'
-            - RCLONE_CONFIG_GDRIVE_MOLE_TEAM_DRIVE=${RCLONE_CONFIG_GDRIVE_TEAM_DRIVE_3}
-            - RCLONE_CONFIG_GDRIVE_WOLF_TEAM_DRIVE=${RCLONE_CONFIG_GDRIVE_TEAM_DRIVE_3}
-            - MERGED_DEST=/mnt/secure_media3
-        env_file: 
-            - "${DOCKER_ROOT}/config/rclone.env"
-        volumes:
-            - '${DOCKER_ROOT}/rclone/:/config:rw'
-            - '${DOCKER_ROOT}/mnt/rclone:/mnt:shared'
-        networks:
-            - bridge
-            - internal
-        ports:
-            - "15573:5574"
         logging:
             options:
                 max-size: 20m
@@ -140,7 +68,7 @@ services:
         security_opt:
             - apparmor:unconfined
         image: 'wiserain/plexdrive'
-    rclone_plexdrive1:
+    rclone_plexdrive:
         restart: always
         labels:
             - "autoheal=true"
@@ -150,10 +78,10 @@ services:
             - PUID=${USERID}
             #- RCLONE_LOG_FILE=/config/rclone_plexdrive1_mount.log
             - RCLONE_LOG_LEVEL=INFO
-            - 'RCLONE_REMOTE_PATH=plexdrive_securemedia_crypt:'
+            - 'RCLONE_REMOTE_PATH=plexdrive_secure_media_union:'
             - 'RCLONE_MOUNT_USER_OPTS=--include=mountcheck --include=Media/tv-4k/** --include=Media/movies-4k/** --read-only --use-json-log --dir-cache-time 30m --multi-thread-streams=20 --allow-non-empty --allow-other --rc-web-gui --rc-web-gui-no-open-browser --rc-user ${RCLONE_USER} --rc-pass ${RCLONE_PASSWORD}'
             - MERGED_DEST=/mnt/rclone/plexdrive_secure_media
-        env_file: 
+        env_file:
             - "${DOCKER_ROOT}/config/rclone.env"
         volumes:
             - '${DOCKER_ROOT}/rclone/:/config:rw'
@@ -204,43 +132,6 @@ services:
     #     security_opt:
     #         - apparmor:unconfined
     #     image: 'wiserain/plexdrive'
-    # rclone_plexdrive2:
-    #     restart: always
-    #     labels:
-    #         - "autoheal=true"
-    #     environment:
-    #         - TZ=Australia/Melbourne
-    #         - PGID=${GROUPID}
-    #         - PUID=${USERID}
-    #         #- RCLONE_LOG_FILE=/config/rclone_plexdrive2_mount.log
-    #         - RCLONE_LOG_LEVEL=INFO
-    #         - 'RCLONE_REMOTE_PATH=plexdrive_securemedia2_crypt:'
-    #         - 'RCLONE_MOUNT_USER_OPTS=--include=mountcheck --include=Media/tv-4k/** --include=Media/movies-4k/** --read-only --use-json-log --dir-cache-time 30m --multi-thread-streams=20 --allow-non-empty --allow-other --rc-web-gui --rc-web-gui-no-open-browser --rc-user ${RCLONE_USER} --rc-pass ${RCLONE_PASSWORD}'
-    #         - MERGED_DEST=/mnt/rclone/plexdrive_secure_media2
-    #     env_file: 
-    #         - "${DOCKER_ROOT}/config/rclone.env"
-    #     volumes:
-    #         - '${DOCKER_ROOT}/rclone/:/config:rw'
-    #         - '${DOCKER_ROOT}/mnt/plexdrive:/mnt/plexdrive:slave'
-    #         - '${DOCKER_ROOT}/mnt/rclone:/mnt/rclone:shared'
-    #     networks:
-    #         - bridge
-    #         - internal
-    #     ports:
-    #         - "15575:5574"
-    #     logging:
-    #         options:
-    #             max-size: 20m
-    #     devices:
-    #         - /dev/fuse
-    #     cap_add:
-    #         - SYS_ADMIN
-    #     security_opt:
-    #         - apparmor:unconfined
-    #     image: slink42/rclone
-    #     depends_on:
-    #         plexdrive2:
-    #             condition: service_healthy
     plexdrive3:
         restart: always
         labels:
@@ -268,70 +159,6 @@ services:
         security_opt:
             - apparmor:unconfined
         image: 'wiserain/plexdrive'
-    rclone_plexdrive3:
-        restart: always
-        labels:
-            - "autoheal=true"
-        environment:
-            - TZ=Australia/Melbourne
-            - PGID=${GROUPID}
-            - PUID=${USERID}
-            #- RCLONE_LOG_FILE=/config/rclone_plexdrive3_mount.log
-            - RCLONE_LOG_LEVEL=INFO
-            - 'RCLONE_REMOTE_PATH=plexdrive_securemedia3_crypt:'
-            - 'RCLONE_MOUNT_USER_OPTS=--include=mountcheck --include=Media/tv-4k/** --include=Media/movies-4k/** --read-only --use-json-log --dir-cache-time 30m --multi-thread-streams=20 --allow-non-empty --allow-other --rc-web-gui --rc-web-gui-no-open-browser --rc-user ${RCLONE_USER} --rc-pass ${RCLONE_PASSWORD}'
-            - MERGED_DEST=/mnt/rclone/plexdrive_secure_media3
-        env_file: 
-            - "${DOCKER_ROOT}/config/rclone.env"
-        volumes:
-            - '${DOCKER_ROOT}/rclone/:/config:rw'
-            - '${DOCKER_ROOT}/mnt/plexdrive:/mnt/plexdrive:slave'
-            - '${DOCKER_ROOT}/mnt/rclone:/mnt/rclone:shared'
-        networks:
-            - bridge
-            - internal
-        ports:
-            - "15576:5574"
-        logging:
-            options:
-                max-size: 20m
-        devices:
-            - /dev/fuse
-        cap_add:
-            - SYS_ADMIN
-        security_opt:
-            - apparmor:unconfined
-        image: slink42/rclone
-        depends_on:
-            plexdrive3:
-                condition: service_healthy
-    streamer_mergerfs:
-        restart: always
-        labels:
-            - "autoheal=true"
-        environment:
-            - TZ=Australia/Melbourne
-            - PUID=${USERID}
-            - PGID=${GROUPID}
-            - MFS_USER_OPTS=allow_other,nonempty,auto_cache,auto_unmount,direct_io,gid=${GROUPID},sync_read,uid=${USERID}
-            - MFS_BRANCHES=/mnt/rclone/plexdrive_secure_media/=RO:/mnt/rclone/plexdrive_secure_media2/=RO:/mnt/rclone/plexdrive_secure_media3/=RO:/mnt/rclone/secure_media=RO:/mnt/rclone/secure_media2=RO:/mnt/rclone/secure_media3=RO
-            - MERGED_DEST=/mnt/mergerfs/streamer/media
-            # - 'HEALTHCHECK_PATHS=/mnt/mergerfs/streamer/media/mountcheck /mnt/mergerfs/streamer/media/Media/movies /mnt/mergerfs/streamer/media/Media/movies-4k /mnt/mergerfs/streamer/media/Media/tv /mnt/mergerfs/streamer/media/Media/tv-4k'
-        volumes:
-            - '${DOCKER_ROOT}/mnt/mergerfs:/mnt/mergerfs:shared'
-            - '${DOCKER_ROOT}/mnt/rclone:/mnt/rclone:rslave'
-        networks:
-            - internal
-        logging:
-            options:
-                max-size: 20m
-        devices:
-            - /dev/fuse
-        cap_add:
-            - SYS_ADMIN
-        security_opt:
-            - apparmor:unconfined
-        image: slink42/mergerfs
     plex_streamer:
         network_mode: host
         # networks:
@@ -369,7 +196,7 @@ services:
             - 'LIB_META_BACKUP_PATH_MASTER=/backups/meta'
         volumes:
             - '${DOCKER_ROOT}/plex-streamer/transcode:/transcode:rw'
-            - '${DOCKER_ROOT}/mnt/mergerfs/streamer:/plex:slave'
+            - '${DOCKER_ROOT}/mnt/rclone/secure_media:/plex:slave'
             - '${DOCKER_ROOT}/plex-streamer/:/config:rw'
             # - '${DOCKER_ROOT}/plex-streamer/custom-scripts:/custom-cont-init.d:ro'
             # - '${DOCKER_ROOT}/plex-streamer/custom-services:/custom-services.d:ro'

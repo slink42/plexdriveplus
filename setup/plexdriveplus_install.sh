@@ -153,7 +153,11 @@ LARGE_DISK_ROOT=${LARGE_DISK_ROOT:-$DOCKER_ROOT}
 echo "Using LARGE_DISK_ROOT path: $LARGE_DISK_ROOT"
 
 ### Docker environment setup
-ENV_FILE="$DOCKER_ROOT/config/.env"
+ENV_FILE="${DOCKER_ROOT}/config/.env"
+
+
+### Rclone environment setup
+RCLONE_ENV_FILE="${DOCKER_ROOT}/config/rclone.env"
 
 ADMIN_USERNAME=$USER
 ADMIN_USERID=$(id -u)
@@ -307,7 +311,16 @@ else
 	[[ -f "$DOCKER_ROOT/config/rclone.conf" ]] && echo "rclone config copy from master" && cp "$DOCKER_ROOT/config/rclone.conf" "$DOCKER_ROOT/rclone/"
     echo "reconnecting rclone mount: $GDRIVE_ENDPOINT"
 	rclone config --config "$DOCKER_ROOT/rclone/rclone.conf" reconnect $GDRIVE_ENDPOINT
+    GDRIVE_TOKEN=$(cat "$DOCKER_ROOT/rclone/rclone.conf" | grep "token = {\"access_token\":" | awk '{print $3}')
+    # write TOKEN value to .env file
+    updateEnvFile "$RCLONE_ENV_FILE" "RCLONE_CONFIG_SECURE_MEDIA_SHARED_TOKEN" "$GDRIVE_TOKEN" "force"
+    updateEnvFile "$RCLONE_ENV_FILE" "RCLONE_CONFIG_SECURE_MEDIA2_SHARED_TOKEN" "$GDRIVE_TOKEN" "force"
+    updateEnvFile "$RCLONE_ENV_FILE" "RCLONE_CONFIG_SECURE_MEDIA3_SHARED_TOKEN" "$GDRIVE_TOKEN" "force"
 fi
+# write rclone token to rclone.env file
+updateEnvFile "$RCLONE_ENV_FILE" "RCLONE_CONFIG_SECURE_MEDIA_SHARED_TOKEN" "$GDRIVE_TOKEN" "force"
+updateEnvFile "$RCLONE_ENV_FILE" "RCLONE_CONFIG_SECURE_MEDIA2_SHARED_TOKEN" "$GDRIVE_TOKEN" "force"
+updateEnvFile "$RCLONE_ENV_FILE" "RCLONE_CONFIG_SECURE_MEDIA3_SHARED_TOKEN" "$GDRIVE_TOKEN" "force"
 
 # authorize scanner rclone gdrive mount if required by selected library managemeent mode
 if [[ $management_mode = "2" ]] || [[ $management_mode = "3" ]]; then
