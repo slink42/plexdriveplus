@@ -18,7 +18,7 @@ services:
             - PUID=${USERID}
             #- RCLONE_LOG_FILE=/config/rclone_media_mount_1.log
             - RCLONE_LOG_LEVEL=INFO
-            - 'RCLONE_REMOTE_PATH=secure_media_union:'
+            - 'RCLONE_REMOTE_PATH=secure_media_crypt:'
             - 'RCLONE_MOUNT_USER_OPTS=--read-only --use-json-log --acd-templink-threshold 1g --buffer-size 8M --timeout 5s --contimeout 5s --stats 300s --dir-cache-time 30m --multi-thread-streams=20 --allow-non-empty --allow-other --rc-web-gui --rc-web-gui-no-open-browser --rc-user ${RCLONE_USER} --rc-pass ${RCLONE_PASSWORD}'
             - MERGED_DEST=/mnt/secure_media
         env_file: 
@@ -68,7 +68,7 @@ services:
         security_opt:
             - apparmor:unconfined
         image: 'wiserain/plexdrive'
-    rclone_plexdrive:
+    rclone_plexdrive1:
         restart: always
         labels:
             - "autoheal=true"
@@ -78,10 +78,10 @@ services:
             - PUID=${USERID}
             #- RCLONE_LOG_FILE=/config/rclone_plexdrive1_mount.log
             - RCLONE_LOG_LEVEL=INFO
-            - 'RCLONE_REMOTE_PATH=plexdrive_secure_media_union:'
+            - 'RCLONE_REMOTE_PATH=plexdrive_securemedia_crypt:'
             - 'RCLONE_MOUNT_USER_OPTS=--include=mountcheck --include=Media/tv-4k/** --include=Media/movies-4k/** --read-only --use-json-log --dir-cache-time 30m --multi-thread-streams=20 --allow-non-empty --allow-other --rc-web-gui --rc-web-gui-no-open-browser --rc-user ${RCLONE_USER} --rc-pass ${RCLONE_PASSWORD}'
             - MERGED_DEST=/mnt/rclone/plexdrive_secure_media
-        env_file:
+        env_file: 
             - "${DOCKER_ROOT}/config/rclone.env"
         volumes:
             - '${DOCKER_ROOT}/rclone/:/config:rw'
@@ -159,6 +159,43 @@ services:
         security_opt:
             - apparmor:unconfined
         image: 'wiserain/plexdrive'
+    rclone_plexdrive3:
+        restart: always
+        labels:
+            - "autoheal=true"
+        environment:
+            - TZ=Australia/Melbourne
+            - PGID=${GROUPID}
+            - PUID=${USERID}
+            #- RCLONE_LOG_FILE=/config/rclone_plexdrive3_mount.log
+            - RCLONE_LOG_LEVEL=INFO
+            - 'RCLONE_REMOTE_PATH=plexdrive_securemedia3_crypt:'
+            - 'RCLONE_MOUNT_USER_OPTS=--include=mountcheck --include=Media/tv-4k/** --include=Media/movies-4k/** --read-only --use-json-log --dir-cache-time 30m --multi-thread-streams=20 --allow-non-empty --allow-other --rc-web-gui --rc-web-gui-no-open-browser --rc-user ${RCLONE_USER} --rc-pass ${RCLONE_PASSWORD}'
+            - MERGED_DEST=/mnt/rclone/plexdrive_secure_media3
+        env_file: 
+            - "${DOCKER_ROOT}/config/rclone.env"
+        volumes:
+            - '${DOCKER_ROOT}/rclone/:/config:rw'
+            - '${DOCKER_ROOT}/mnt/plexdrive:/mnt/plexdrive:slave'
+            - '${DOCKER_ROOT}/mnt/rclone:/mnt/rclone:shared'
+        networks:
+            - bridge
+            - internal
+        ports:
+            - "15576:5574"
+        logging:
+            options:
+                max-size: 20m
+        devices:
+            - /dev/fuse
+        cap_add:
+            - SYS_ADMIN
+        security_opt:
+            - apparmor:unconfined
+        image: slink42/rclone
+        depends_on:
+            plexdrive3:
+                condition: service_healthy
     plex_streamer:
         network_mode: host
         # networks:
