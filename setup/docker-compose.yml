@@ -28,7 +28,6 @@ services:
         volumes:
             - '${DOCKER_ROOT}/rclone/:/config:rw'
             - '${DOCKER_ROOT}/mnt/rclone:/mnt/rclone:shared'
-            - '${DOCKER_ROOT}/mnt/plexdrive:/mnt/plexdrive:slave'
         networks:
             - bridge
             - internal
