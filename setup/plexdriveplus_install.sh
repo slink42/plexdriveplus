@@ -45,7 +45,7 @@ function updateEnvFile() {
     if ! [[ $(cat $env_file | grep $var) ]]
     then
         echo "adding ${var}=${value} to ${env_file}"
-        echo "$var=$value" >> "$env_file"
+        echo "$var='$value'" >> "$env_file"
     fi
 }
 
@@ -154,6 +154,9 @@ echo "Using LARGE_DISK_ROOT path: $LARGE_DISK_ROOT"
 
 ### Docker environment setup
 ENV_FILE="$DOCKER_ROOT/config/.env"
+
+### Rclone environment setup
+RCLONE_ENV_FILE="${DOCKER_ROOT}/config/rclone.env"
 
 ADMIN_USERNAME=$USER
 ADMIN_USERID=$(id -u)
@@ -375,6 +378,11 @@ RCLONE_TOKEN=${RCLONE_TOKEN/token = /}
 [[ -z "$RCLONE_TOKEN" ]] && echo "error: rclone token for gdrive not found in rclone.conf" && exit 1 \
     || echo "$RCLONE_TOKEN" > "$DOCKER_ROOT/plexdrive/config/token.json"
 
+
+# update rclone env file with token value
+updateEnvFile "$RCLONE_ENV_FILE" "RCLONE_CONFIG_SECURE_MEDIA_SHARED_TOKEN" "$RCLONE_TOKEN" "force"
+updateEnvFile "$RCLONE_ENV_FILE" "RCLONE_CONFIG_SECURE_MEDIA2_SHARED_TOKEN" "$RCLONE_TOKEN" "force"
+updateEnvFile "$RCLONE_ENV_FILE" "RCLONE_CONFIG_SECURE_MEDIA3_SHARED_TOKEN" "$RCLONE_TOKEN" "force"
 
 # update plexdrive config.json
 RCLONE_CLIENTID=$(echo "$RCLONE_CONFIG_GDRIVE" | grep client_id)
