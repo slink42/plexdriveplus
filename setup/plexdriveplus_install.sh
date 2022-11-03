@@ -378,12 +378,6 @@ RCLONE_TOKEN=${RCLONE_TOKEN/token = /}
 [[ -z "$RCLONE_TOKEN" ]] && echo "error: rclone token for gdrive not found in rclone.conf" && exit 1 \
     || echo "$RCLONE_TOKEN" > "$DOCKER_ROOT/plexdrive/config/token.json"
 
-
-# update rclone env file with token value
-updateEnvFile "$RCLONE_ENV_FILE" "RCLONE_CONFIG_SECURE_MEDIA_SHARED_TOKEN" "$RCLONE_TOKEN" "force"
-updateEnvFile "$RCLONE_ENV_FILE" "RCLONE_CONFIG_SECURE_MEDIA2_SHARED_TOKEN" "$RCLONE_TOKEN" "force"
-updateEnvFile "$RCLONE_ENV_FILE" "RCLONE_CONFIG_SECURE_MEDIA3_SHARED_TOKEN" "$RCLONE_TOKEN" "force"
-
 # update plexdrive config.json
 RCLONE_CLIENTID=$(echo "$RCLONE_CONFIG_GDRIVE" | grep client_id)
 RCLONE_CLIENTID=${RCLONE_CLIENTID/client_id = /}
@@ -392,10 +386,23 @@ RCLONE_SECRET=$(echo "$RCLONE_CONFIG_GDRIVE" | grep client_secret)
 RCLONE_SECRET=${RCLONE_SECRET/client_secret = /}
 
 if [[ -z "$RCLONE_CLIENTID" ]] || [[ -z "$RCLONE_SECRET" ]]; then
-echo "error: rclone token for gdrive not found in rclone.conf"
-exit 1
+    echo "error: rclone token for gdrive not found in rclone.conf"
+    exit 1
 else
-echo "{\"ClientID\":\"$RCLONE_CLIENTID\",\"ClientSecret\":\"$RCLONE_SECRET\"}" > "$DOCKER_ROOT/plexdrive/config/config.json"
+    echo "{\"ClientID\":\"$RCLONE_CLIENTID\",\"ClientSecret\":\"$RCLONE_SECRET\"}" > "$DOCKER_ROOT/plexdrive/config/config.json"
+
+    # update rclone env file with auth token, clientid and client secret values
+    updateEnvFile "$RCLONE_ENV_FILE" "RCLONE_CONFIG_SECURE_MEDIA_SHARED_TOKEN" "$RCLONE_TOKEN" "force"
+    updateEnvFile "$RCLONE_ENV_FILE" "RCLONE_CONFIG_SECURE_MEDIA_SHARED_SECRET" "$RCLONE_SECRET" "force"
+    updateEnvFile "$RCLONE_ENV_FILE" "RCLONE_CONFIG_SECURE_MEDIA_SHARED_CLIENTID" "$RCLONE_CLIENTID" "force"
+
+    updateEnvFile "$RCLONE_ENV_FILE" "RCLONE_CONFIG_SECURE_MEDIA2_SHARED_TOKEN" "$RCLONE_TOKEN" "force"
+    updateEnvFile "$RCLONE_ENV_FILE" "RCLONE_CONFIG_SECURE_MEDIA2_SHARED_SECRET" "$RCLONE_SECRET" "force"
+    updateEnvFile "$RCLONE_ENV_FILE" "RCLONE_CONFIG_SECURE_MEDIA2_SHARED_CLIENTID" "$RCLONE_CLIENTID" "force"
+
+    updateEnvFile "$RCLONE_ENV_FILE" "RCLONE_CONFIG_SECURE_MEDIA3_SHARED_TOKEN" "$RCLONE_TOKEN" "force"
+    updateEnvFile "$RCLONE_ENV_FILE" "RCLONE_CONFIG_SECURE_MEDIA3_SHARED_SECRET" "$RCLONE_SECRET" "force"
+    updateEnvFile "$RCLONE_ENV_FILE" "RCLONE_CONFIG_SECURE_MEDIA3_SHARED_CLIENTID" "$RCLONE_CLIENTID" "force"
 fi
 
 # update plexdrive team_drive.id
