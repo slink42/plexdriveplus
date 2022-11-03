@@ -329,7 +329,7 @@ if [[ $management_mode = "2" ]] || [[ $management_mode = "3" ]]; then
         rclone config --config "$DOCKER_ROOT/rclone/rclone.conf" reconnect $SCANNER_GDRIVE_ENDPOINT
     fi
     if [[ $management_mode = "2" ]]; then
-            # authorize rclone gdrive mount
+            # authorize rclone gdrive mount with write access to master location for library backups
         echo "setting up config backup rclone authentication"
         BACKUP_GDRIVE_ENDPOINT=gdrive_backup_rw:
         echo "Using rclone gdrive endpoint: $BACKUP_GDRIVE_ENDPOINT"
@@ -341,12 +341,42 @@ if [[ $management_mode = "2" ]] || [[ $management_mode = "3" ]]; then
         fi
     fi
 
-
     # make sure paths aren't mounted
     prepareVolumeMountPath "$DOCKER_ROOT/mnt/rclone/scanner_secure_media"
     prepareVolumeMountPath "$DOCKER_ROOT/mnt/rclone/scanner_secure_media2"
     prepareVolumeMountPath "$DOCKER_ROOT/mnt/rclone/scanner_secure_media3"
     prepareVolumeMountPath "$DOCKER_ROOT/mnt/mergerfs/scanner_secure_media"
+
+    # update rclone env file with auth token, clientid and client secret values for scanner mount
+
+    # read auth info from config
+    SCANNER_RCLONE_CONFIG_GDRIVE=$(rclone config  --config "$DOCKER_ROOT/rclone/rclone.conf" show ${SCANNER_GDRIVE_ENDPOINT})
+
+    # extract token value
+    SCANNER_RCLONE_TOKEN=$(echo "$SCANNER_RCLONE_CONFIG_GDRIVE" | grep token)
+    # trim to value only
+    SCANNER_RCLONE_TOKEN=${SCANNER_RCLONE_TOKEN/token = /}
+
+    # extract client_id value
+    SCANNER_RCLONE_CLIENTID=$(echo "$SCANNER_RCLONE_CONFIG_GDRIVE" | grep client_id)
+    SCANNER_RCLONE_CLIENTID=${SCANNER_RCLONE_CLIENTID/client_id = /}
+
+    # extract client_secret value
+    SCANNER_RCLONE_SECRET=$(echo "$SCANNER_RCLONE_CONFIG_GDRIVE" | grep client_secret)
+    SCANNER_RCLONE_SECRET=${SCANNER_RCLONE_SECRET/client_secret = /}
+
+    # update rclone env file with auth token, clientid and client secret values
+    updateEnvFile "$RCLONE_ENV_FILE" "RCLONE_CONFIG_SCANNER_SECURE_MEDIA_SHARED_TOKEN" "$SCANNER_RCLONE_TOKEN" "force"
+    updateEnvFile "$RCLONE_ENV_FILE" "RCLONE_CONFIG_SCANNER_SECURE_MEDIA_SHARED_SECRET" "$SCANNER_RCLONE_SECRET" "force"
+    updateEnvFile "$RCLONE_ENV_FILE" "RCLONE_CONFIG_SCANNER_SECURE_MEDIA_SHARED_CLIENTID" "$SCANNER_RCLONE_CLIENTID" "force"
+
+    updateEnvFile "$RCLONE_ENV_FILE" "RCLONE_CONFIG_SCANNER_SECURE_MEDIA2_SHARED_TOKEN" "$SCANNER_RCLONE_TOKEN" "force"
+    updateEnvFile "$RCLONE_ENV_FILE" "RCLONE_CONFIG_SCANNER_SECURE_MEDIA2_SHARED_SECRET" "$SCANNER_RCLONE_SECRET" "force"
+    updateEnvFile "$RCLONE_ENV_FILE" "RCLONE_CONFIG_SCANNER_SECURE_MEDIA2_SHARED_CLIENTID" "$SCANNER_RCLONE_CLIENTID" "force"
+
+    updateEnvFile "$RCLONE_ENV_FILE" "RCLONE_CONFIG_SCANNER_SECURE_MEDIA3_SHARED_TOKEN" "$SCANNER_RCLONE_TOKEN" "force"
+    updateEnvFile "$RCLONE_ENV_FILE" "RCLONE_CONFIG_SCANNER_SECURE_MEDIA3_SHARED_SECRET" "$SCANNER_RCLONE_SECRET" "force"
+    updateEnvFile "$RCLONE_ENV_FILE" "RCLONE_CONFIG_SCANNER_SECURE_MEDIA3_SHARED_CLIENTID" "$SCANNER_RCLONE_CLIENTID" "force"
 fi
 
 ## make sure scanner rclone paths aren't mounted
@@ -403,6 +433,7 @@ else
     updateEnvFile "$RCLONE_ENV_FILE" "RCLONE_CONFIG_SECURE_MEDIA3_SHARED_TOKEN" "$RCLONE_TOKEN" "force"
     updateEnvFile "$RCLONE_ENV_FILE" "RCLONE_CONFIG_SECURE_MEDIA3_SHARED_SECRET" "$RCLONE_SECRET" "force"
     updateEnvFile "$RCLONE_ENV_FILE" "RCLONE_CONFIG_SECURE_MEDIA3_SHARED_CLIENTID" "$RCLONE_CLIENTID" "force"
+
 fi
 
 # update plexdrive team_drive.id
