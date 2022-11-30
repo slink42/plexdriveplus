@@ -3,7 +3,7 @@ networks:
     support:
         driver: bridge
 services:
-    rclone_library_sync:
+    rclone_library_sync_to_cloud:
         # container_name: pdp-rclone-library-download
         # # command: 'lsd SECURE_BACKUP:'
         # # library download from master
@@ -33,6 +33,29 @@ services:
         networks:
             - bridge
             - internal
+        logging:
+            options:
+                max-size: 20m
+        image: rclone/rclone
+    rclone_library_sync_from_cloud:
+        #command: 'sync SECURE_BACKUP: /config --progress --filter "+ /Library/**" --filter "- /config/.env" --filter "+ /config/**" --filter "- *"'
+        command: 'sync SECURE_BACKUP: /master_data --progress --filter-from /library_path_local/library_images_loaded.dat --filter "+ /plex_library_backup/**" --filter "- *"'
+        labels:
+            - "autoheal-library=true"
+        environment:
+            - TZ=Australia/Melbourne
+            - PUID=${USERID}
+            - PGID=${GROUPID}
+        env_file: 
+            - "${DOCKER_ROOT}/config/rclone.env"
+        volumes:
+            - '${LARGE_DISK_ROOT}/plex_master_backup:/master_data/plex_library_backup:rw'
+                # mount path containing done file --filter-from /library_path_local/library_images_loaded.dat
+            - '${DOCKER_ROOT}/plex-streamer/Library/Application Support/Plex Media Server:/library_path_local:rw'
+        networks:
+            - bridge
+            - internal
+        user: "${USERID}:${GROUPID}"
         logging:
             options:
                 max-size: 20m
