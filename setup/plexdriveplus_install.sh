@@ -237,25 +237,25 @@ case $management_mode in
                 ;;
 esac
 
-read -p 'Please select if library should download movie covers images from backup. Warning this will consume 150Gb+: 
-1  | [Default] No. Plex should try and slowly download the pictures over time.... Very slowly
-2  | Yes. Download backup and restore of Plex Library Metadata and Media folders
-download library images> ' -e library_image_mode
+# read -p 'Please select if library should download movie covers images from backup. Warning this will consume 150Gb+: 
+# 1  | [Default] No. Plex should try and slowly download the pictures over time.... Very slowly
+# 2  | Yes. Download backup and restore of Plex Library Metadata and Media folders
+# download library images> ' -e library_image_mode
 
-case $library_image_mode in
-        "1"|"")
-                echo "Libary image download omitted"
-                LIB_IMAGE_DOWNLOAD=
-                ;;
-        "2")
-                echo "Libary image download selected"
-                LIB_IMAGE_DOWNLOAD="yes"
-                ;;
-        *)
-                echo "Invalid selection, using default - libary image download omitted"
-                LIB_IMAGE_DOWNLOAD=
-                ;;
-esac
+# case $library_image_mode in
+#         "1"|"")
+#                 echo "Libary image download omitted"
+#                 LIB_IMAGE_DOWNLOAD=
+#                 ;;
+#         "2")
+#                 echo "Libary image download selected"
+#                 LIB_IMAGE_DOWNLOAD="yes"
+#                 ;;
+#         *)
+#                 echo "Invalid selection, using default - libary image download omitted"
+#                 LIB_IMAGE_DOWNLOAD=
+#                 ;;
+# esac
 
 
 
@@ -280,18 +280,18 @@ mkdir -p "$DOCKER_ROOT/rclone"
 [[ -z "$PDP_BRANCH" ]] && PDP_BRANCH=master
 [[ -z "$PDP_VERSION" ]] && PDP_URL="https://github.com/slink42/plexdriveplus/archive/$PDP_BRANCH.tar.gz" &&  echo "" && echo "loading plexdrive plus using branch: $PDP_BRANCH" \
     || (PDP_URL="https://github.com/slink42/plexdriveplus/archive/refs/tags/${PDP_VERSION}.tar.gz" &&  echo "" && echo "loading plexdrive plus using version: $PDP_VERSION")
-# remove existing custom-cont-init.d (custom-scripts) scripts if they exist to ensure only scripts downloaded remain for running at plex startup
-wget --no-check-certificate --content-disposition ${PDP_URL} -O "${DOCKER_ROOT}/plexdriveplus.tar.gz"
+# # remove existing custom-cont-init.d (custom-scripts) scripts if they exist to ensure only scripts downloaded remain for running at plex startup
+# wget --no-check-certificate --content-disposition ${PDP_URL} -O "${DOCKER_ROOT}/plexdriveplus.tar.gz"
 
-# make sure folders set to be owened by root later via executable_dir are empty ahead of tar extract
-prepareVolumeMountPath "${DOCKER_ROOT}/plex-scanner/custom-scripts" sudo_remove_dir
-prepareVolumeMountPath "${DOCKER_ROOT}/plex-scanner/custom-services" sudo_remove_dir
-prepareVolumeMountPath "${DOCKER_ROOT}/plex-streamer/custom-scripts" sudo_remove_dir
-prepareVolumeMountPath "${DOCKER_ROOT}/plex-streamer/custom-services" sudo_remove_dir
-prepareVolumeMountPath "${DOCKER_ROOT}/scripts/" sudo_remove_dir
+# # make sure folders set to be owened by root later via executable_dir are empty ahead of tar extract
+# prepareVolumeMountPath "${DOCKER_ROOT}/plex-scanner/custom-scripts" sudo_remove_dir
+# prepareVolumeMountPath "${DOCKER_ROOT}/plex-scanner/custom-services" sudo_remove_dir
+# prepareVolumeMountPath "${DOCKER_ROOT}/plex-streamer/custom-scripts" sudo_remove_dir
+# prepareVolumeMountPath "${DOCKER_ROOT}/plex-streamer/custom-services" sudo_remove_dir
+# prepareVolumeMountPath "${DOCKER_ROOT}/scripts/" sudo_remove_dir
 
-# extract tar 
-tar xvzf "${DOCKER_ROOT}/plexdriveplus.tar.gz" --overwrite --strip=1 -C "${DOCKER_ROOT}"
+# # extract tar 
+# tar xvzf "${DOCKER_ROOT}/plexdriveplus.tar.gz" --overwrite --strip=1 -C "${DOCKER_ROOT}"
 
 ### Rclone & Plexdrive setup
 
@@ -453,11 +453,11 @@ prepareVolumeMountPath "${DOCKER_ROOT}/plex-scanner/Library/Application Support/
 
 prepareVolumeMountPath "${DOCKER_ROOT}/plex_master_backup/"
 
-prepareVolumeMountPath "${DOCKER_ROOT}/plex-scanner/custom-scripts" executable_dir
-prepareVolumeMountPath "${DOCKER_ROOT}/plex-scanner/custom-services" executable_dir
+# prepareVolumeMountPath "${DOCKER_ROOT}/plex-scanner/custom-scripts" executable_dir
+# prepareVolumeMountPath "${DOCKER_ROOT}/plex-scanner/custom-services" executable_dir
 prepareVolumeMountPath "${DOCKER_ROOT}/plex-scanner/transcode"
 
-prepareVolumeMountPath "${DOCKER_ROOT}/scripts/" executable_dir
+# prepareVolumeMountPath "${DOCKER_ROOT}/scripts/" executable_dir
 
 # copy generic Plex Preferences.xml
 prepareVolumeMountPath "$DOCKER_ROOT/plex-streamer/Library/Application Support/Plex Media Server/"
@@ -554,32 +554,32 @@ fi
 
 
 
-if [[ "$MASTER_LIB_DOWNLOAD" = "yes" ]] || ! ([[ $management_mode = "2" ]] || [[ $management_mode = "3" ]]); then
+# if [[ "$MASTER_LIB_DOWNLOAD" = "yes" ]] || ! ([[ $management_mode = "2" ]] || [[ $management_mode = "3" ]]); then
     
-    sleep 10 # get plex container time to run claim script before stopping it 
+#     sleep 10 # get plex container time to run claim script before stopping it 
 
-    ### Plex container setup
-    # Stop plex while library downloads
-    echo "stopping plex instance(s) for plex library download"
-    CONTAINER_PLEX_STREAMER=$(docker container ls --format {{.Names}} | grep plex_streamer)
-    docker stop "$CONTAINER_PLEX_STREAMER"
+#     ### Plex container setup
+#     # Stop plex while library downloads
+#     echo "stopping plex instance(s) for plex library download"
+#     CONTAINER_PLEX_STREAMER=$(docker container ls --format {{.Names}} | grep plex_streamer)
+#     docker stop "$CONTAINER_PLEX_STREAMER"
 
-    CONTAINER_PLEX_LIBRARY_SYNC=$(docker container ls --format {{.Names}} | grep rclone_library_sync)
-    while [[ $(docker ps | grep "$CONTAINER_PLEX_LIBRARY_SYNC") ]] && ! [ -z "$CONTAINER_PLEX_LIBRARY_SYNC" ]
-    do
-    echo "$(date) - waiting for library download using $CONTAINER_PLEX_LIBRARY_SYNC to complete"
-    echo "------------------------- progress ------------------------------"
-    docker logs --tail 7 "$CONTAINER_PLEX_LIBRARY_SYNC"
-    echo "-----------------------------------------------------------------"
-    sleep 20
-    done
-    echo "$(date) - library download using $CONTAINER_PLEX_LIBRARY_SYNC has completed. Restarting Plex"
+#     CONTAINER_PLEX_LIBRARY_SYNC=$(docker container ls --format {{.Names}} | grep rclone_library_sync)
+#     while [[ $(docker ps | grep "$CONTAINER_PLEX_LIBRARY_SYNC") ]] && ! [ -z "$CONTAINER_PLEX_LIBRARY_SYNC" ]
+#     do
+#     echo "$(date) - waiting for library download using $CONTAINER_PLEX_LIBRARY_SYNC to complete"
+#     echo "------------------------- progress ------------------------------"
+#     docker logs --tail 7 "$CONTAINER_PLEX_LIBRARY_SYNC"
+#     echo "-----------------------------------------------------------------"
+#     sleep 20
+#     done
+#     echo "$(date) - library download using $CONTAINER_PLEX_LIBRARY_SYNC has completed. Restarting Plex"
 
-    # Restore from latest backup. Current DB often corrupted in sync
-    bash  "$DOCKER_ROOT/scripts/plex/restore-library-backup.sh" "$DOCKER_ROOT/plex-scanner/Library"
+#     # Restore from latest backup. Current DB often corrupted in sync
+#     bash  "$DOCKER_ROOT/scripts/plex/restore-library-backup.sh" "$DOCKER_ROOT/plex-scanner/Library"
 
-    docker start "$CONTAINER_PLEX_STREAMER"
-fi
+#     docker start "$CONTAINER_PLEX_STREAMER"
+# fi
 
 
 # copy streamer plex db copied for cloud to scanner if required by selected library managemeent mode
@@ -627,37 +627,37 @@ openURL http://127.0.0.1:8889
 echo "open plex in browser to continue configuration there: https://127.0.0.1:32400/web"
 echo "open heimdall in browser to view web portals for use in monitoring/administration: https://127.0.0.1:8889"
 
-# copy library images / metadata backup from master
-if ! [[ -z "$LIB_IMAGE_DOWNLOAD" ]]; then
-    if [[ -z "$USE_CLOUD_CONFIG" ]] && [[ -f "$DOCKER_ROOT/plex-scanner/backups/meta/library_files.tar.gz" ]]; then
-        echo "using existing copy of library media covers backup tar file"
-    else
-        echo "downloading library media covers backup from cloud"
-        mkdir -p "$DOCKER_ROOT/plex-scanner"
-        [[ -f $INSTALL_ENV_FILE ]] || (echo "error $INSTALL_ENV_FILE file not found, missing credentials required to load rclone config from cloud storage" &&  exit 1)
-        docker run --rm -it \
-        --env-file $INSTALL_ENV_FILE \
-        --name rclone-config-download \
-        --user "$ADMIN_USERID:$ADMIN_GROUPID" \
-        -v "$DOCKER_ROOT/plex-scanner:/plex-scanner" \
-        rclone/rclone \
-        copy secure_backup:plex-scanner/backups /plex-scanner/backups --progress
-    fi
+# # copy library images / metadata backup from master
+# if ! [[ -z "$LIB_IMAGE_DOWNLOAD" ]]; then
+#     if [[ -z "$USE_CLOUD_CONFIG" ]] && [[ -f "$DOCKER_ROOT/plex-scanner/backups/meta/library_files.tar.gz" ]]; then
+#         echo "using existing copy of library media covers backup tar file"
+#     else
+#         echo "downloading library media covers backup from cloud"
+#         mkdir -p "$DOCKER_ROOT/plex-scanner"
+#         [[ -f $INSTALL_ENV_FILE ]] || (echo "error $INSTALL_ENV_FILE file not found, missing credentials required to load rclone config from cloud storage" &&  exit 1)
+#         docker run --rm -it \
+#         --env-file $INSTALL_ENV_FILE \
+#         --name rclone-config-download \
+#         --user "$ADMIN_USERID:$ADMIN_GROUPID" \
+#         -v "$DOCKER_ROOT/plex-scanner:/plex-scanner" \
+#         rclone/rclone \
+#         copy secure_backup:plex-scanner/backups /plex-scanner/backups --progress
+#     fi
     
-    PLEX_IMAGE_BACKUP_TAR="$DOCKER_ROOT/plex-scanner/backups/meta/library_files.tar.gz"
-    [[ -f "$PLEX_IMAGE_BACKUP_TAR" ]] || echo "error: backup file not found - $PLEX_IMAGE_BACKUPS"
-    tar -xzf "$PLEX_IMAGE_BACKUP_TAR" -C "$DOCKER_ROOT/plex-scanner" --checkpoint=.5000
+#     PLEX_IMAGE_BACKUP_TAR="$DOCKER_ROOT/plex-scanner/backups/meta/library_files.tar.gz"
+#     [[ -f "$PLEX_IMAGE_BACKUP_TAR" ]] || echo "error: backup file not found - $PLEX_IMAGE_BACKUPS"
+#     tar -xzf "$PLEX_IMAGE_BACKUP_TAR" -C "$DOCKER_ROOT/plex-scanner" --checkpoint=.5000
     
-    # Fix Library File Ownership
-    if [ "$ADMIN_USERID" -ne "$USERID" ]; then
-        echo "setting library file ownership to $USERID:$GROUPID for $DOCKER_ROOT/plex-scanner/Library"
-        $SUDO -R $USERID:$GROUPID "$DOCKER_ROOT/plex-scanner/Library"
-    fi
+#     # Fix Library File Ownership
+#     if [ "$ADMIN_USERID" -ne "$USERID" ]; then
+#         echo "setting library file ownership to $USERID:$GROUPID for $DOCKER_ROOT/plex-scanner/Library"
+#         $SUDO -R $USERID:$GROUPID "$DOCKER_ROOT/plex-scanner/Library"
+#     fi
     
-    # Restart plex streamer
-    CONTAINER_PLEX_STREAMER=$(docker container ls --format {{.Names}} | grep plex_streamer)
-    docker restart "$CONTAINER_PLEX_STREAMER"
-fi
+#     # Restart plex streamer
+#     CONTAINER_PLEX_STREAMER=$(docker container ls --format {{.Names}} | grep plex_streamer)
+#     docker restart "$CONTAINER_PLEX_STREAMER"
+# fi
 echo
 echo "$(date) - Plexdriveplus install Done!!!"
 echo

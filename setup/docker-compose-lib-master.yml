@@ -37,6 +37,36 @@ services:
             options:
                 max-size: 20m
         image: rclone/rclone
+    incremental_library_images_backup:
+        labels:
+            - "autoheal-library=true"
+        environment:
+            - TZ=Australia/Melbourne
+            - PUID=${USERID}
+            - PGID=${GROUPID}
+            - EXTRACTED_FILES_PATH=/library_path_local
+            - TMP_PATH=/library_path_local
+            - CONFIG_PATH=/config
+            - RCLONE_REMOTE=secure_backup
+            - RCLONE_PATH=plex_library_backup/meta
+            - MODE=BACKUP
+            - MIN_DISK_SPACE=52428800
+            - TAR_FILENAME_START=library_images
+        env_file: 
+            - "${DOCKER_ROOT}/config/rclone.env"
+        volumes:
+            # # Change to plex-scanner once tested ok with streamer
+            # - '${DOCKER_ROOT}/plex-scanner/Library/Application Support/Plex Media Server:/library_path_local:rw'
+            - '${DOCKER_ROOT}/plex-streamer/Library/Application Support/Plex Media Server:/library_path_local:rw'
+            - '${DOCKER_ROOT}/incremental_library_images_backup:/config:rw'
+        networks:
+            - bridge
+            - internal
+        user: "${USERID}:${GROUPID}"
+        logging:
+            options:
+                max-size: 20m
+        image: slink42/incremental-folder-sync:latest
     autoheal-library:
         # container_name: pdp-autoheal-library-download
         restart: always
