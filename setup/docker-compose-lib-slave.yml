@@ -29,7 +29,7 @@ services:
     #     image: rclone/rclone
     rclone_library_sync:
         #command: 'sync SECURE_BACKUP: /config --progress --filter "+ /Library/**" --filter "- /config/.env" --filter "+ /config/**" --filter "- *"'
-        command: 'sync SECURE_BACKUP: /master_data --progress --filter-from /library_path_local/library_images_loaded.dat --filter "+ /plex_library_backup/**" --filter "- *"'
+        command: 'sync SECURE_BACKUP: /master_data --progress --filter "+ /plex_library_backup/**" --filter "- *"'
         labels:
             - "autoheal-library=true"
         environment:
