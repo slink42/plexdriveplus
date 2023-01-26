@@ -143,6 +143,137 @@ function installDocker() {
     fi
     
 }
+
+# Read an rclone.conf file and output the envrionment variables that would achieve the same
+function parseRcloneConfToEnv() {
+    rclone_conf_path=${1:-"rclone.conf"}
+
+    while read -r line; do
+        if [[ $line =~ ^\[.*\]$ ]]; then
+            section="${line:1:${#line}-2}"
+        elif [[ $line =~ ^[^#].*=.* ]]; then
+            key="${line%%=*}"
+            value="${line#*=}"
+            env_var="${section^^}_${key^^}"
+            echo "RCLONE_CONFIG_${env_var// /}=${value// /}"
+        fi
+    done < "$rclone_conf_path"
+}
+
+# Reconnect to rclone remote if unable to connect to an list directories
+function reconnect_rclone_mount() {   
+    # authorize rclone gdrive mount
+    RCLONE_REMOTE=$1
+    RCLONE_CONFIG_FILE=${2:-"rclone.conf"}
+
+    echo "setting up rclone authentication for remote: $RCLONE_REMOTE"
+    if [[ -f "$RCLONE_CONFIG_FILE" ]]; then
+        if [[ $(rclone --config  "$RCLONE_CONFIG_FILE" lsd $RCLONE_REMOTE) ]]; then
+            echo "rclone auth already present. Skipping mount reconnection"
+        else
+            echo "reconnecting rclone mount: $RCLONE_REMOTE"
+            rclone config --config "$RCLONE_CONFIG_FILE" reconnect $RCLONE_REMOTE
+        fi
+    else
+        echo "rclone config file not found at: $RCLONE_CONFIG_FILE"
+    fi
+}
+
+# Reconnect to rclone remote, revert rclone config to master copy if unable to connect
+function reconnect_rclone_mount_from_master{
+    # authorize rclone gdrive mount
+    RCLONE_REMOTE=$1
+    RCLONE_CONFIG_FILE=${2:-"rclone.conf"}
+    RCLONE_MASTER_CONFIG_FILE=${3:-"rclone.conf"}
+
+    reconnect_rclone_mount $RCLONE_REMOTE "$RCLONE_CONFIG_FILE"
+    if ! [[ $(rclone --config  "$RCLONE_CONFIG_FILE" lsd $RCLONE_REMOTE) ]]; then 
+	    [[ -f "$DOCKER_ROOT/config/rclone.conf" ]] && echo "rclone config copy from master" && cp "$RCLONE_MASTER_CONFIG_FILE" "$RCLONE_CONFIG_FILE"
+        reconnect_rclone_mount $RCLONE_REMOTE "$RCLONE_CONFIG_FILE"
+    fi
+}
+
+# Reconnect to rclone remote, revert rclone config to master copy if unable to connect
+function plexdrive_config_from_rclone{
+    # authorize rclone gdrive mount
+    RCLONE_REMOTE=$1
+    RCLONE_CONFIG_FILE=${2:-"rclone.conf"}
+    PLEXDRIVE_FOLDER=${3:-"./plexdrive"}
+    
+    PLEXDRIVE_CONFIG_FOLDER="$PLEXDRIVE_FOLDER/config"
+    PLEXDRIVE_CACHE_FOLDER="$PLEXDRIVE_FOLDER/cache"
+    
+    ENV_FILE${4:-$ENV_FILE}
+
+    ## copy gdrive mount tokens to plexdrive
+    echo "copying rclone token to plexdrive"
+    mkdir -p "${PLEXDRIVE_CONFIG_FOLDER}"
+
+    # read config from file
+    RCLONE_CONFIG_OUPUT=$(rclone config  --config "$RCLONE_CONFIG_FILE" show ${RCLONE_REMOTE})
+
+    # update plexdrive token.json
+    RCLONE_TOKEN=$(echo "$RCLONE_CONFIG_OUPUT" | grep token)
+    # trim to value only
+    RCLONE_TOKEN=${RCLONE_TOKEN/token = /}
+    [[ -z "$RCLONE_TOKEN" ]] && echo "error: rclone token for gdrive not found in rclone.conf" && exit 1 \
+        || echo "$RCLONE_TOKEN" > "${PLEXDRIVE_CONFIG_FOLDER}/token.json"
+
+
+    # update plexdrive config.json
+    RCLONE_CLIENTID=$(echo "$RCLONE_CONFIG_OUPUT" | grep client_id)
+    RCLONE_CLIENTID=${RCLONE_CLIENTID/client_id = /}
+
+    RCLONE_SECRET=$(echo "$RCLONE_CONFIG_OUPUT" | grep client_secret)
+    RCLONE_SECRET=${RCLONE_SECRET/client_secret = /}
+
+    if [[ -z "$RCLONE_CLIENTID" ]] || [[ -z "$RCLONE_SECRET" ]]; then
+        echo "error: rclone token for gdrive not found in rclone.conf"
+        exit 1
+    else
+        echo "{\"ClientID\":\"$RCLONE_CLIENTID\",\"ClientSecret\":\"$RCLONE_SECRET\"}" > "$PLEXDRIVE_CONFIG_FOLDER/config.json"
+    fi
+
+    # update plexdrive team_drive.id
+    RCLONE_TEAMDRIVE=$(echo "$RCLONE_CONFIG_OUPUT" | grep team_drive)
+    RCLONE_TEAMDRIVE=${RCLONE_TEAMDRIVE/team_drive = /}
+    [[ -z "$RCLONE_TEAMDRIVE" ]] && echo "warning: rclone teamdrive id for gdrive not found in rclone.conf" \
+        && RCLONE_TEAMDRIVE=$(RCLONE_TEAMDRIVE=cat $ENV_FILE | grep PLEXDRIVE_GDRIVE_TEAM_DRIVE) \
+        && RCLONE_TEAMDRIVE=${RCLONE_TEAMDRIVE/PLEXDRIVE_GDRIVE_TEAM_DRIVE=/}
+    [[ -z "$RCLONE_TEAMDRIVE" ]] && echo "warning: rclone teamdrive id for gdrive not found in .env under PLEXDRIVE_GDRIVE_TEAM_DRIVE" \
+        || echo "$RCLONE_TEAMDRIVE" > "$PLEXDRIVE_CONFIG_FOLDER/team_drive.id"
+}
+
+# Download master copy of plexdrive cache file to avoid long scanning process on first start
+function plexdrive_preload_cache{
+    # authorize rclone gdrive mount
+    PLEXDRIVE_FOLDER=${1:-"./plexdrive"}
+    
+    PLEXDRIVE_CONFIG_FOLDER="$PLEXDRIVE_FOLDER/config"
+    PLEXDRIVE_CACHE_FOLDER="$PLEXDRIVE_FOLDER/cache"
+    
+    INSTALL_ENV_FILE${2:-$INSTALL_ENV_FILE}
+
+    # Download plexdrive cache
+    if [[ -z "$USE_CLOUD_CONFIG" ]] && [[ -f "$PLEXDRIVE_CACHE_FOLDER/cache.bolt" ]]; then
+        echo "using local plexdrive cache file"
+    else
+        echo "local plexdrive cache file not found. Initalising with master copy from cloud"
+        mkdir -p "$PLEXDRIVE_CACHE_FOLDER"
+        if [[ -f $INSTALL_ENV_FILE ]]; then
+            docker run --rm -it \
+            --env-file $INSTALL_ENV_FILE \
+            --name rclone-config-download \
+            --user "$ADMIN_USERID:$ADMIN_GROUPID" \
+            -v "$PLEXDRIVE_CACHE_FOLDER:/plexdrive/cache" \
+            rclone/rclone \
+            copy secure_backup:plexdrive/cache /plexdrive/cache --progress
+        else
+            echo "warning $INSTALL_ENV_FILE file not found, missing credentials required to initalise plexdrive cache file from cloud storage. Will leave to plexdrive to initalise on first run"
+        fi
+    fi
+}
+
 # ENV_FILE=install.env
 INSTALL_ENV_FILE=install.env
 [[ -z "$1" ]] || INSTALL_ENV_FILE=$1
@@ -265,6 +396,7 @@ if [[ -z "$USE_CLOUD_CONFIG" ]] && [[ -f "$DOCKER_ROOT/config/.env" ]] && ([[ -f
 else
     echo "setting up rclone using rclone.conf & .env from cloud"
     mkdir -p "$DOCKER_ROOT/config"
+    chown "$ADMIN_USERID:$ADMIN_GROUPID" "$DOCKER_ROOT/config"
     [[ -f $INSTALL_ENV_FILE ]] || (echo "error $INSTALL_ENV_FILE file not found, missing credentials required to load rclone config from cloud storage" &&  exit 1)
     docker run --rm -it \
     --env-file $INSTALL_ENV_FILE \
@@ -300,44 +432,23 @@ echo "setting up rclone authentication"
 GDRIVE_ENDPOINT=$(cat "$DOCKER_ROOT/config/.env" | grep RCLONE_CONFIG_SECURE_MEDIA_REMOTE)
 GDRIVE_ENDPOINT=${GDRIVE_ENDPOINT/RCLONE_CONFIG_SECURE_MEDIA_REMOTE=/}
 echo "Using rclone gdrive endpoint: $GDRIVE_ENDPOINT"
-if [[ -f "$DOCKER_ROOT/rclone/rclone.conf" ]] && [[ $(rclone --config  "$DOCKER_ROOT/rclone/rclone.conf" lsd $GDRIVE_ENDPOINT) ]]; then 
-	echo "rclone auth already present. Skipping config copy from master copy mount reconnection"
-else
-	echo "rclone config copy from master $GDRIVE_ENDPOINT mount reconnection"
-	[[ -f "$DOCKER_ROOT/config/rclone.conf" ]] && echo "rclone config copy from master" && cp "$DOCKER_ROOT/config/rclone.conf" "$DOCKER_ROOT/rclone/"
-    echo "reconnecting rclone mount: $GDRIVE_ENDPOINT"
-	rclone config --config "$DOCKER_ROOT/rclone/rclone.conf" reconnect $GDRIVE_ENDPOINT
-fi
+reconnect_rclone_mount_from_master "$GDRIVE_ENDPOINT" "$DOCKER_ROOT/rclone/rclone.conf" "$DOCKER_ROOT/config/rclone.conf"
 
 # authorize scanner rclone gdrive mount if required by selected library managemeent mode
 if [[ $management_mode = "2" ]] || [[ $management_mode = "3" ]]; then
     echo "**********************"
-    echo "${C_PURPLE}
-    setting up rclone authentication from library scanner mount. This can a different account to the one used for streaming so streaming isnt impacted by api bans caused by scanning
-    ${NO_FORMAT}!"
-    echo "**********************"
     SCANNER_GDRIVE_ENDPOINT=$(cat "$DOCKER_ROOT/config/.env" | grep RCLONE_CONFIG_SECURE_MEDIA_SCANNER_REMOTE)
     SCANNER_GDRIVE_ENDPOINT=${SCANNER_GDRIVE_ENDPOINT/RCLONE_CONFIG_SECURE_MEDIA_SCANNER_REMOTE=/}
-    echo "Using rclone gdrive endpoint for scanner: $SCANNER_GDRIVE_ENDPOINT"
-    if [[ $(rclone --config  "$DOCKER_ROOT/rclone/rclone.conf" lsd $SCANNER_GDRIVE_ENDPOINT) ]]; then 
-        echo "rclone auth already present. Skipping config copy from master copy mount reconnection"
-    else
-        echo "reconnecting rclone mount: $SCANNER_GDRIVE_ENDPOINT"
-        rclone config --config "$DOCKER_ROOT/rclone/rclone.conf" reconnect $SCANNER_GDRIVE_ENDPOINT
-    fi
+    
+    reconnect_rclone_mount "$SCANNER_GDRIVE_ENDPOINT" "$DOCKER_ROOT/rclone/rclone.conf"
+
+    # authorize rclone gdrive mount
     if [[ $management_mode = "2" ]]; then
-            # authorize rclone gdrive mount
         echo "setting up config backup rclone authentication"
         BACKUP_GDRIVE_ENDPOINT=gdrive_backup_rw:
         echo "Using rclone gdrive endpoint: $BACKUP_GDRIVE_ENDPOINT"
-        if [[ $(rclone --config  "$DOCKER_ROOT/rclone/rclone.conf" lsd $BACKUP_GDRIVE_ENDPOINT) ]]; then 
-            echo "rclone auth already present. Skipping config copy from master copy mount reconnection"
-        else
-            echo "reconnecting rclone mount: $BACKUP_GDRIVE_ENDPOINT"
-            rclone config --config "$DOCKER_ROOT/rclone/rclone.conf" reconnect $BACKUP_GDRIVE_ENDPOINT
-        fi
+        reconnect_rclone_mount "$BACKUP_GDRIVE_ENDPOINT" "$DOCKER_ROOT/rclone/rclone.conf"
     fi
-
 
     # make sure paths aren't mounted
     prepareVolumeMountPath "$DOCKER_ROOT/mnt/rclone/scanner_secure_media"
@@ -362,62 +473,12 @@ prepareVolumeMountPath "$DOCKER_ROOT/mnt/rclone/plexdrive_secure_media3"
 prepareVolumeMountPath "$DOCKER_ROOT/mnt/mergerfs/secure_media"
 prepareVolumeMountPath "$DOCKER_ROOT/mnt/mergerfs/streamer"
 
+
 ## copy gdrive mount tokens to plexdrive
-echo "copying rclone token to plexdrive"
-mkdir -p "$DOCKER_ROOT/plexdrive/config/"
-# read token from config
-RCLONE_CONFIG_GDRIVE=$(rclone config  --config "$DOCKER_ROOT/rclone/rclone.conf" show ${GDRIVE_ENDPOINT})
-
-# update plexdrive token.json
-RCLONE_TOKEN=$(echo "$RCLONE_CONFIG_GDRIVE" | grep token)
-# trim to value only
-RCLONE_TOKEN=${RCLONE_TOKEN/token = /}
-[[ -z "$RCLONE_TOKEN" ]] && echo "error: rclone token for gdrive not found in rclone.conf" && exit 1 \
-    || echo "$RCLONE_TOKEN" > "$DOCKER_ROOT/plexdrive/config/token.json"
-
-
-# update plexdrive config.json
-RCLONE_CLIENTID=$(echo "$RCLONE_CONFIG_GDRIVE" | grep client_id)
-RCLONE_CLIENTID=${RCLONE_CLIENTID/client_id = /}
-
-RCLONE_SECRET=$(echo "$RCLONE_CONFIG_GDRIVE" | grep client_secret)
-RCLONE_SECRET=${RCLONE_SECRET/client_secret = /}
-
-if [[ -z "$RCLONE_CLIENTID" ]] || [[ -z "$RCLONE_SECRET" ]]; then
-echo "error: rclone token for gdrive not found in rclone.conf"
-exit 1
-else
-echo "{\"ClientID\":\"$RCLONE_CLIENTID\",\"ClientSecret\":\"$RCLONE_SECRET\"}" > "$DOCKER_ROOT/plexdrive/config/config.json"
-fi
-
-# update plexdrive team_drive.id
-RCLONE_TEAMDRIVE=$(echo "$RCLONE_CONFIG_GDRIVE" | grep team_drive)
-RCLONE_TEAMDRIVE=${RCLONE_TEAMDRIVE/team_drive = /}
-[[ -z "$RCLONE_TEAMDRIVE" ]] && echo "warning: rclone teamdrive id for gdrive not found in rclone.conf" \
-    && RCLONE_TEAMDRIVE=$(RCLONE_TEAMDRIVE=cat $ENV_FILE | grep PLEXDRIVE_GDRIVE_TEAM_DRIVE) \
-    && RCLONE_TEAMDRIVE=${RCLONE_TEAMDRIVE/PLEXDRIVE_GDRIVE_TEAM_DRIVE=/}
-[[ -z "$RCLONE_TEAMDRIVE" ]] && echo "warning: rclone teamdrive id for gdrive not found in .env under PLEXDRIVE_GDRIVE_TEAM_DRIVE" \
-    || echo "$RCLONE_TEAMDRIVE" > "$DOCKER_ROOT/plexdrive/config/team_drive.id"
-
+plexdrive_config_from_rclone "$GDRIVE_ENDPOINT" "$DOCKER_ROOT/rclone/rclone.conf" "$DOCKER_ROOT/plexdrive" "$ENV_FILE"
 
 # Download plexdrive cache
-if [[ -z "$USE_CLOUD_CONFIG" ]] && [[ -f "$DOCKER_ROOT/plexdrive/cache/cache.bolt" ]]; then
-    echo "using local plexdrive cache file"
-else
-    echo "local plexdrive cache file not found. Initalising with master copy from cloud"
-    mkdir -p "$DOCKER_ROOT/plexdrive/cache"
-    if [[ -f $INSTALL_ENV_FILE ]]; then
-        docker run --rm -it \
-        --env-file $INSTALL_ENV_FILE \
-        --name rclone-config-download \
-        --user "$ADMIN_USERID:$ADMIN_GROUPID" \
-        -v "$DOCKER_ROOT/plexdrive/cache:/plexdrive/cache" \
-        rclone/rclone \
-        copy secure_backup:plexdrive/cache /plexdrive/cache --progress
-    else
-        echo "warning $INSTALL_ENV_FILE file not found, missing credentials required to initalise plexdrive cache file from cloud storage. Will leave to plexdrive to initalise on first run"
-    fi
-fi
+plexdrive_preload_cache "$DOCKER_ROOT/plexdrive" "$INSTALL_ENV_FILE"
 
 # Set rclone rc username and password if not already provided in env file
 [[ $(cat $ENV_FILE | grep RCLONE_USER) ]] || echo "RCLONE_USER=rclone" >> "$ENV_FILE"
@@ -436,15 +497,13 @@ updateEnvFile "$ENV_FILE" "GROUPID" "$GROUPID" "check"
 # Select if Plex should load DB to RAM or disk
 configPlexRamDisk "$ENV_FILE"
 
-## Start with updated rclone config
-echo "starting containers with docker-compose"
+# copy root folder paths to env file
 sed -i '/DOCKER_ROOT/'d "$ENV_FILE"
 echo "DOCKER_ROOT=$DOCKER_ROOT" >> "$ENV_FILE"
 sed -i '/LARGE_DISK_ROOT/'d "$ENV_FILE"
 echo "LARGE_DISK_ROOT=$LARGE_DISK_ROOT" >> "$ENV_FILE"
 
 # Create paths mounted by docker beforehand to ensure they are owned by current user rather than root
-
 prepareVolumeMountPath "${DOCKER_ROOT}/mnt/mergerfs/streamer/media"
 prepareVolumeMountPath "${DOCKER_ROOT}/mnt/mergerfs/scanner/media"
 prepareVolumeMountPath "${DOCKER_ROOT}/plex-scanner/Library/Application Support/Plex Media Server/Plug-in Support/Databases"
@@ -456,7 +515,6 @@ prepareVolumeMountPath "${DOCKER_ROOT}/plex_master_backup/"
 # prepareVolumeMountPath "${DOCKER_ROOT}/plex-scanner/custom-scripts" executable_dir
 # prepareVolumeMountPath "${DOCKER_ROOT}/plex-scanner/custom-services" executable_dir
 prepareVolumeMountPath "${DOCKER_ROOT}/plex-scanner/transcode"
-
 # prepareVolumeMountPath "${DOCKER_ROOT}/scripts/" executable_dir
 
 # copy generic Plex Preferences.xml
@@ -523,7 +581,10 @@ echo "HOST_NETWORK=$HOST_NETWORK" >> "$ENV_FILE"
 sed -i '/HOST_NETWORK_MODE/'d "$ENV_FILE"
 echo "HOST_NETWORK_MODE=$HOST_NETWORK" >> "$ENV_FILE"
 
+
 # start docker containers
+echo "starting containers with docker-compose"
+
 DOCKER_COMPOSE_FILE="$DOCKER_ROOT/setup/docker-compose.yml"
 SLAVE_DOCKER_COMPOSE_FILE="$DOCKER_ROOT/setup/docker-compose-lib-slave.yml"
 LOGGING_COMPOSE_FILE="$DOCKER_ROOT/setup/docker-compose-logging.yml"
