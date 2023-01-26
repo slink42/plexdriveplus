@@ -73,7 +73,7 @@ services:
         networks:
             - bridge
             - internal
-        user: "${USERID}:${GROUPID}"
+        # user: "${USERID}:${GROUPID}"
         logging:
             options:
                 max-size: 20m
