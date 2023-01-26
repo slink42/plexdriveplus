@@ -180,7 +180,7 @@ function reconnect_rclone_mount() {
 }
 
 # Reconnect to rclone remote, revert rclone config to master copy if unable to connect
-function reconnect_rclone_mount_from_master{
+function reconnect_rclone_mount_from_master(){
     # authorize rclone gdrive mount
     RCLONE_REMOTE=$1
     RCLONE_CONFIG_FILE=${2:-"rclone.conf"}
@@ -194,7 +194,7 @@ function reconnect_rclone_mount_from_master{
 }
 
 # Reconnect to rclone remote, revert rclone config to master copy if unable to connect
-function plexdrive_config_from_rclone{
+function plexdrive_config_from_rclone(){
     # authorize rclone gdrive mount
     RCLONE_REMOTE=$1
     RCLONE_CONFIG_FILE=${2:-"rclone.conf"}
