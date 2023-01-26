@@ -203,7 +203,7 @@ function plexdrive_config_from_rclone(){
     PLEXDRIVE_CONFIG_FOLDER="$PLEXDRIVE_FOLDER/config"
     PLEXDRIVE_CACHE_FOLDER="$PLEXDRIVE_FOLDER/cache"
 
-    ENV_FILE${4:-$ENV_FILE}
+    ENV_FILE=${4:-$ENV_FILE}
 
     ## copy gdrive mount tokens to plexdrive
     echo "copying rclone token to plexdrive"
@@ -246,13 +246,11 @@ function plexdrive_config_from_rclone(){
 
 # Download master copy of plexdrive cache file to avoid long scanning process on first start
 function plexdrive_preload_cache(){
-    # authorize rclone gdrive mount
     PLEXDRIVE_FOLDER=${1:-"./plexdrive"}
-
     PLEXDRIVE_CONFIG_FOLDER="$PLEXDRIVE_FOLDER/config"
     PLEXDRIVE_CACHE_FOLDER="$PLEXDRIVE_FOLDER/cache"
 
-    INSTALL_ENV_FILE${2:-$INSTALL_ENV_FILE}
+    INSTALL_ENV_FILE=${2:-$INSTALL_ENV_FILE}
 
     # Download plexdrive cache
     if [[ -z "$USE_CLOUD_CONFIG" ]] && [[ -f "$PLEXDRIVE_CACHE_FOLDER/cache.bolt" ]]; then
