@@ -244,6 +244,34 @@ function plexdrive_config_from_rclone(){
         || echo "$RCLONE_TEAMDRIVE" > "$PLEXDRIVE_CONFIG_FOLDER/team_drive.id"
 }
 
+
+# load_folder_from_backup "$REMOTE_PATH" "$LOCAL_PATH"
+# load_folder_from_backup "secure_backup:config" "$DOCKER_ROOT/config"
+
+function load_folder_from_backup(){
+    REMOTE_PATH=$1
+    LOCAL_PATH=$2
+    RCLONE_ENV_FILE=${3:-$INSTALL_ENV_FILE}
+
+    # Download rclone settings
+    if [[ -z "$REMOTE_PATH" ]] || [[ -z "LOCAL_PATH" ]]; then
+        echo "both REMOTE_PATH and LOCAL_PATH are required for load_folder_from_backup"
+    else
+        echo "copying $REMOTE_PATH remote folder to $LOCAL_PATH"
+        [ -d "$LOCAL_PATH" ] || mkdir -p "$LOCAL_PATH"
+        chown "$ADMIN_USERID:$ADMIN_GROUPID" "$LOCAL_PATH"
+        [[ -f $RCLONE_ENV_FILE ]] || (echo "error $RCLONE_ENV_FILE file not found, missing credentials required to load rclone config from cloud storage" &&  exit 1)
+        docker run --rm -it \
+        --env-file $RCLONE_ENV_FILE \
+        --name rclone-config-download \
+        -v "$LOCAL_PATH:/mnt/download_folder" \
+        --user "$ADMIN_USERID:$ADMIN_GROUPID" \
+        rclone/rclone \
+        copy "$REMOTE_PATH" /mnt/download_folder --progress
+    fi
+}
+
+
 # Download master copy of plexdrive cache file to avoid long scanning process on first start
 function plexdrive_preload_cache(){
     PLEXDRIVE_FOLDER=${1:-"./plexdrive"}
@@ -257,18 +285,7 @@ function plexdrive_preload_cache(){
         echo "using local plexdrive cache file"
     else
         echo "local plexdrive cache file not found. Initalising with master copy from cloud"
-        mkdir -p "$PLEXDRIVE_CACHE_FOLDER"
-        if [[ -f $INSTALL_ENV_FILE ]]; then
-            docker run --rm -it \
-            --env-file $INSTALL_ENV_FILE \
-            --name rclone-config-download \
-            --user "$ADMIN_USERID:$ADMIN_GROUPID" \
-            -v "$PLEXDRIVE_CACHE_FOLDER:/plexdrive/cache" \
-            rclone/rclone \
-            copy secure_backup:plexdrive/cache /plexdrive/cache --progress
-        else
-            echo "warning $INSTALL_ENV_FILE file not found, missing credentials required to initalise plexdrive cache file from cloud storage. Will leave to plexdrive to initalise on first run"
-        fi
+        load_folder_from_backup "secure_backup:plexdrive/cache" "$PLEXDRIVE_CACHE_FOLDER"
     fi
 }
 
@@ -393,16 +410,18 @@ if [[ -z "$USE_CLOUD_CONFIG" ]] && [[ -f "$DOCKER_ROOT/config/.env" ]] && ([[ -f
     echo "setting up rclone using local copies of rclone.conf & .env"
 else
     echo "setting up rclone using rclone.conf & .env from cloud"
-    mkdir -p "$DOCKER_ROOT/config"
-    chown "$ADMIN_USERID:$ADMIN_GROUPID" "$DOCKER_ROOT/config"
-    [[ -f $INSTALL_ENV_FILE ]] || (echo "error $INSTALL_ENV_FILE file not found, missing credentials required to load rclone config from cloud storage" &&  exit 1)
-    docker run --rm -it \
-    --env-file $INSTALL_ENV_FILE \
-    --name rclone-config-download \
-    -v "$DOCKER_ROOT/config:/config" \
-    --user "$ADMIN_USERID:$ADMIN_GROUPID" \
-    rclone/rclone \
-    copy secure_backup:config /config --progress
+    load_folder_from_backup "secure_backup:config" "$DOCKER_ROOT/config"
+    
+    # mkdir -p "$DOCKER_ROOT/config"
+    # chown "$ADMIN_USERID:$ADMIN_GROUPID" "$DOCKER_ROOT/config"
+    # [[ -f $INSTALL_ENV_FILE ]] || (echo "error $INSTALL_ENV_FILE file not found, missing credentials required to load rclone config from cloud storage" &&  exit 1)
+    # docker run --rm -it \
+    # --env-file $INSTALL_ENV_FILE \
+    # --name rclone-config-download \
+    # -v "$DOCKER_ROOT/config:/config" \
+    # --user "$ADMIN_USERID:$ADMIN_GROUPID" \
+    # rclone/rclone \
+    # copy secure_backup:config /config --progress
 fi
 mkdir -p "$DOCKER_ROOT/rclone"
 
