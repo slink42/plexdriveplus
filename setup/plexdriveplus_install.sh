@@ -245,7 +245,7 @@ function plexdrive_config_from_rclone(){
 }
 
 # Download master copy of plexdrive cache file to avoid long scanning process on first start
-function plexdrive_preload_cache{
+function plexdrive_preload_cache(){
     # authorize rclone gdrive mount
     PLEXDRIVE_FOLDER=${1:-"./plexdrive"}
 
