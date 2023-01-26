@@ -252,7 +252,7 @@ function load_folder_from_backup(){
     REMOTE_PATH=$1
     LOCAL_PATH=$2
     RCLONE_ENV_FILE=${3:-$INSTALL_ENV_FILE}
-
+    INSTALL_RCLONE_CONFIG_FOLDER=${4:-$DOCKER_ROOT/config}
     # Download rclone settings
     if [[ -z "$REMOTE_PATH" ]] || [[ -z "LOCAL_PATH" ]]; then
         echo "both REMOTE_PATH and LOCAL_PATH are required for load_folder_from_backup"
@@ -261,13 +261,15 @@ function load_folder_from_backup(){
         [ -d "$LOCAL_PATH" ] || mkdir -p "$LOCAL_PATH"
         chown "$ADMIN_USERID:$ADMIN_GROUPID" "$LOCAL_PATH"
         [[ -f $RCLONE_ENV_FILE ]] || (echo "error $RCLONE_ENV_FILE file not found, missing credentials required to load rclone config from cloud storage" &&  exit 1)
+
         docker run --rm -it \
         --env-file $RCLONE_ENV_FILE \
         --name rclone-config-download \
+        -v "$INSTALL_RCLONE_CONFIG_FOLDER:/config" \
         -v "$LOCAL_PATH:/mnt/download_folder" \
         --user "$ADMIN_USERID:$ADMIN_GROUPID" \
         rclone/rclone \
-        copy "$REMOTE_PATH" /mnt/download_folder --progress
+        copy "$REMOTE_PATH" /mnt/download_folder --progress --config /config/rclone.conf
     fi
 }
 
@@ -415,13 +417,13 @@ else
     # mkdir -p "$DOCKER_ROOT/config"
     # chown "$ADMIN_USERID:$ADMIN_GROUPID" "$DOCKER_ROOT/config"
     # [[ -f $INSTALL_ENV_FILE ]] || (echo "error $INSTALL_ENV_FILE file not found, missing credentials required to load rclone config from cloud storage" &&  exit 1)
-    # docker run --rm -it \
-    # --env-file $INSTALL_ENV_FILE \
-    # --name rclone-config-download \
-    # -v "$DOCKER_ROOT/config:/config" \
-    # --user "$ADMIN_USERID:$ADMIN_GROUPID" \
-    # rclone/rclone \
-    # copy secure_backup:config /config --progress
+    docker run --rm -it \
+    --env-file $INSTALL_ENV_FILE \
+    --name rclone-config-download \
+    -v "$DOCKER_ROOT/config:/config" \
+    --user "$ADMIN_USERID:$ADMIN_GROUPID" \
+    rclone/rclone \
+    copy secure_backup:config /config --progress
 fi
 mkdir -p "$DOCKER_ROOT/rclone"
 
