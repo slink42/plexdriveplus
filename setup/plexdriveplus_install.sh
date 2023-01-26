@@ -161,7 +161,7 @@ function parseRcloneConfToEnv() {
 }
 
 # Reconnect to rclone remote if unable to connect to an list directories
-function reconnect_rclone_mount() {   
+function reconnect_rclone_mount() {
     # authorize rclone gdrive mount
     RCLONE_REMOTE=$1
     RCLONE_CONFIG_FILE=${2:-"rclone.conf"}
@@ -187,7 +187,7 @@ function reconnect_rclone_mount_from_master(){
     RCLONE_MASTER_CONFIG_FILE=${3:-"rclone.conf"}
 
     reconnect_rclone_mount $RCLONE_REMOTE "$RCLONE_CONFIG_FILE"
-    if ! [[ $(rclone --config  "$RCLONE_CONFIG_FILE" lsd $RCLONE_REMOTE) ]]; then 
+    if ! [[ $(rclone --config  "$RCLONE_CONFIG_FILE" lsd $RCLONE_REMOTE) ]]; then
 	    [[ -f "$DOCKER_ROOT/config/rclone.conf" ]] && echo "rclone config copy from master" && cp "$RCLONE_MASTER_CONFIG_FILE" "$RCLONE_CONFIG_FILE"
         reconnect_rclone_mount $RCLONE_REMOTE "$RCLONE_CONFIG_FILE"
     fi
@@ -199,10 +199,10 @@ function plexdrive_config_from_rclone(){
     RCLONE_REMOTE=$1
     RCLONE_CONFIG_FILE=${2:-"rclone.conf"}
     PLEXDRIVE_FOLDER=${3:-"./plexdrive"}
-    
+
     PLEXDRIVE_CONFIG_FOLDER="$PLEXDRIVE_FOLDER/config"
     PLEXDRIVE_CACHE_FOLDER="$PLEXDRIVE_FOLDER/cache"
-    
+
     ENV_FILE${4:-$ENV_FILE}
 
     ## copy gdrive mount tokens to plexdrive
@@ -248,10 +248,10 @@ function plexdrive_config_from_rclone(){
 function plexdrive_preload_cache{
     # authorize rclone gdrive mount
     PLEXDRIVE_FOLDER=${1:-"./plexdrive"}
-    
+
     PLEXDRIVE_CONFIG_FOLDER="$PLEXDRIVE_FOLDER/config"
     PLEXDRIVE_CACHE_FOLDER="$PLEXDRIVE_FOLDER/cache"
-    
+
     INSTALL_ENV_FILE${2:-$INSTALL_ENV_FILE}
 
     # Download plexdrive cache
@@ -332,7 +332,7 @@ fi
 
 ## prepare envrionment
 
-read -p 'Please select library management mode: 
+read -p 'Please select library management mode:
 1  | [Default] Slave mode. Scheduled sync library db from master copy stored on gdrive
 2  | Master mode. Maintain library locally using a 2nd and upload on schedule to gdrive
 3  | Solo mode. Maintain library locally using a 2nd plex instance
@@ -422,7 +422,7 @@ wget --no-check-certificate --content-disposition ${PDP_URL} -O "${DOCKER_ROOT}/
 # prepareVolumeMountPath "${DOCKER_ROOT}/plex-streamer/custom-services" sudo_remove_dir
 # prepareVolumeMountPath "${DOCKER_ROOT}/scripts/" sudo_remove_dir
 
-# extract tar 
+# extract tar
 tar xvzf "${DOCKER_ROOT}/plexdriveplus.tar.gz" --overwrite --strip=1 -C "${DOCKER_ROOT}"
 
 ### Rclone & Plexdrive setup
@@ -439,7 +439,7 @@ if [[ $management_mode = "2" ]] || [[ $management_mode = "3" ]]; then
     echo "**********************"
     SCANNER_GDRIVE_ENDPOINT=$(cat "$DOCKER_ROOT/config/.env" | grep RCLONE_CONFIG_SECURE_MEDIA_SCANNER_REMOTE)
     SCANNER_GDRIVE_ENDPOINT=${SCANNER_GDRIVE_ENDPOINT/RCLONE_CONFIG_SECURE_MEDIA_SCANNER_REMOTE=/}
-    
+
     reconnect_rclone_mount "$SCANNER_GDRIVE_ENDPOINT" "$DOCKER_ROOT/rclone/rclone.conf"
 
     # authorize rclone gdrive mount
@@ -519,7 +519,7 @@ prepareVolumeMountPath "${DOCKER_ROOT}/plex-scanner/transcode"
 
 # copy generic Plex Preferences.xml
 prepareVolumeMountPath "$DOCKER_ROOT/plex-streamer/Library/Application Support/Plex Media Server/"
-PLEX_PREF_MASTER="$DOCKER_ROOT/setup/plex_streamer_Preferences.xml" 
+PLEX_PREF_MASTER="$DOCKER_ROOT/setup/plex_streamer_Preferences.xml"
 [ -f "$PLEX_PREF_MASTER" ] || PLEX_PREF_MASTER="$DOCKER_ROOT/setup/Preferences.xml"
 if [[ -z "$USE_CLOUD_CONFIG" ]] && [ -f "$DOCKER_ROOT/plex-streamer/Library/Application Support/Plex Media Server/Preferences.xml" ]; then
     echo "Using existing Preferences.xml for Plex server config"
@@ -601,7 +601,7 @@ if [[ $management_mode = "2" ]] || [[ $management_mode = "3" ]]; then
     else
          echo "library download skipped"
     fi
-    
+
     # inialise plex-meta-manager config
     [ -f "${DOCKER_ROOT}/plex-meta-manager/config.yml" ] || cp  "${DOCKER_ROOT}/plex-meta-manager/template.config.yml"  "${DOCKER_ROOT}/plex-meta-manager/config.yml"
 
@@ -616,8 +616,8 @@ fi
 
 
 # if [[ "$MASTER_LIB_DOWNLOAD" = "yes" ]] || ! ([[ $management_mode = "2" ]] || [[ $management_mode = "3" ]]); then
-    
-#     sleep 10 # get plex container time to run claim script before stopping it 
+
+#     sleep 10 # get plex container time to run claim script before stopping it
 
 #     ### Plex container setup
 #     # Stop plex while library downloads
@@ -654,7 +654,7 @@ if [[ $management_mode = "2" ]] || [[ $management_mode = "3" ]]; then
     echo "RCLONE_CONFIG_CONFIG_BACKUP_TOKEN=${RCLONE_TOKEN}" >> "$ENV_FILE"
     echo "RCLONE_CONFIG_CONFIG_BACKUP_CLIENT_ID=${RCLONE_CLIENTID}" >> "$ENV_FILE"
     echo "RCLONE_CONFIG_CONFIG_BACKUP_CLIENT_SECRET=${RCLONE_SECRET}" >> "$ENV_FILE"
-  
+
     # Fix Library File Ownership library root folders not already belonging to user
     USERNAME=$(id -nu $USERID)
     if [ $(ls -l "$DOCKER_ROOT/plex-scanner/Library/Application Support/Plex Media Server/" | grep -v $USERNAME | wc -l) -ne 1 ]; then
@@ -667,7 +667,7 @@ if [[ $management_mode = "2" ]] || [[ $management_mode = "3" ]]; then
     mkdir -p "$DOCKER_ROOT/plex-scanner/Library/Application Support/Plex Media Server/"
     ([[ -z "$USE_CLOUD_CONFIG" ]] && [[ -f "$DOCKER_ROOT/plex-scanner/Library/Application Support/Plex Media Server/Preferences.xml" ]] && echo "Using existing Preferences.xml for Plex scanner server config") || \
         (cp "$DOCKER_ROOT/setup/plex_scanner_Preferences.xml" "$DOCKER_ROOT/plex-scanner/Library/Application Support/Plex Media Server/Preferences.xml"  && echo "Using Preferences.xml downloaded from cloud for Plex scanner server config")
-    
+
     #cp -r "$DOCKER_ROOT/plex-streamer/Library/Application Support/Plex Media Server/Plug-in Support" "$DOCKER_ROOT/plex-scanner/Library/Application Support/Plex Media Server/Plug-in Support"  
     DOCKER_COMPOSE_COMMAND="docker-compose --env-file \"$ENV_FILE\" --project-directory \"$DOCKER_ROOT/setup\" -f \"$DOCKER_COMPOSE_FILE\" -f \"$LOGGING_COMPOSE_FILE\"  $DOCKER_COMPOSE_FILE_LIB_MANGER  --project-name plexdriveplus up -d --remove-orphans --force-recreate"
     echo "starting docker containers with command: $DOCKER_COMPOSE_COMMAND"
@@ -704,17 +704,17 @@ echo "open heimdall in browser to view web portals for use in monitoring/adminis
 #         rclone/rclone \
 #         copy secure_backup:plex-scanner/backups /plex-scanner/backups --progress
 #     fi
-    
+
 #     PLEX_IMAGE_BACKUP_TAR="$DOCKER_ROOT/plex-scanner/backups/meta/library_files.tar.gz"
 #     [[ -f "$PLEX_IMAGE_BACKUP_TAR" ]] || echo "error: backup file not found - $PLEX_IMAGE_BACKUPS"
 #     tar -xzf "$PLEX_IMAGE_BACKUP_TAR" -C "$DOCKER_ROOT/plex-scanner" --checkpoint=.5000
-    
+
 #     # Fix Library File Ownership
 #     if [ "$ADMIN_USERID" -ne "$USERID" ]; then
 #         echo "setting library file ownership to $USERID:$GROUPID for $DOCKER_ROOT/plex-scanner/Library"
 #         $SUDO -R $USERID:$GROUPID "$DOCKER_ROOT/plex-scanner/Library"
 #     fi
-    
+
 #     # Restart plex streamer
 #     CONTAINER_PLEX_STREAMER=$(docker container ls --format {{.Names}} | grep plex_streamer)
 #     docker restart "$CONTAINER_PLEX_STREAMER"
