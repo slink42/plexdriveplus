@@ -163,6 +163,9 @@ services:
             - '${LARGE_DISK_ROOT}/tmp:/tmp:rw'
         ports:
             - "34400:32400"
+        logging:
+            options:
+                max-size: 20m
         image: slink42/plex
         healthcheck:
             test: ["CMD-SHELL", "bash /scripts/plexhealthcheck"]
@@ -188,6 +191,9 @@ services:
             - UMASK=022
         volumes:
             - '${DOCKER_ROOT}/plex-meta-manager:/config'
+        logging:
+            options:
+                max-size: 20m
         restart: always
         networks:
             - bridge

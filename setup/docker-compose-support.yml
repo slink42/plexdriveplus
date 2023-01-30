@@ -16,6 +16,9 @@ services:
         cap_add:                                    # Required for tailscale to work
           - net_admin
           - sys_module
+        logging:
+            options:
+                max-size: 20m
         # networks:
         #     - support
         network_mode: host
@@ -31,6 +34,9 @@ services:
             - support
         ports:
             - "9443:9443"
+        logging:
+            options:
+                max-size: 20m
         restart: always
 
 volumes:

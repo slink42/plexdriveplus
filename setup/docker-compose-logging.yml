@@ -10,6 +10,9 @@ services:
         image: docker.io/prom/prometheus
         ports:
             - "19090:9090"
+        logging:
+            options:
+                max-size: 20m
         networks:
             - bridge
             - internal
@@ -32,6 +35,9 @@ services:
             SCRAPE_BASICAUTH_PASSWORD: ${RCLONE_PASSWORD}
         networks:
             - internal
+        logging:
+            options:
+                max-size: 20m
         hostname: exporter
         restart: unless-stopped
     heimdall:
@@ -45,6 +51,9 @@ services:
         ports:
             - 8889:80
             - 4444:443
+        logging:
+            options:
+                max-size: 20m
         networks:
             - bridge
             - internal
@@ -71,6 +80,9 @@ services:
         # Uncomment this if IPv6 is not enabled on your host
         # DISABLE_IPV6: 'true'
 
+        logging:
+            options:
+                max-size: 20m
         volumes:
             - ${DOCKER_ROOT}/nginx-proxy-manager:/data
         networks:

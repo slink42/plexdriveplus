@@ -65,7 +65,7 @@ services:
             - MODE=RESTORE
             - MIN_DISK_SPACE=52428800
             - TAR_FILENAME_START=library_images
-        env_file: 
+        env_file:
             - "${DOCKER_ROOT}/config/rclone.env"
         volumes:
             - '${DOCKER_ROOT}/plex-streamer/Library/Application Support/Plex Media Server:/library_path_local:rw'

@@ -75,6 +75,9 @@ services:
             - AUTOHEAL_CONTAINER_LABEL=autoheal-library
             - AUTOHEAL_INTERVAL=1440
             - DOCKER_SOCK=/var/run/docker.sock
+        logging:
+            options:
+                max-size: 20m
         volumes:
             - /var/run/docker.sock:/var/run/docker.sock
         networks:
@@ -91,6 +94,9 @@ services:
         cap_add:                                    # Required for tailscale to work
           - net_admin
           - sys_module
+        logging:
+            options:
+                max-size: 20m
         # to authenticate to tailscale run:
         # docker exec plexdriveplus-tailscale-1 tailscale up 
         # or visit url in logs
@@ -104,6 +110,9 @@ services:
             - portainer_data:/data
         networks:
             - internal
+        logging:
+            options:
+                max-size: 20m
         network_mode: service:tailscale
 
 volumes:
