@@ -8,12 +8,11 @@ networks:
         external: true
         name: host
 services:
-    rclone:
-        container_name: rclone
+    rclone_pd:
         labels:
             - "autoheal=true"
         image: slink42/rclone
-        restart: unless-stopped
+        restart: always
         networks:
             - bridge
             - internal
@@ -22,10 +21,11 @@ services:
         env_file: 
             - "${DOCKER_ROOT}/config/rclone.env"
         volumes:
-            - '${DOCKER_ROOT}/rclone/config:/config'
-            - '${DOCKER_ROOT}/rclone/rclone_test/log:/log'
-            - '${DOCKER_ROOT}/rclone/rclone_test/cache:/cache'
-            - '${DOCKER_ROOT}/rclone/rclone_test/mnt:/mnt:shared'
+            - '${DOCKER_ROOT}/rclone/config:/config/rclone'
+            - '${DOCKER_ROOT}/plexdrive/log:/log'
+            - '${DOCKER_ROOT}/plexdrive/cache:/cache'
+            - '${DOCKER_ROOT}/plexdrive/config:/config/plexdrive'
+            - '${DOCKER_ROOT}/mnt:/mnt:shared'
         devices:
             - /dev/fuse
         cap_add:
@@ -42,7 +42,7 @@ services:
             - 'RCLONE_REMOTE_PATH=plexdrive_secure_media_4k_crypt:'
             - 'RCLONE_MOUNT_BASIC_OPTS= --uid=${PUID:-911} --gid=${PGID:-911} --cache-dir=/cache --use-mmap --allow-other --umask=002 --rc --rc-no-auth --rc-addr=:5574 '
             - 'RCLONE_MOUNT_USER_OPTS= -v --read-only --use-json-log --acd-templink-threshold 1g --buffer-size 8M --timeout 5s --contimeout 5s --stats 300s --dir-cache-time 30m --multi-thread-streams=20 --allow-non-empty --allow-other --rc-web-gui --rc-web-gui-no-open-browser --rc-user rclone --rc-pass rclone '
-            - 'MERGED_DEST=/mnt/data'
+            - 'MERGED_DEST=/mnt/rclone_pd'
             - 'PLEXDRIVE_REMOTE=secure_media'
             - 'PLEXDRIVE_MOUNT_BASIC_OPTS= --config /config/ --uid=${PUID:-911} --gid=${PGID:-911} --umask=0100775 '
             #  - 'PLEXDRIVE_MOUNT_USER_OPTS= -o allow_other,read_only,nonempty,auto_unmount --verbosity=3 --max-chunks=10 --chunk-size=20M --chunk-check-threads=20 --chunk-load-threads=4 --chunk-load-ahead=5 '
@@ -85,7 +85,7 @@ services:
             - 'LIB_META_BACKUP_PATH_MASTER=/backups/meta'
         volumes:
             - '${DOCKER_ROOT}/plex-streamer/transcode:/transcode:rw'
-            - '${DOCKER_ROOT}/mnt/data:/plex:slave'
+            - '${DOCKER_ROOT}/mnt/rclone_pd:/plex:slave'
             - '${DOCKER_ROOT}/plex-streamer/:/config:rw'
             - '${LARGE_DISK_ROOT}/plex_master_backup:/backups:rw'
             - '${LARGE_DISK_ROOT}/tmp:/tmp:rw'

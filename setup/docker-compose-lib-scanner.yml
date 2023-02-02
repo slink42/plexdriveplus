@@ -1,137 +1,39 @@
 version: '3.3'
 services:
-    rclone_media_scanner1:
-        restart: always
+    rclone_only:
         labels:
             - "autoheal=true"
-        environment:
-            - TZ=Australia/Melbourne
-            - PGID=${GROUPID}
-            - PUID=${USERID}
-            #- RCLONE_LOG_FILE=/config/rclone_media_scanner_mount_1.log
-            - RCLONE_LOG_LEVEL=INFO
-            - 'RCLONE_REMOTE_PATH=secure_media_scanner:'
-            - 'RCLONE_MOUNT_USER_OPTS=--read-only --use-json-log --acd-templink-threshold 1g --buffer-size 8M --timeout 5s --contimeout 5s --stats 300s --dir-cache-time 30m --multi-thread-streams=20 --allow-non-empty --allow-other --rc-web-gui --rc-web-gui-no-open-browser --rc-user ${RCLONE_USER} --rc-pass ${RCLONE_PASSWORD}'
-            - RCLONE_CONFIG_GDRIVE_MOLE_TEAM_DRIVE=${RCLONE_CONFIG_GDRIVE_TEAM_DRIVE_1}
-            - RCLONE_CONFIG_GDRIVE_WOLF_TEAM_DRIVE=${RCLONE_CONFIG_GDRIVE_TEAM_DRIVE_1}
-            - MERGED_DEST=/mnt/scanner_secure_media
-        env_file: 
-            - "${DOCKER_ROOT}/config/rclone.env"
-        volumes:
-            - '${DOCKER_ROOT}/rclone/:/config:rw'
-            - '${DOCKER_ROOT}/mnt/rclone:/mnt:rshared'
+        image: slink42/rclone
+        restart: always
         networks:
             - bridge
             - internal
         ports:
-            - "25571:5574"
-        logging:
-            options:
-                max-size: 20m
-        devices:
-            - /dev/fuse
-        cap_add:
-            - SYS_ADMIN
-        security_opt:
-            - apparmor:unconfined
-        image: slink42/rclone
-    rclone_media_scanner2:
-        restart: always
-        labels:
-            - "autoheal=true"
-        environment:
-            - TZ=Australia/Melbourne
-            - PGID=${GROUPID}
-            - PUID=${USERID}
-            #- RCLONE_LOG_FILE=/config/rclone_media_scanner_mount_2.log
-            - RCLONE_LOG_LEVEL=INFO
-            - 'RCLONE_REMOTE_PATH=secure_media_scanner:'
-            - 'RCLONE_MOUNT_USER_OPTS=--read-only --use-json-log --acd-templink-threshold 1g --buffer-size 8M --timeout 5s --contimeout 5s --stats 300s --dir-cache-time 30m --multi-thread-streams=20 --allow-non-empty --allow-other --rc-web-gui --rc-web-gui-no-open-browser --rc-user ${RCLONE_USER} --rc-pass ${RCLONE_PASSWORD}'
-            - RCLONE_CONFIG_GDRIVE_MOLE_TEAM_DRIVE=${RCLONE_CONFIG_GDRIVE_TEAM_DRIVE_2}
-            - RCLONE_CONFIG_GDRIVE_WOLF_TEAM_DRIVE=${RCLONE_CONFIG_GDRIVE_TEAM_DRIVE_2}
-            - MERGED_DEST=/mnt/scanner_secure_media2
+            - "25574:5574"
         env_file: 
             - "${DOCKER_ROOT}/config/rclone.env"
         volumes:
-            - '${DOCKER_ROOT}/rclone/:/config:rw'
-            - '${DOCKER_ROOT}/mnt/rclone:/mnt:rshared'
-        networks:
-            - bridge
-            - internal
-        ports:
-            - "25572:5574"
-        logging:
-            options:
-                max-size: 20m
+            - '${DOCKER_ROOT}/rclone/config:/config/rclone'
+            - '${DOCKER_ROOT}/mnt:/mnt:shared'
         devices:
             - /dev/fuse
         cap_add:
             - SYS_ADMIN
         security_opt:
             - apparmor:unconfined
-        image: slink42/rclone
-    rclone_media_scanner3:
-        restart: always
-        labels:
-            - "autoheal=true"
+        logging:
+            options:
+                max-size: 20m
         environment:
+            - PUID=${GROUPID}
+            - PGID=${USERID}
             - TZ=Australia/Melbourne
-            - PGID=${GROUPID}
-            - PUID=${USERID}
-            #- RCLONE_LOG_FILE=/config/rclone_media_scanner_mount_3.log
             - RCLONE_LOG_LEVEL=INFO
-            - 'RCLONE_REMOTE_PATH=secure_media_scanner:'
-            - 'RCLONE_MOUNT_USER_OPTS=--read-only --use-json-log --acd-templink-threshold 1g --buffer-size 8M --timeout 5s --contimeout 5s --stats 300s --dir-cache-time 30m --multi-thread-streams=20 --allow-non-empty --allow-other --rc-web-gui --rc-web-gui-no-open-browser --rc-user ${RCLONE_USER} --rc-pass ${RCLONE_PASSWORD}'
-            - RCLONE_CONFIG_GDRIVE_MOLE_TEAM_DRIVE=${RCLONE_CONFIG_GDRIVE_TEAM_DRIVE_3}
-            - RCLONE_CONFIG_GDRIVE_WOLF_TEAM_DRIVE=${RCLONE_CONFIG_GDRIVE_TEAM_DRIVE_3}
-            - MERGED_DEST=/mnt/scanner_secure_media3
-        env_file: 
-            - "${DOCKER_ROOT}/config/rclone.env"
-        volumes:
-            - '${DOCKER_ROOT}/rclone/:/config:rw'
-            - '${DOCKER_ROOT}/mnt/rclone:/mnt:rshared'
-        networks:
-            - bridge
-            - internal
-        ports:
-            - "25573:5574"
-        logging:
-            options:
-                max-size: 20m
-        devices:
-            - /dev/fuse
-        cap_add:
-            - SYS_ADMIN
-        security_opt:
-            - apparmor:unconfined
-        image: slink42/rclone
-    scanner_mergerfs:
-        restart: always
-        labels:
-            - "autoheal=true"
-        environment:
-            - TZ=Australia/Melbourne
-            - PUID=${USERID}
-            - PGID=${GROUPID}
-            - MFS_USER_OPTS=allow_other,nonempty,auto_cache,auto_unmount,direct_io,gid=${GROUPID},sync_read,uid=${USERID}
-            - MFS_BRANCHES=/mnt/rclone/secure_media=RO:/mnt/rclone/secure_media2=RO:/mnt/rclone/secure_media3=RO
-            - MERGED_DEST=/mnt/mergerfs/scanner/media
-            # - 'HEALTHCHECK_PATHS=/mnt/mergerfs/scanner/media/mountcheck /mnt/mergerfs/scanner/media/Media/movies /mnt/mergerfs/scanner/media/Media/movies-4k /mnt/mergerfs/scanner/media/Media/tv /mnt/mergerfs/scanner/media/Media/tv-4k'
-        volumes:
-            - '${DOCKER_ROOT}/mnt/mergerfs:/mnt/mergerfs:rshared'
-            - '${DOCKER_ROOT}/mnt/rclone:/mnt/rclone:rslave'
-        networks:
-            - internal
-        logging:
-            options:
-                max-size: 20m
-        devices:
-            - /dev/fuse
-        cap_add:
-            - SYS_ADMIN
-        security_opt:
-            - apparmor:unconfined
-        image: slink42/mergerfs
+            - 'RCLONE_REMOTE_PATH=secure_media_crypt:'
+            - 'RCLONE_MOUNT_BASIC_OPTS= --uid=${PUID:-911} --gid=${PGID:-911} --cache-dir=/cache --use-mmap --allow-other --umask=002 --rc --rc-no-auth --rc-addr=:5574 '
+            - 'RCLONE_MOUNT_USER_OPTS= -v --read-only --use-json-log --acd-templink-threshold 1g --buffer-size 8M --timeout 5s --contimeout 5s --stats 300s --dir-cache-time 30m --multi-thread-streams=20 --allow-non-empty --allow-other --rc-web-gui --rc-web-gui-no-open-browser --rc-user ${RCLONE_USER} --rc-pass ${RCLONE_PASSWORD} '
+            - 'MERGED_DEST=/mnt/rclone_only'
+            - 'PLEXDRIVE_CONFIG_FOLDER=/deliberately_wrong_path' # makes sure plexdrive doesn't run due to config files found in path
     plex_scanner:
         networks:
             - bridge
@@ -154,11 +56,8 @@ services:
             - 'LIB_META_BACKUP_CRON=35 00 * * *'
             - 'LIB_DB_BACKUP_CRON=35 00 * * *'
         volumes:
-            - '${DOCKER_ROOT}/mnt/mergerfs/scanner:/plex:rslave' # should contain subfolder: media
+            - '${DOCKER_ROOT}/mnt/rclone_only:/plex:rslave' # should contain subfolder: media
             - '${DOCKER_ROOT}/plex-scanner/:/config:rw'
-            # - '${DOCKER_ROOT}/plex-streamer/custom-scripts:/custom-cont-init.d:ro'
-            # - '${DOCKER_ROOT}/plex-streamer/custom-services:/custom-services.d:ro'
-            # - '${DOCKER_ROOT}/scripts/:/scripts:ro'
             - '${LARGE_DISK_ROOT}/plex_library_backup/meta:/backups/meta:rw'
             - '${LARGE_DISK_ROOT}/tmp:/tmp:rw'
         ports:
@@ -174,7 +73,7 @@ services:
             retries: 3
             start_period: 30s
         # depends_on:
-        #     scanner_mergerfs:
+        #     rclone_only:
         #         condition: service_healthy
     plex-meta-manager:
         image: lscr.io/linuxserver/plex-meta-manager:latest
