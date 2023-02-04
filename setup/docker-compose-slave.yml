@@ -1,3 +1,4 @@
+# Pass user and group id values by starting with command: USERID=${UID} GROUPID=${GID} docker-compose up
 version: '3.3'
 networks:
     internal:
@@ -10,17 +11,17 @@ networks:
 services:
 # Plex
     rclone_pd:
-        labels:
-            - "autoheal=true"
         image: slink42/rclone
         restart: always
+        labels:
+            - "autoheal=true"
         networks:
             - bridge
             - internal
         ports:
             - "15574:5574"
         env_file: 
-            - "./appdata/config/rclone.env"
+            - "./appdata/rclone/rclone.env"
         volumes:
             - './appdata/rclone/config:/config/rclone'
             - './appdata/plexdrive/log:/log'
@@ -36,6 +37,7 @@ services:
         logging:
             options:
                 max-size: 20m
+        user: "${USERID}:${GROUPID}"
         environment:
             - PUID=${GROUPID}
             - PGID=${USERID}
@@ -137,7 +139,7 @@ services:
             - PUID=${USERID}
             - PGID=${GROUPID}
         env_file: 
-            - "./appdata/config/rclone.env"
+            - "./appdata/rclone/lib_backup_rclone.env"
         volumes:
             - './appdata_bulk/plex_master_backup:/master_data/plex_library_backup:rw'
                 # mount path containing done file --filter-from /library_path_local/library_images_loaded.dat
@@ -166,14 +168,14 @@ services:
             - MIN_DISK_SPACE=52428800
             - TAR_FILENAME_START=library_images
         env_file:
-            - "./appdata/config/rclone.env"
+            - "./appdata/rclone/lib_backup_rclone.env"
         volumes:
             - './appdata/plex-streamer/Library/Application Support/Plex Media Server:/library_path_local:rw'
             - './appdata/incremental_library_images_restore:/config:rw'
         networks:
             - bridge
             - internal
-        # user: "${USERID}:${GROUPID}"
+        user: "${USERID}:${GROUPID}"
         logging:
             options:
                 max-size: 20m
