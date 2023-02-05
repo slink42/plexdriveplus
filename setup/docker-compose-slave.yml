@@ -86,12 +86,12 @@ services:
             - 'LIB_RELOAD_CRON=35 5 * * *'
             - 'LIB_META_BACKUP_PATH_MASTER=/backups/meta'
         volumes:
-            - './appdata/plex-streamer/transcode:/transcode:rw'
-            - './appdata/mnt/rclone_pd:/plex:slave'
-            - './appdata/plex-streamer/:/config:rw'
+            - 'plex_transcode:/transcode:rw'
+            - './appdata/mnt/rclone_pd:/plex/media:slave'
+            - 'plex_library:/config:rw'
             ### TODO create path as plex user ###
-            - './appdata_bulk/plex_master_backup:/backups:rw'
-            - './appdata_bulk/tmp:/tmp:rw'
+            - 'plex_master_backup:/backups:rw'
+            - 'plex_temp:/tmp:rw'
         tmpfs:
             - /ram_disk
         ports:
@@ -129,7 +129,6 @@ services:
         restart: always
 # Library management
     rclone_library_sync:
-        #command: 'sync SECURE_BACKUP: /config --progress --filter "+ /Library/**" --filter "- /config/.env" --filter "+ /config/**" --filter "- *"'
         command: 'sync SECURE_BACKUP: /master_data  --progress --filter "- /plex_library_backup/meta/**" --filter "+ /plex_library_backup/**" --filter "- *"'
         labels:
             - "autoheal-library=true"
@@ -140,11 +139,8 @@ services:
         env_file:
             - "./appdata/rclone/lib_backup_rclone.env"
         volumes:
-            - './appdata_bulk/plex_master_backup:/master_data/plex_library_backup:rw'
-            ### TODO create path as plex user ###
-            - '/appdata/rclone:/config/rclone:rw'
-                # mount path containing done file --filter-from /library_path_local/library_images_loaded.dat
-            - './appdata/plex-streamer/Library/Application Support/Plex Media Server:/library_path_local:rw'
+            - 'plex_master_backup:/master_data/plex_library_backup:rw'
+            - 'library_sync_config:/config/rclone:rw'
         networks:
             - bridge
             - internal
@@ -160,8 +156,8 @@ services:
             - TZ=Australia/Melbourne
             - PUID=${USERID}
             - PGID=${GROUPID}
-            - EXTRACTED_FILES_PATH=/library_path_local
-            - TMP_PATH=/library_path_local
+            - EXTRACTED_FILES_PATH=/library_path_local/Library/Application Support/Plex Media Server
+            - TMP_PATH=/tmp/library_sync_temp
             - CONFIG_PATH=/config
             - RCLONE_REMOTE=SECURE_BACKUP
             - RCLONE_PATH=plex_library_backup/meta
@@ -171,8 +167,9 @@ services:
         env_file:
             - "./appdata/rclone/lib_backup_rclone.env"
         volumes:
-            - './appdata/plex-streamer/Library/Application Support/Plex Media Server:/library_path_local:rw'
-            ### TODO create path as plex user ###
+            - 'plex_library:/library_path_local:rw'
+            - 'library_sync_temp:/tmp/library_sync_temp:rw'
+            ### TODO swap to library_sync_config volume  ###
             - './appdata/incremental_library_images_restore:/config:rw'
         networks:
             - bridge
@@ -196,3 +193,8 @@ services:
 
 volumes:
     plex_library:
+    plex_transcode:
+    plex_temp:
+    plex_master_backup:
+    library_sync_temp:
+    library_sync_config:
