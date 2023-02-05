@@ -1,0 +1,300 @@
+# Pass user and group id values by starting with command:
+# USERID=$(id -u) GROUPID=$(id -g) docker-compose up -d
+version: '3.3'
+networks:
+    internal:
+        internal: true
+    bridge:
+        driver: bridge
+    hostnet:
+        external: true
+        name: host
+services:
+############################# Plex Streamer #############################
+    rclone_pd:
+        labels:
+            - "autoheal=true"
+        image: slink42/rclone
+        restart: always
+        networks:
+            - bridge
+            - internal
+        ports:
+            - "15574:5574"
+        env_file:
+            - "./appdata/rclone/rclone.env"
+        volumes:
+            - './appdata/rclone:/config'
+            - './appdata/rclone/log:/log'
+            - './appdata/mnt:/mnt:shared'
+        devices:
+            - /dev/fuse
+        cap_add:
+            - SYS_ADMIN
+        security_opt:
+            - apparmor:unconfined
+        logging:
+            options:
+                max-size: 20m
+        environment:
+            - PUID=${GROUPID}
+            - PGID=${USERID}
+            - TZ=Australia/Melbourne
+            - 'RCLONE_REMOTE_PATH=secure_media_crypt_pd:'
+            - 'RCLONE_MOUNT_BASIC_OPTS= --uid=${USERID} --gid=${GROUPID} --cache-dir=/cache --use-mmap --allow-other --umask=002 --rc --rc-no-auth --rc-addr=:5574 '
+            - 'RCLONE_MOUNT_USER_OPTS= --read-only --use-json-log --acd-templink-threshold 1g --buffer-size 8M --timeout 5s --contimeout 5s --stats 300s --dir-cache-time 30m --multi-thread-streams=20 --allow-non-empty --allow-other --rc-web-gui --rc-web-gui-no-open-browser --rc-user rclone --rc-pass rclone '
+            - 'MERGED_DEST=/mnt/rclone_pd'
+            - 'PLEXDRIVE_REMOTE=secure_media'
+            - 'PLEXDRIVE_MOUNT_BASIC_OPTS= --config /config/plexdrive/ --uid=${USERID} --gid=${GROUPID} --umask=0100775 '
+            #  - 'PLEXDRIVE_MOUNT_USER_OPTS= -o allow_other,read_only,nonempty,auto_unmount --verbosity=3 --max-chunks=10 --chunk-size=20M --chunk-check-threads=20 --chunk-load-threads=4 --chunk-load-ahead=5 '
+            #  - 'PLEXDRIVE_MOUNT_USER_OPTS= -o read_only -v 2 --max-chunks=20 --chunk-size=32M --chunk-check-threads=2 --chunk-load-threads=3 --chunk-load-ahead=5'
+            - 'PLEXDRIVE_MOUNT_USER_OPTS= -o allow_other,read_only -v 1 --max-chunks=200 --chunk-size=5M --chunk-check-threads=3 --chunk-load-threads=10 --chunk-load-ahead=50'
+    plex_streamer:
+        network_mode: host
+        # networks:
+        #     - bridge
+        #     - internal
+        restart: always
+        labels:
+            - "autoheal=true"
+        environment:
+            - TZ=Australia/Melbourne
+            - HOST_OS=Unraid
+            - PLEX_CLAIM=${PLEX_CLAIM}
+            - PLEX_UID=${USERID}
+            - PLEX_GID=${GROUPID}
+            - PUID=${USERID}
+            - PGID=${GROUPID}
+            - VERSION=latest
+            - 'NVIDIA_VISIBLE_DEVICES='
+            - TCP_PORT_32400=32400
+            - TCP_PORT_3005=3005
+            - TCP_PORT_8324=8324
+            - TCP_PORT_32469=32469
+            - UDP_PORT_1900=1900
+            - UDP_PORT_32410=32410
+            - UDP_PORT_32412=32412
+            - UDP_PORT_32413=32413
+            - UDP_PORT_32414=32414
+            # YES/NO - no will make a copy of master library to disk location instead of to ram
+            - LOAD_LIBRARY_DB_TO_MEMORY=YES
+            - 'SCANNER_LIBRARY_PATH=/mnt/plex-scanner/Library/Application Support/Plex Media Server'
+            - 'HEALTHCHECK_MOUNTS=/plex/media'
+            - 'HEALTHCHECK_PATHS=/plex/media/mountcheck'
+            - 'LIB_BACKUP_PATH_MASTER=/backups/databases'
+            - 'LIB_BACKUP_PATH_LOCAL=/config/Library/Application Support/Plex Media Server/Plug-in Support/Databases'
+            - 'LIB_RELOAD_CRON=35 5 * * *'
+            - 'LIB_META_BACKUP_PATH_MASTER=/backups/meta'
+        volumes:
+            - 'plex_transcode:/transcode:rw'
+            - './appdata/mnt/rclone_pd:/plex/media:slave'
+            - 'plex_library:/config:rw'
+            ### TODO create path as plex user ###
+            - 'plex_master_backup:/backups:rw'
+            - 'plex_temp:/tmp:rw'
+        tmpfs:
+            - /ram_disk
+        ports:
+            - "32400:32400"
+        logging:
+            options:
+                max-size: 20m
+        image: slink42/plex
+        depends_on:
+            rclone_pd:
+                condition: service_healthy
+# Container management
+    autoheal:
+        image: willfarrell/autoheal
+        environment:
+            - AUTOHEAL_CONTAINER_LABEL=autoheal
+            - AUTOHEAL_INTERVAL=5
+            - DOCKER_SOCK=/var/run/docker.sock
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock
+        networks:
+            - internal
+        logging:
+            options:
+                max-size: 20m
+        restart: always
+    watchtower:
+        image: containrrr/watchtower
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock
+        command: --interval 30 --include-stopped
+        logging:
+            options:
+                max-size: 20m
+        restart: always
+# Library management
+    rclone_library_sync_from_cloud:
+        command: 'sync SECURE_BACKUP: /master_data  --progress --filter "- /plex_library_backup/meta/**" --filter "+ /plex_library_backup/**" --filter "- *"'
+        labels:
+            - "autoheal-library=true"
+        environment:
+            - TZ=Australia/Melbourne
+            - PUID=${USERID}
+            - PGID=${GROUPID}
+        env_file:
+            - "./appdata/rclone/lib_backup_rclone.env"
+        volumes:
+            - 'plex_master_backup:/master_data/plex_library_backup:rw'
+            - 'library_sync_config:/config/rclone:rw'
+        networks:
+            - bridge
+            - internal
+        user: "${USERID}:${GROUPID}"
+        logging:
+            options:
+                max-size: 20m
+        image: rclone/rclone
+    incremental_library_images_restore:
+        labels:
+            - "autoheal-library=true"
+        environment:
+            - TZ=Australia/Melbourne
+            - PUID=${USERID}
+            - PGID=${GROUPID}
+            - EXTRACTED_FILES_PATH=/library_path_local/Library/Application Support/Plex Media Server
+            - TMP_PATH=/tmp/library_sync_temp
+            - CONFIG_PATH=/config
+            - RCLONE_REMOTE=SECURE_BACKUP
+            - RCLONE_PATH=plex_library_backup/meta
+            - MODE=RESTORE
+            - MIN_DISK_SPACE=52428800
+            - TAR_FILENAME_START=library_images
+        env_file:
+            - "./appdata/rclone/lib_backup_rclone.env"
+        volumes:
+            - 'plex_library:/library_path_local:rw'
+            - 'library_sync_temp:/tmp/library_sync_temp:rw'
+            ### TODO swap to library_sync_config volume  ###
+            - './appdata/incremental_library_images_restore:/config:rw'
+        networks:
+            - bridge
+            - internal
+        logging:
+            options:
+                max-size: 20m
+        image: slink42/incremental-folder-sync:latest
+    autoheal-library:
+        # container_name: pdp-autoheal-library-download
+        restart: always
+        image: willfarrell/autoheal
+        environment:
+            - AUTOHEAL_CONTAINER_LABEL=autoheal-library
+            - AUTOHEAL_INTERVAL=1440
+            - DOCKER_SOCK=/var/run/docker.sock
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock
+        networks:
+            - internal
+############################# Plex Master #############################
+    rclone_only:
+        labels:
+            - "autoheal=true"
+        image: slink42/rclone
+        restart: always
+        networks:
+            - bridge
+            - internal
+        ports:
+            - "25574:5574"
+        env_file:
+            - "./appdata/rclone/rclone.env"
+        volumes:
+            - './appdata/rclone:/config'
+            - './appdata/rclone/log:/log'
+            - './appdata/mnt:/mnt:shared'
+        devices:
+            - /dev/fuse
+        cap_add:
+            - SYS_ADMIN
+        security_opt:
+            - apparmor:unconfined
+        logging:
+            options:
+                max-size: 20m
+        environment:
+            - PUID=${GROUPID}
+            - PGID=${USERID}
+            - TZ=Australia/Melbourne
+            - RCLONE_LOG_LEVEL=INFO
+            - 'RCLONE_REMOTE_PATH=secure_media_crypt:'
+            - 'RCLONE_MOUNT_BASIC_OPTS= --uid=${PUID:-911} --gid=${PGID:-911} --cache-dir=/cache --use-mmap --allow-other --umask=002 --rc --rc-no-auth --rc-addr=:5574 '
+            - 'RCLONE_MOUNT_USER_OPTS= -v --read-only --use-json-log --acd-templink-threshold 1g --buffer-size 8M --timeout 5s --contimeout 5s --stats 300s --dir-cache-time 30m --multi-thread-streams=20 --allow-non-empty --allow-other --rc-web-gui --rc-web-gui-no-open-browser --rc-user ${RCLONE_USER} --rc-pass ${RCLONE_PASSWORD} '
+            - 'MERGED_DEST=/mnt/rclone_only'
+            - 'PLEXDRIVE_CONFIG_FOLDER=/deliberately_wrong_path' # makes sure plexdrive doesn't run due to config files found in path
+    plex_scanner:
+        networks:
+            - bridge
+            - internal
+        restart: always
+        labels:
+            - "autoheal=true"
+        environment:
+            - TZ=Australia/Melbourne
+            - PLEX_CLAIM=${PLEX_CLAIM}
+            - PLEX_UID=${USERID}   
+            - PLEX_GID=${GROUPID}
+            - VERSION=latest
+            - 'NVIDIA_VISIBLE_DEVICES='
+            - PUID=${USERID}   
+            - PGID=${GROUPID}
+            - 'HEALTHCHECK_MOUNTS=/plex/media'
+            - 'HEALTHCHECK_PATHS=/plex/media/mountcheck'
+            - 'LIB_META_BACKUP_PATH_MASTER=/backups/meta'
+            - 'LIB_META_BACKUP_CRON=35 00 * * *'
+            - 'LIB_DB_BACKUP_CRON=35 00 * * *'
+        volumes:
+            - './appdata/mnt/rclone_only:/plex:rslave' # should contain subfolder: media
+            - './appdata/plex-scanner/:/config:rw'
+            - 'plex_scanner_temp:/tmp:rw'
+        ports:
+            - "34400:32400"
+        logging:
+            options:
+                max-size: 20m
+        image: slink42/plex
+        healthcheck:
+            test: ["CMD-SHELL", "bash /scripts/plexhealthcheck"]
+            interval: 300s
+            timeout: 60s
+            retries: 3
+            start_period: 30s
+        depends_on:
+            rclone_only:
+                condition: service_healthy
+    plex-meta-manager:
+        image: lscr.io/linuxserver/plex-meta-manager:latest
+        environment:
+            - TZ=Australia/Melbourne
+            - PLEX_UID=${USERID}   
+            - PLEX_GID=${GROUPID}
+            - PMM_CONFIG=/config/config.yml #optional
+            - PMM_TIME=03:00 #optional
+            - PMM_RUN=True #optional
+            - PMM_TEST=False #optional
+            - PMM_NO_MISSING=False #optional
+            - PMM_DELETE_COLLECTIONS=False #optional
+            - UMASK=022
+        volumes:
+            - './appdata/plex-meta-manager:/config'
+        logging:
+            options:
+                max-size: 20m
+        restart: always
+        networks:
+            - bridge
+            - internal
+
+volumes:
+    plex_library:
+    plex_transcode:
+    plex_temp:
+    plex_scanner_temp:
+    plex_master_backup:
+    library_sync_temp:
+    library_sync_config:
+    portainer_data:
