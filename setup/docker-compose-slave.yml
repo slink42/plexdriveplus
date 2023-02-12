@@ -193,8 +193,32 @@ services:
 
 volumes:
     plex_library:
+        driver_opts:
+           type: none
+           device: ${PWD}/plex_library
+           o: bind
     plex_transcode:
+        driver_opts:
+           type: none
+           device: ${PWD}/plex_transcode
+           o: bind
     plex_temp:
+        driver_opts:
+           type: none
+           device: ${PWD}/plex_temp
+           o: bind
     plex_master_backup:
+        driver_opts:
+           type: none
+           device: ${PWD}/plex_master_backup
+           o: bind
     library_sync_temp:
+        driver_opts:
+           type: none
+           device: ${PWD}/library_sync_temp
+           o: bind
     library_sync_config:
+        driver_opts:
+           type: none
+           device: ${PWD}/library_sync_config
+           o: bind

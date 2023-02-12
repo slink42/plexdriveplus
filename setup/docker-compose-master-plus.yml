@@ -76,7 +76,7 @@ services:
             - UDP_PORT_32414=32414
             # YES/NO - no will make a copy of master library to disk location instead of to ram
             - LOAD_LIBRARY_DB_TO_MEMORY=YES
-            - 'SCANNER_LIBRARY_PATH=/mnt/plex-scanner/Library/Application Support/Plex Media Server' 
+            - 'SCANNER_LIBRARY_PATH=/mnt/plex-scanner/Library/Application Support/Plex Media Server'
             - 'HEALTHCHECK_MOUNTS=/plex/media'
             - 'HEALTHCHECK_PATHS=/plex/media/mountcheck'
             - 'LIB_BACKUP_PATH_MASTER=/backups/databases'
@@ -287,6 +287,102 @@ services:
         networks:
             - bridge
             - internal
+############################# Master Sync to Cloud #############################
+    rclone_library_sync_to_cloud:
+        # container_name: pdp-rclone-library-download
+        # # command: 'lsd SECURE_BACKUP:'
+        # # library download from master
+        # command: 'copy SECURE_BACKUP: /master_data --progress'
+        # library upload from master
+        command: 'sync /master_data secure_backup_rw: --progress  --filter "- *.db" --filter "- *.db-wal" --filter "- *.db-shm"'
+        labels:
+            - "autoheal-library=true"
+        environment:
+            - TZ=Australia/Melbourne
+            - PUID=${USERID}
+            - PGID=${GROUPID}
+            #- 'RCLONE_CONFIG_SECURE_BACKUP_REMOTE=config_backup_rw:plexdriveplus'
+        env_file:
+            - "./appdata/rclone/lib_backup_rw_rclone.env"
+        volumes:
+            - 'library_sync_config:/config/rclone:rw'
+            #Legacy library backup path
+            #- './appdata/plex-scanner/Library/Application Support/Plex Media Server/Plug-in Support/:/master_data/Library/Application Support/Plex Media Server/Plug-in Support/:rw'
+            #- './appdata/config/:/master_data/config:rw'
+            #- './appdata/plexdrive/cache/:/master_data/plexdrive/cache:rw'
+            #- './appdata/plex-scanner/backups/:/master_data/plex-scanner/backups:rw'
+            # Library backup paths
+            - 'plex_master_backup_master:/master_data/plex_library_backup:rw'
+            - './appdata/plex-scanner/Library/Application Support/Plex Media Server/Plug-in Support/Databases:/master_data/plex_library_backup/databases:rw'
+        networks:
+            - bridge
+            - internal
+        logging:
+            options:
+                max-size: 20m
+        image: rclone/rclone
+    incremental_library_images_backup:
+        labels:
+            - "autoheal-library=true"
+        environment:
+            - TZ=Australia/Melbourne
+            - PUID=${USERID}
+            - PGID=${GROUPID}
+            - SOURCE_FILES_PATH=/library_path_local
+            - TMP_PATH=/master_data/plex_library_backup/meta
+            - CONFIG_PATH=/config
+            - RCLONE_REMOTE=secure_backup_rw
+            - RCLONE_PATH=plex_library_backup/meta
+            - MODE=BACKUP
+            - MAX_TAR_FILE_SPACE=5000000000
+            - TAR_FILENAME_START=library_images
+        env_file:
+            - "./appdata/rclone/lib_backup_rw_rclone.env"
+        volumes:
+            - './appdata/plex-scanner/Library/Application Support/Plex Media Server:/library_path_local:rw'
+            - 'incremental_library_images_backup_config:/config:rw'
+            - 'plex_master_backup_master:/master_data/plex_library_backup:rw'
+        networks:
+            - bridge
+            - internal
+        user: "${USERID}:${GROUPID}"
+        logging:
+            options:
+                max-size: 20m
+        image: slink42/incremental-folder-sync:latest
+        command: 'sleep 360000 && echo "container timeout"'
+    # tailscale:
+    #     hostname: plex-master-server                         # This will become the tailscale device name
+    #     image: tailscale/tailscale:stable
+    #     network_mode: host
+    #     env_file: 
+    #         - "./appdata/tailscale/tailscale-master.env"
+    #     volumes:
+    #         - "/var/lib:/var/lib"        # State data will be stored in this directory
+    #         - "/dev/net/tun:/dev/net/tun"           # Required for tailscale to work
+    #     cap_add:                                    # Required for tailscale to work
+    #       - net_admin
+    #       - sys_module
+    #     logging:
+    #         options:
+    #             max-size: 20m
+    #     # to authenticate to tailscale run:
+    #     # docker exec plexdriveplus-tailscale-1 tailscale up 
+    #     # or visit url in logs
+    #     restart: always
+    # portainer_portal:
+    #     restart: always
+    #     image: portainer/portainer-ce
+    #     volumes:
+    #         - /var/run/docker.sock:/var/run/docker.sock
+    #         - /var/lib/docker/volumes:/var/lib/docker/volumes
+    #         - portainer_data:/data
+    #     networks:
+    #         - internal
+    #     logging:
+    #         options:
+    #             max-size: 20m
+    #     network_mode: service:tailscale
 
 volumes:
     plex_library:
@@ -323,4 +419,24 @@ volumes:
         driver_opts:
            type: none
            device: ${PWD}/library_sync_config
+           o: bind
+    portainer_data:
+        driver_opts:
+           type: none
+           device: ${PWD}/support/portainer_data
+           o: bind
+    tailscale:
+        driver_opts:
+           type: none
+           device: ${PWD}/support/tailscale
+           o: bind
+    plex_master_backup_master:
+        driver_opts:
+           type: none
+           device: ${PWD}/plex_master_backup_master
+           o: bind
+    incremental_library_images_backup_config:
+        driver_opts:
+           type: none
+           device: ${PWD}/incremental_library_images_backup_config
            o: bind
