@@ -12,7 +12,7 @@ services:
     rclone_pd:
         labels:
             - "autoheal=true"
-        image: slink42/rclone
+        image: slink42/rclone:1.61.1
         restart: always
         networks:
             - bridge
@@ -150,6 +150,7 @@ services:
     incremental_library_images_restore:
         labels:
             - "autoheal-library=true"
+        restart: always
         environment:
             - TZ=Australia/Melbourne
             - PUID=${USERID}
@@ -176,7 +177,7 @@ services:
             options:
                 max-size: 20m
         image: slink42/incremental-folder-sync:latest
-        command: 'echo refresh_done'
+        command: 'echo $(date) refresh_done && sleep 86400'
     autoheal-library:
         # container_name: pdp-autoheal-library-download
         restart: always
@@ -193,7 +194,7 @@ services:
     rclone_only:
         labels:
             - "autoheal=true"
-        image: slink42/rclone
+        image: slink42/rclone:1.61.1
         restart: always
         networks:
             - bridge
@@ -249,6 +250,7 @@ services:
         volumes:
             - './appdata/mnt/rclone_only:/plex/media:slave' # should contain subfolder: Media
             - './appdata/plex-scanner/:/config:rw'
+            - 'plex_master_backup_master:/master_data/plex_library_backup:rw'
             - 'plex_scanner_temp:/tmp:rw'
         ports:
             - "38400:32400"
@@ -256,12 +258,6 @@ services:
             options:
                 max-size: 20m
         image: slink42/plex
-        healthcheck:
-            test: ["CMD-SHELL", "bash /scripts/plexhealthcheck"]
-            interval: 300s
-            timeout: 60s
-            retries: 3
-            start_period: 30s
         depends_on:
             rclone_only:
                 condition: service_healthy
@@ -297,6 +293,7 @@ services:
         command: 'sync /master_data secure_backup_rw: --progress  --filter "- *.db" --filter "- *.db-wal" --filter "- *.db-shm"'
         labels:
             - "autoheal-library=true"
+        restart: always
         environment:
             - TZ=Australia/Melbourne
             - PUID=${USERID}
@@ -313,7 +310,7 @@ services:
             #- './appdata/plex-scanner/backups/:/master_data/plex-scanner/backups:rw'
             # Library backup paths
             - 'plex_master_backup_master:/master_data/plex_library_backup:rw'
-            - './appdata/plex-scanner/Library/Application Support/Plex Media Server/Plug-in Support/Databases:/master_data/plex_library_backup/databases:rw'
+            #- './appdata/plex-scanner/Library/Application Support/Plex Media Server/Plug-in Support/Databases:/master_data/plex_library_backup/databases:rw'
         networks:
             - bridge
             - internal
@@ -324,6 +321,7 @@ services:
     incremental_library_images_backup:
         labels:
             - "autoheal-library=true"
+        restart: always
         environment:
             - TZ=Australia/Melbourne
             - PUID=${USERID}
@@ -336,6 +334,7 @@ services:
             - MODE=BACKUP
             - MAX_TAR_FILE_SPACE=5000000000
             - TAR_FILENAME_START=library_images
+            - 'SOURCE_SUBFOLDERS=Media Metadata'
         env_file:
             - "./appdata/rclone/lib_backup_rw_rclone.env"
         volumes:
@@ -350,7 +349,7 @@ services:
             options:
                 max-size: 20m
         image: slink42/incremental-folder-sync:latest
-        command: 'sleep 360000 && echo "container timeout"'
+        command: 'echo $(date) incremental library images backup complete && sleep 86400'
     # tailscale:
     #     hostname: plex-master-server                         # This will become the tailscale device name
     #     image: tailscale/tailscale:stable
